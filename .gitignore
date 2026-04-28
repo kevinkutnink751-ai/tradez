@@ -13,5 +13,5 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-./install
-./otradeoctV5_0_3.sql
+/install/*
+.otradeoctV5_0_3.sql
