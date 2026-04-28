@@ -16,4 +16,4 @@ yarn-error.log
 /install/*
 .otradeoctV5_0_3.sql
 /storage/framework/views/*
-./Dockerfile
+/Dockerfile
