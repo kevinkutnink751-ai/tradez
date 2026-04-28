@@ -22,7 +22,6 @@
         "jenssegers/agent": "^2.6",
         "kingflamez/laravelrave": "^4.2",
         "laravel-notification-channels/telegram": "^4.0",
-        "maatwebsite/excel": "^3.1",
         "stripe/stripe-php": "^10.0",
         "unicodeveloper/laravel-paystack": "^1.0",
         "league/flysystem-aws-s3-v3": "^3.0",
@@ -49,6 +48,10 @@
         }
     },
     "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
