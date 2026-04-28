@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c96a7d7cef5cd0c89b4147077b234ffb",
+    "content-hash": "06b6ad5e24a989f39b44f8d19779d416",
     "packages": [
         {
             "name": "anhskohbo/no-captcha",
@@ -275,112 +275,6 @@
                 "source": "https://github.com/Bacon/BaconQrCode/tree/v3.1.1"
             },
             "time": "2026-04-05T21:06:35+00:00"
-        },
-        {
-            "name": "bitpay/key-utils",
-            "version": "1.1.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/bitpay/bitpay-php-keyutils.git",
-                "reference": "61cc4a58f25e79b7f61ff4631152139f6b084cb1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/bitpay/bitpay-php-keyutils/zipball/61cc4a58f25e79b7f61ff4631152139f6b084cb1",
-                "reference": "61cc4a58f25e79b7f61ff4631152139f6b084cb1",
-                "shasum": ""
-            },
-            "require": {
-                "ext-bcmath": "*",
-                "ext-curl": "*",
-                "ext-iconv": "*",
-                "ext-json": "*",
-                "ext-openssl": "*"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^7.5 || ^9.0"
-            },
-            "suggest": {
-                "ext-gmp": "Required to use this package with GMP instead of BCMath"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Antonio Buedo",
-                    "email": "sales-engineering@bitpay.com"
-                }
-            ],
-            "description": "BitPay Utils pack for cryptography",
-            "support": {
-                "issues": "https://github.com/bitpay/bitpay-php-keyutils/issues",
-                "source": "https://github.com/bitpay/bitpay-php-keyutils/tree/1.1.4"
-            },
-            "time": "2024-02-06T02:15:49+00:00"
-        },
-        {
-            "name": "bitpay/sdk",
-            "version": "v5.2.2106",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/bitpay/php-bitpay-client-v2.git",
-                "reference": "2c538b1a7bf4866ec887109256e005e03949bf3a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/bitpay/php-bitpay-client-v2/zipball/2c538b1a7bf4866ec887109256e005e03949bf3a",
-                "reference": "2c538b1a7bf4866ec887109256e005e03949bf3a",
-                "shasum": ""
-            },
-            "require": {
-                "bitpay/key-utils": "^1.0",
-                "ext-json": "*",
-                "ext-reflection": "*",
-                "guzzlehttp/guzzle": "^6.3 || ^7.0",
-                "php": "^7.1 || ^8.0",
-                "symfony/yaml": "^3.0 || ^4.3 || ^5.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^7.5 || ^9.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "BitPaySDK\\": "src/BitPaySDK"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Antonio Buedo",
-                    "email": "solutions-engineering@bitpay.com"
-                }
-            ],
-            "description": "Complete version of the PHP library for the new cryptographically secure BitPay API",
-            "homepage": "https://github.com/bitpay/php-bitpay-client-v2",
-            "keywords": [
-                "bitcoin",
-                "bitpay",
-                "cash",
-                "gateway",
-                "payment"
-            ],
-            "support": {
-                "issues": "https://github.com/bitpay/php-bitpay-client-v2/issues",
-                "source": "https://github.com/bitpay/php-bitpay-client-v2/tree/v5.2.2106"
-            },
-            "time": "2021-06-28T10:54:03+00:00"
         },
         {
             "name": "botman/botman",
@@ -8521,81 +8415,6 @@
             "time": "2026-03-30T15:36:00+00:00"
         },
         {
-            "name": "symfony/yaml",
-            "version": "v5.4.45",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/yaml.git",
-                "reference": "a454d47278cc16a5db371fe73ae66a78a633371e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/a454d47278cc16a5db371fe73ae66a78a633371e",
-                "reference": "a454d47278cc16a5db371fe73ae66a78a633371e",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2.5",
-                "symfony/deprecation-contracts": "^2.1|^3",
-                "symfony/polyfill-ctype": "^1.8"
-            },
-            "conflict": {
-                "symfony/console": "<5.3"
-            },
-            "require-dev": {
-                "symfony/console": "^5.3|^6.0"
-            },
-            "suggest": {
-                "symfony/console": "For validating YAML files using the lint command"
-            },
-            "bin": [
-                "Resources/bin/yaml-lint"
-            ],
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Yaml\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Loads and dumps YAML files",
-            "homepage": "https://symfony.com",
-            "support": {
-                "source": "https://github.com/symfony/yaml/tree/v5.4.45"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-09-25T14:11:13+00:00"
-        },
-        {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.4.0",
             "source": {
@@ -8885,84 +8704,6 @@
                 }
             ],
             "time": "2026-04-26T05:33:54+00:00"
-        },
-        {
-            "name": "vrajroham/laravel-bitpay",
-            "version": "v4.1.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/vrajroham/laravel-bitpay.git",
-                "reference": "b156762a7fa709d261ff1c343b8d07de7465c5fd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/vrajroham/laravel-bitpay/zipball/b156762a7fa709d261ff1c343b8d07de7465c5fd",
-                "reference": "b156762a7fa709d261ff1c343b8d07de7465c5fd",
-                "shasum": ""
-            },
-            "require": {
-                "bitpay/sdk": "~v5.2",
-                "php": ">=7.3 || ^8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": ">=9.5"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "LaravelBitpay": "Vrajroham\\LaravelBitpay\\LaravelBitpayFacade"
-                    },
-                    "providers": [
-                        "Vrajroham\\LaravelBitpay\\LaravelBitpayServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Vrajroham\\LaravelBitpay\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Vaibhavraj Roham",
-                    "email": "vaibhavraj@vrajroham.me",
-                    "homepage": "https://vrajroham.me",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Alex Stewart",
-                    "email": "iamalexstewart@gmail.com",
-                    "homepage": "https://github.com/alexstewartja",
-                    "role": "Developer"
-                }
-            ],
-            "description": "BitPay wrapper for laravel",
-            "homepage": "https://github.com/vrajroham/laravel-bitpay",
-            "keywords": [
-                "bitpay",
-                "btc",
-                "laravel"
-            ],
-            "support": {
-                "issues": "https://github.com/vrajroham/laravel-bitpay/issues",
-                "source": "https://github.com/vrajroham/laravel-bitpay/tree/v4.1.2"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/vrajroham",
-                    "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/vrajroham",
-                    "type": "patreon"
-                }
-            ],
-            "time": "2021-11-13T15:34:42+00:00"
         }
     ],
     "packages-dev": [
@@ -9153,23 +8894,29 @@
         },
         {
             "name": "laravel/sail",
-            "version": "v1.19.0",
+            "version": "v1.57.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/sail.git",
-                "reference": "4f230634a3163f3442def6a4e6ffdb02b02e14d6"
+                "reference": "fa8d057b6e9310380ccbc3a209ed7f927d54f648"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/sail/zipball/4f230634a3163f3442def6a4e6ffdb02b02e14d6",
-                "reference": "4f230634a3163f3442def6a4e6ffdb02b02e14d6",
+                "url": "https://api.github.com/repos/laravel/sail/zipball/fa8d057b6e9310380ccbc3a209ed7f927d54f648",
+                "reference": "fa8d057b6e9310380ccbc3a209ed7f927d54f648",
                 "shasum": ""
             },
             "require": {
-                "illuminate/console": "^8.0|^9.0|^10.0",
-                "illuminate/contracts": "^8.0|^9.0|^10.0",
-                "illuminate/support": "^8.0|^9.0|^10.0",
-                "php": "^7.3|^8.0"
+                "illuminate/console": "^9.52.16|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^9.52.16|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/support": "^9.52.16|^10.0|^11.0|^12.0|^13.0",
+                "php": "^8.0",
+                "symfony/console": "^6.0|^7.0|^8.0",
+                "symfony/yaml": "^6.0|^7.0|^8.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0|^11.0",
+                "phpstan/phpstan": "^2.0"
             },
             "bin": [
                 "bin/sail"
@@ -9180,9 +8927,6 @@
                     "providers": [
                         "Laravel\\Sail\\SailServiceProvider"
                     ]
-                },
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
                 }
             },
             "autoload": {
@@ -9209,7 +8953,7 @@
                 "issues": "https://github.com/laravel/sail/issues",
                 "source": "https://github.com/laravel/sail"
             },
-            "time": "2023-01-31T13:37:57+00:00"
+            "time": "2026-04-14T13:32:04+00:00"
         },
         {
             "name": "mockery/mockery",
@@ -11334,6 +11078,82 @@
                 }
             ],
             "time": "2025-02-20T13:13:55+00:00"
+        },
+        {
+            "name": "symfony/yaml",
+            "version": "v7.4.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/yaml.git",
+                "reference": "c58fdf7b3d6c2995368264c49e4e8b05bcff2883"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/c58fdf7b3d6c2995368264c49e4e8b05bcff2883",
+                "reference": "c58fdf7b3d6c2995368264c49e4e8b05bcff2883",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "symfony/deprecation-contracts": "^2.5|^3",
+                "symfony/polyfill-ctype": "^1.8"
+            },
+            "conflict": {
+                "symfony/console": "<6.4"
+            },
+            "require-dev": {
+                "symfony/console": "^6.4|^7.0|^8.0"
+            },
+            "bin": [
+                "Resources/bin/yaml-lint"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Yaml\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Loads and dumps YAML files",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/yaml/tree/v7.4.8"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-03-24T13:12:05+00:00"
         },
         {
             "name": "theseer/tokenizer",
