@@ -13,6 +13,6 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'get-started/',
-        'https://onlinetrader.sharedwithexpose.com/get-started'
+        'https://tradez.sharedwithexpose.com/get-started'
     ];
 }

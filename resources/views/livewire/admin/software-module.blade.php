@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-12">
 
-            <h3 class="text-info">This section describes how you want to use onlinetrader software.</h3>
+            <h3 class="text-info">This section describes how you want to use tradez software.</h3>
             <form action="">
                 <div class="row">
                     <div class="mt-4 col-md-6">

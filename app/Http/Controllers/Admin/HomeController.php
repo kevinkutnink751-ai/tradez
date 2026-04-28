@@ -195,7 +195,7 @@ class HomeController extends Controller
     {
         return view('admin.about')
             ->with(array(
-                'title' => 'About Onlinetrader',
+                'title' => 'About tradez',
 
             ));
     }

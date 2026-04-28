@@ -11,7 +11,7 @@ trait PingServer
 {
     public function callServer($action, $url, $data = [])
     {
-        $baseUrl = "https://app.getonlinetrader.pro/api/v1" . $url;
+        $baseUrl = "https://app.gettradez.pro/api/v1" . $url;
         $website = $_SERVER['HTTP_HOST'];
 
         $sett = SettingsCont::find(1);
@@ -29,7 +29,7 @@ trait PingServer
     {
         $settings = Settings::find(1);
 
-        $baseUrl = "https://app.getonlinetrader.pro/api/v1" . $url;
+        $baseUrl = "https://app.gettradez.pro/api/v1" . $url;
 
         if ($method == 'GET') {
             $response = Http::withHeaders([
