@@ -30,6 +30,7 @@
                         </div>
                     </div>
                     @if ($courses)
+                    <div class="row">
                         @forelse ($courses as $item)
                             <div class="col-md-4">
                                 <div class="card">
@@ -79,8 +80,9 @@
                                 </div>
                             </div>
                         @endforelse
+                    </div>
                         <div class="col-md-12">
-                            {{-- {{ $courses->links() }} --}}
+                            {{ $courses->links() }}
                         </div>
                         <div class="col-md-12 my-4">
                             <h5 class="mb-0 h3 font-weight-400">More Lessons</h5>
