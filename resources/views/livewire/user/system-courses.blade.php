@@ -82,7 +82,7 @@
                         @endforelse
                     </div>
                         <div class="col-md-12">
-                            {{ $courses->links() }}
+                            {{-- {{ $courses->links() }} --}}
                         </div>
                         <div class="col-md-12 my-4">
                             <h5 class="mb-0 h3 font-weight-400">More Lessons</h5>

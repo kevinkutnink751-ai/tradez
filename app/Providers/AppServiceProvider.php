@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use League\Flysystem\Filesystem;
-use League\Flysystem\Sftp\SftpAdapter;
+use League\Flysystem\FilesystemAdapter;
 use Illuminate\Support\Facades\View;
 use App\Models\Settings;
 use App\Models\SettingsCont;
@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         FacadesStorage::extend('sftp', function ($app, $config) {
-            return new Filesystem(new SftpAdapter($config));
+            return new Filesystem(new FilesystemAdapter($config));
         });
 
         if ($this->app->environment('production')) {

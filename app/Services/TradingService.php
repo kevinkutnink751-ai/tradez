@@ -6,7 +6,7 @@ class TradingService
 {
     protected static function load(): array
     {
-        return require resource_path('content/fragments/trading_settings.php');
+        return require static::path();
     }
 
     public static function settings(): object
@@ -25,6 +25,10 @@ class TradingService
     {
         $content = "<?php\n\nreturn " . var_export($data, true) . ";\n";
         return file_put_contents(static::path(), $content) !== false;
+    }
+
+    protected static function path():string{
+        return resource_path('content/fragments/trading_settings.php');
     }
 
     protected static function all(): array

@@ -56,15 +56,9 @@ return [
             'host' => env('SFTP_HOST'),
             'username' => env('SFTP_USERNAME'),
             'password' => env('SFTP_PASSWORD'),
-        
-            // Settings for SSH key based authentication...
-            'privateKey' => '/path/to/privateKey',
-            'password' => 'encryption-password',
-        
-            // Optional SFTP Settings...
-            // 'port' => 22,
-            // 'root' => '',
-            // 'timeout' => 30,
+            'root' => '/',
+            'port' => 22,
+            'timeout' => 30,
         ],
         
     ],
