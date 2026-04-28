@@ -37,17 +37,18 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Paginator::useBootstrap();
+        if (!app()->runningInConsole() && app()->environment('production')) {
+          // Sharing settings with all view
+            $settings = Settings::where('id', '1')->first();
+            $terms =  TermsPrivacy::find(1);
+            $moreset =  SettingsCont::find(1);
+            $bg =  SettingsCont::find(1)->theme;
 
-        // Sharing settings with all view
-        $settings = Settings::where('id', '1')->first();
-        $terms =  TermsPrivacy::find(1);
-        $moreset =  SettingsCont::find(1);
-        $bg =  SettingsCont::find(1)->theme;
-
-        View::share('settings', $settings);
-        View::share('terms', $terms);
-        View::share('moresettings', $moreset);
-        View::share('mod', $settings->modules);
-        View::share('bg', $bg);
+            View::share('settings', $settings);
+            View::share('terms', $terms);
+            View::share('moresettings', $moreset);
+            View::share('mod', $settings->modules);
+            View::share('bg', $bg);
+        }
     }
 }
