@@ -15,3 +15,4 @@ yarn-error.log
 /.vscode
 /install/*
 .otradeoctV5_0_3.sql
+/storage/framework/views/*
