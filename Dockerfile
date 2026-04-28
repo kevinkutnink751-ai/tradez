@@ -1,27 +1,21 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
     libzip-dev \
-    zip \
-    unzip \
-    git \
-    curl
+    zip unzip git curl
 
-# Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd zip pdo pdo_mysql
 
-# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www
-
+WORKDIR /app
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
-CMD ["php-fpm"]
+# Railway uses PORT env var
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
