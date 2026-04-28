@@ -24,7 +24,7 @@
         "laravel-notification-channels/telegram": "^4.0",
         "maatwebsite/excel": "^3.1",
         "stripe/stripe-php": "^10.0",
-        "unicodeveloper/laravel-paystack": "^1.0",mix
+        "unicodeveloper/laravel-paystack": "^1.0",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/flysystem-sftp-v3": "^3.0"
     },
