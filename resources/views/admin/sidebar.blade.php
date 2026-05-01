@@ -4,6 +4,12 @@
 <div class="sidebar sidebar-style-2" data-background-color="{{ Auth('admin')->User()->dashboard_style }}">
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
+            <div class="d-flex d-lg-none justify-content-between align-items-center px-4 pt-4 pb-2">
+                <strong class="text-white">Menu</strong>
+                <button type="button" class="btn btn-link text-white p-0" data-admin-sidebar-close aria-label="Close menu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
             <div class="user">
                 <div class="info">
                     <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">

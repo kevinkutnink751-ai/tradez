@@ -40,24 +40,26 @@
         <link href="{{ asset('themes/purposeTheme/temp/css/colors/' . $theme) }}" rel="stylesheet">
         
         <style>
-        <style>
                /* Institutional Design System Overrides */
-        :root {
+           :root {
             --inst-bg: #0B0E11;
             --inst-bg-sec: #161A1E;
             --inst-border: #2B3139;
             --inst-text: #EAECEF;
             --inst-text-muted: #848E9C;
-            --inst-accent: #FCD535;
+            --inst-primary: #0e4152;
+            --inst-accent: #FCD535; /* Professional Muted Gold */
+            --inst-success: #0ECB81;
+            --inst-danger: #F6465D;
             --inst-radius: 4px;
         }
             /* Institutional Navigation & Megamenu */
             #topnav { 
                 background-color: var(--inst-bg) !important; 
                 border-bottom: 1px solid var(--inst-border) !important;
-                transition: all 0.3s;
+                transition: none;
             }
-            #topnav.scroll { background-color: rgba(11, 14, 17, 0.95) !important; backdrop-filter: blur(10px); }
+            #topnav.scroll { background-color: rgba(11, 14, 17, 0.98) !important; }
             
             #topnav .navigation-menu > li > a {
                 color: var(--inst-text) !important;
@@ -94,7 +96,7 @@
             }
             #topnav .navigation-menu > li .submenu li a {
                 color: var(--inst-text-muted) !important;
-                transition: all 0.3s;
+                transition: none;
                 font-size: 13px;
                 padding: 8px 20px !important;
                 display: block;
@@ -102,7 +104,9 @@
             #topnav .navigation-menu > li .submenu li a:hover {
                 color: var(--inst-accent) !important;
                 background: rgba(252, 213, 53, 0.05);
-                transform: translateX(5px);
+            }
+            #topnav .menu-overlay {
+                display: none;
             }
             
             /* Global Page Consolidations & Background Variations */
@@ -199,6 +203,277 @@
             .btn-outline-light:hover {
                 background: var(--inst-border) !important;
             }
+            .topnav-shell {
+                display: flex;
+                align-items: center;
+                gap: 1.25rem;
+                min-height: 76px;
+            }
+            #topnav .logo {
+                display: inline-flex;
+                align-items: center;
+                flex: 0 0 auto;
+            }
+            #topnav .buy-button {
+                flex: 0 0 auto;
+                display: flex;
+                align-items: center;
+                gap: 0.65rem;
+            }
+            #topnav .buy-button .btn,
+            #topnav .buy-menu-btn .btn {
+                white-space: nowrap;
+            }
+            #topnav #navigation {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex: 1 1 auto;
+                min-width: 0;
+                margin-left: 0;
+            }
+            #topnav .navigation-menu {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 0;
+                gap: 0.25rem;
+            }
+            #topnav .buy-menu-btn {
+                display: none;
+            }
+            #topnav .menu-extras {
+                display: none;
+            }
+            .menu-extras .menu-item {
+                display: flex;
+                align-items: center;
+            }
+            #topnav .navbar-toggle {
+                width: 48px;
+                height: 48px;
+                border-radius: 14px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            #topnav .navigation-menu > li > a {
+                padding: 0.7rem 0.85rem;
+                border-radius: 10px;
+                line-height: 1.2;
+            }
+            #topnav .navigation-menu > li:hover > a,
+            #topnav .navigation-menu > li.active > a {
+                background: rgba(255,255,255,0.03);
+            }
+            .buy-button .btn,
+            .buy-menu-btn .btn {
+                border-radius: 10px;
+                padding: 0.78rem 1.05rem !important;
+            }
+            #topnav .buy-button .btn:first-child {
+                background: rgba(255,255,255,0.04) !important;
+                border-color: rgba(255,255,255,0.1) !important;
+                color: var(--inst-text) !important;
+            }
+            @media (min-width: 992px) {
+                #topnav .navigation-menu > li {
+                    position: relative;
+                }
+                #topnav .navigation-menu > li .submenu.megamenu {
+                    top: calc(100% + 14px);
+                }
+            }
+            @media (max-width: 991.98px) {
+                body.mobile-nav-open {
+                    overflow: hidden;
+                }
+                .topnav-shell {
+                    gap: 1rem;
+                    padding: 0.85rem 0;
+                }
+                #topnav .buy-button {
+                    display: none;
+                }
+                #topnav .menu-extras {
+                    display: flex;
+                    margin-left: auto;
+                }
+                #topnav .menu-overlay {
+                    display: none;
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(4, 8, 14, 0.72);
+                    z-index: 900;
+                }
+                body.mobile-nav-open #topnav .menu-overlay {
+                    display: block;
+                }
+                #topnav #navigation {
+                    position: fixed;
+                    top: 0;
+                    right: 0;
+                    box-sizing: border-box;
+                    display: none !important;
+                    flex-direction: column;
+                    align-items: stretch;
+                    justify-content: flex-start;
+                    width: min(100vw, 390px);
+                    height: 100vh;
+                    height: 100dvh;
+                    max-height: 100vh;
+                    max-height: 100dvh;
+                    margin-left: 0;
+                    padding: 5.5rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
+                    border-top: 0;
+                    background: linear-gradient(180deg, #0b0e11 0%, #13181f 100%);
+                    border-left: 1px solid var(--inst-border);
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                    overscroll-behavior: contain;
+                    z-index: 1000;
+                    filter: none !important;
+                    transform: none !important;
+                    transition: none !important;
+                    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.32);
+                }
+                body.mobile-nav-open #topnav #navigation {
+                    display: flex !important;
+                }
+                #topnav .navigation-menu {
+                    display: block;
+                    width: 100%;
+                    flex: 0 0 auto;
+                    padding: 0;
+                    margin: 0;
+                    list-style: none;
+                }
+                #topnav .navigation-menu > li {
+                    position: relative;
+                    float: none;
+                    margin: 0;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                }
+                #topnav .navigation-menu > li:last-child {
+                    border-bottom: 0;
+                }
+                #topnav .navigation-menu > li > a {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 1rem 0;
+                    border-radius: 0;
+                    color: var(--inst-text) !important;
+                    font-size: 1.05rem;
+                    line-height: 1.35;
+                    width: 100%;
+                }
+                #topnav .navigation-menu > li > .menu-arrow {
+                    position: absolute;
+                    top: 1.12rem;
+                    right: 0;
+                    pointer-events: none;
+                    opacity: 0.7;
+                    transition: none;
+                }
+                #topnav .navigation-menu > li.open > .menu-arrow {
+                    transform: rotate(180deg);
+                    opacity: 1;
+                }
+                #topnav .navigation-menu > li .submenu.megamenu,
+                #topnav .navigation-menu > li .submenu {
+                    position: static;
+                    width: 100%;
+                    display: none !important;
+                    left: auto;
+                    padding: 0.25rem 0 1rem;
+                    margin: 0 0 1em 0;
+                    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+                    border-radius: 18px;
+                    box-shadow: none;
+                    background: rgba(255,255,255,0.025) !important;
+                }
+                #topnav .navigation-menu > li.open > .submenu.megamenu,
+                #topnav .navigation-menu > li.open > .submenu {
+                    display: block !important;
+                }
+                #topnav .navigation-menu > li .submenu.megamenu > li {
+                    width: 100%;
+                }
+                .megamenu-head {
+                    padding: 1rem 1rem 0.5rem !important;
+                    margin-bottom: 0.5rem;
+                }
+                #topnav .navigation-menu > li .submenu li a {
+                    padding: 0.75rem 1rem !important;
+                    font-size: 0.92rem;
+                    color: #d7dde7 !important;
+                }
+                #topnav .navigation-menu > li .submenu li a:hover {
+                    transform: none;
+                    background: transparent;
+                }
+                #topnav .buy-menu-btn {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.75rem;
+                    flex: 0 0 auto;
+                    padding-top: 1.25rem;
+                    width: 100%;
+                }
+                #topnav .buy-menu-btn .btn {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    max-width: none;
+                    margin: 0 !important;
+                    border-radius: 14px;
+                    min-height: 52px;
+                }
+                #topnav .buy-menu-btn .btn:first-child {
+                    background: rgba(255,255,255,0.04) !important;
+                    border-color: rgba(255,255,255,0.1) !important;
+                    color: var(--inst-text) !important;
+                }
+                #topnav .navbar-toggle {
+                    position: relative;
+                    z-index: 1001;
+                }
+                body.mobile-nav-open #topnav .navbar-toggle {
+                    position: fixed;
+                    top: 1rem;
+                    right: 1rem;
+                    z-index: 1001;
+                }
+                #topnav .navbar-toggle .lines {
+                    width: 22px;
+                }
+                #topnav .navbar-toggle .lines span {
+                    display: block;
+                    height: 2px;
+                    margin: 5px 0;
+                    background: var(--inst-text);
+                    transition: none;
+                }
+                body.mobile-nav-open #topnav .navbar-toggle .lines span:nth-child(1) {
+                    transform: translateY(7px) rotate(45deg);
+                }
+                body.mobile-nav-open #topnav .navbar-toggle .lines span:nth-child(2) {
+                    opacity: 0;
+                }
+                body.mobile-nav-open #topnav .navbar-toggle .lines span:nth-child(3) {
+                    transform: translateY(-7px) rotate(-45deg);
+                }
+            }
+            @media (max-width: 420px) {
+                #topnav #navigation {
+                    width: 100vw;
+                    padding-left: 1.5rem;
+                    padding-right: 1.5rem;
+                    border-left: 0;
+                }
+            }
         </style>
     @show
 
@@ -214,6 +489,7 @@
     <!-- Navbar STart -->
     <header id="topnav" class="sticky defaultscroll">
         <div class="container">
+            <div class="topnav-shell">
             <!-- Logo container-->
             <div>
                 <a class="logo" href="/">
@@ -221,19 +497,11 @@
                         class="mr-2">
                 </a>
             </div>
-            <div class="buy-button">
-
-                <a href="login" class="mr-3 btn btn-primary login-btn-success">login</a>
-                <a href="register" class="btn btn-primary login-btn-success ">Get Started</a>
-
-
-            </div>
-            <!--end login button-->
             <!-- End Logo container-->
             <div class="menu-extras">
                 <div class="menu-item">
                     <!-- Mobile menu toggle-->
-                    <a class="navbar-toggle">
+                    <a class="navbar-toggle" href="#" aria-label="Toggle navigation">
                         <div class="lines">
                             <span></span>
                             <span></span>
@@ -338,17 +606,32 @@
                     <li><a href="{{ url('/contact') }}">Support</a></li>
                 </ul>
 
-
-
-                </ul>
                 <!--end navigation menu-->
-                <div class="buy-menu-btn d-none">
-                    <a href="{{ url('/login') }}" target="_blank" class="btn btn-success">Login</a>
-                    <a href="{{ url('/register') }}" target="_blank" class="btn btn-success">Get Started</a>
+                
+                <div class="buy-menu-btn gap-2">
+                @guest
+                    <a href="{{ url('/login') }}" target="_blank" class="btn btn-primary login-btn-success ">Login</a>
+                    <a href="{{ url('/register') }}" target="_blank" class="btn btn-outline-primary login-btn-success "  >Get Started</a>
+                @endguest
+                @auth
+                     <a href="{{ route('dashboard') }}" target="_blank" class="btn btn-primary login-btn-success " >Dashboard</a>
+                @endauth
                 </div>
+
                 <!--end login button-->
             </div>
+            <div class="buy-button">
+             @guest
+                <a href="{{ url('/login') }}" class="btn btn-primary login-btn-success " style="margin: 0 1em 0 1em;">Login</a>
+                <a href="{{ url('/register') }}" class="btn btn-primary login-btn-success " style="margin: 0 1em 0 1em;">Get Started</a>
+                 @endguest
+                  @auth
+                    <a href="{{ route('dashboard') }}" class="btn btn-primary login-btn-success " style="margin: 0 1em 0 1em;">Dashboard</a>
+                @endauth
+            </div>
+            <div class="menu-overlay"></div>
             <!--end navigation-->
+            </div>
         </div>
         <!--end container-->
     </header>
@@ -454,6 +737,83 @@
         <script src="{{ asset('themes/purposeTheme/temp/js/widget.js') }}"></script>
     @show
         <script src="{{ asset('themes/purposeTheme/assets/js/scriptfile.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const body = document.body;
+                const navToggle = document.querySelector('#topnav .navbar-toggle');
+                const navPanel = document.getElementById('navigation');
+                const overlay = document.querySelector('#topnav .menu-overlay');
+                const submenuParents = document.querySelectorAll('#topnav .has-submenu');
+                const desktopBreakpoint = window.matchMedia('(min-width: 992px)');
+
+                if (!navToggle || !navPanel) {
+                    return;
+                }
+
+                const closeMobileNav = function() {
+                    body.classList.remove('mobile-nav-open');
+                    navPanel.removeAttribute('style');
+                    submenuParents.forEach(function(item) {
+                        item.classList.remove('open');
+                    });
+                };
+
+                const handleBreakpointChange = function(event) {
+                    if (event.matches) {
+                        closeMobileNav();
+                    }
+                };
+
+                navToggle.addEventListener('click', function(event) {
+                    if (window.innerWidth >= 992) {
+                        return;
+                    }
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    navPanel.removeAttribute('style');
+                    body.classList.toggle('mobile-nav-open');
+                }, true);
+
+                if (overlay) {
+                    overlay.addEventListener('click', closeMobileNav);
+                }
+
+                navPanel.addEventListener('click', function(event) {
+                    if (window.innerWidth >= 992) {
+                        return;
+                    }
+
+                    const trigger = event.target.closest('.has-submenu > a, .has-submenu > .menu-arrow');
+                    if (!trigger || !navPanel.contains(trigger)) {
+                        return;
+                    }
+
+                    const item = trigger.closest('.has-submenu');
+                    if (!item) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+
+                    const isOpen = item.classList.contains('open');
+                    submenuParents.forEach(function(otherItem) {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('open');
+                        }
+                    });
+                    item.classList.toggle('open', !isOpen);
+                }, true);
+
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 992) {
+                        closeMobileNav();
+                    }
+                });
+
+                desktopBreakpoint.addEventListener('change', handleBreakpointChange);
+            });
+        </script>
     @stack('scripts')
 </body>
 

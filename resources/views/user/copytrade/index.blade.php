@@ -11,12 +11,12 @@
             <div class="col-md-6 text-md-right mt-3 mt-md-0">
                 <div class="d-flex justify-content-md-end align-items-center">
                     <div class="search-box mr-3">
-                        <div class="input-group input-group-sm bg-dark-card border border-secondary rounded-pill px-2">
+                        <div class="input-group input-group-sm bg-dark-card border border-secondary rounded-xs px-2">
                             <div class="input-group-prepend"><span class="input-group-text bg-transparent border-0 text-muted"><i class="fas fa-search"></i></span></div>
                             <input type="text" class="form-control bg-transparent border-0 text-white" placeholder="Search traders...">
                         </div>
                     </div>
-                    <a href="{{ route('user.my.subscriptions') }}" class="btn btn-sm btn-primary rounded-pill px-4">My Subscriptions</a>
+                    <a href="{{ route('user.my.subscriptions') }}" class="btn btn-sm btn-primary  px-4">My Subscriptions</a>
                 </div>
             </div>
         </div>

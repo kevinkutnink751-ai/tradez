@@ -28,7 +28,7 @@
         .logo img { height: 26px; }
         .nav-link-custom { color: #848e9c !important; font-size: 13px !important; font-weight: 500; padding: 0 15px; transition: color 0.2s; text-decoration: none !important; }
         .nav-link-custom:hover { color: #fff !important; }
-        .header-right .btn-dashboard { background: #1bd1c7; color: #0b1217; border: 0; font-size: 12px; font-weight: 700; padding: 6px 18px; border-radius: 4px; text-decoration: none !important; }
+        .header-right .btn-dashboard { background: #0e4152; color: var(--text-muted); border: 0; font-size: 12px; font-weight: 700; padding: 6px 18px; border-radius: 4px; text-decoration: none !important; }
         .header-right .btn-logout { color: #848e9c; font-size: 13px; font-weight: 500; text-decoration: none; margin-left: 20px; }
         .header-right .btn-logout:hover { color: #f6465d; }
         main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }

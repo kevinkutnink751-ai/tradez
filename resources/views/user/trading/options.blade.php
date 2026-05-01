@@ -8,18 +8,21 @@
 
 @section('styles')
 <style>
-    :root {
-        --options-primary: #7c4dff;
-        --options-bg: #050510;
-        --glass-bg: rgba(15, 15, 35, 0.9);
-        --glass-border: rgba(124, 77, 255, 0.2);
+     :root {
+        --terminal-bg: #020716;
+        --terminal-panel: #111722;
+        --terminal-panel-2: #171d2a;
+        --terminal-border: #2c3546;
+        --terminal-grid: rgba(120, 133, 156, 0.13);
+        --terminal-blue: #087bff;
+        --terminal-green: #16c60c;
+        --terminal-red: #ff4549;
+        --terminal-text: #f5f7fb;
+        --terminal-muted: #aab3c5;
     }
-
-    #topnav { background: #050510 !important; border-bottom: 1px solid var(--glass-border) !important; }
-    
     .options-shell {
         height: calc(100vh - 60px);
-        background: var(--options-bg);
+        background: var(--terminal-bg);
         position: relative;
         overflow: hidden;
         display: flex;
@@ -34,11 +37,9 @@
         z-index: 1;
     }
 
-    .glass-panel {
-        background: var(--glass-bg);
+    .binary-terminal {
+        background: var(--terminal-bg);
         backdrop-filter: blur(15px);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
         z-index: 10;
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
     }
@@ -271,7 +272,7 @@
     </div>
 
     <!-- Left Panel: Options Chain (Matrix) -->
-    <div class="glass-panel left-panel">
+    <div class="binary-terminal left-panel">
         <div class="p-3 border-bottom border-light" style="border-color: rgba(255,255,255,0.05) !important;">
             <h6 class="text-white font-weight-bold mb-0">OPTIONS CHAIN</h6>
             <small class="text-muted">MARKET PRICE: ${{ number_format($currentPair->last_price, 2) }}</small>
@@ -310,7 +311,7 @@
     </div>
 
     <!-- Right Panel: Order Execution & Strategy -->
-    <div class="glass-panel order-panel">
+    <div class="binary-terminal order-panel">
         <!-- Order Header -->
         <div class="text-center mb-2">
             <h5 class="text-white font-weight-bold mb-0">EXECUTION</h5>
@@ -410,7 +411,7 @@
     </div>
 
     <!-- Bottom History Strip -->
-    <div class="glass-panel history-overlay d-flex align-items-center justify-content-between">
+    <div class="binary-terminal history-overlay d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-4">
             <div>
                 <small class="text-muted d-block">ACTIVE POSITIONS</small>

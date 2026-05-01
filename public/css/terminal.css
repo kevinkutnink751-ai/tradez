@@ -5,7 +5,7 @@
     --border-color: #2b3139;
     --text-muted: #848e9c;
     --text-white: #ffffff;
-    --accent-success: #1bd1c7;
+    --accent-success: #0e4152;
     --accent-danger: #f6465d;
     --accent-warning: #f0b90b;
     --input-bg: #1e2329;
@@ -182,13 +182,13 @@
 /* Tab Overrides */
 .nav-pills {
     background: var(--panel-bg);
-    border: 1px solid var(--border-color);
     border-radius: 4px;
 }
 
 .nav-pills.market-categories {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     width: 100%;
+    padding: 2px;
 }
 
 .nav-pills.market-categories .nav-link {

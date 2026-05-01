@@ -32,22 +32,55 @@
         <link rel="stylesheet" href="{{ asset('themes/purposeTheme/assets/libs/flatpickr/dist/flatpickr.min.css') }}">
         <style>
             :root {
-                --primary-color: #1572e8;
                 --bg-main: #090c10;
                 --bg-card: #11151d;
+                --bg-card-soft: #151b24;
+                --bg-surface: #0d1219;
                 --border-color: rgba(255, 255, 255, 0.05);
+                --sidebar-width: 280px;
             }
+            html,
             body {
-                background-color: var(--bg-main) !important;
+                min-height: 100%;
+            }
+            body.dashboard-shell {
+                background:
+                    radial-gradient(circle at top right, rgba(21, 114, 232, 0.12), transparent 24%),
+                    linear-gradient(180deg, #0a0f15 0%, #090c10 100%) !important;
                 color: #fff !important;
                 font-family: 'Inter', sans-serif;
+                overflow-x: hidden;
             }
-            .main-content {
-                background-color: var(--bg-main) !important;
+            .dashboard-shell .container-application:before {
+                display: none !important;
+            }
+            .dashboard-shell .container-application {
+                display: flex;
+                align-items: stretch;
+                width: 100%;
+                max-width: none;
                 min-height: 100vh;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
             }
-            .page-content {
-                padding: 2rem 1.5rem !important;
+            .dashboard-shell .main-content {
+                display: flex;
+                flex: 1 1 auto;
+                flex-direction: column;
+                width: calc(100% - var(--sidebar-width));
+                min-height: 100vh;
+                background: transparent !important;
+            }
+            .dashboard-shell .page-content {
+                flex: 1 1 auto;
+                width: 100%;
+                padding: 2rem !important;
+            }
+            .dashboard-shell .footer {
+                margin-top: auto;
+                background: rgba(9, 12, 16, 0.82) !important;
+                backdrop-filter: blur(16px);
             }
             .card {
                 background-color: var(--bg-card);
@@ -58,12 +91,29 @@
             .bg-dark-input { background: #090c10 !important; }
             .border-white-10 { border-color: rgba(255,255,255,0.05) !important; }
             .text-white-50 { color: rgba(255,255,255,0.5) !important; }
+            .dashboard-sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(4, 8, 14, 0.74);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.15s ease, visibility 0.15s ease;
+                z-index: 995;
+            }
+            @media (max-width: 1199.98px) {
+                .dashboard-shell .main-content {
+                    width: 100%;
+                }
+                .dashboard-shell .page-content {
+                    padding: 1rem !important;
+                }
+            }
         </style>
     @show
     @livewireStyles
 </head>
 
-<body class="application application-offset">
+<body class="dashboard-shell">
     <script>
         {!! $settings->tawk_to !!}
     </script>
@@ -71,6 +121,7 @@
     <div class="container-fluid container-application">
         {{-- Side Bar --}}
         @include('user.sidebar')
+        <div class="dashboard-sidebar-overlay" data-dashboard-sidebar-close></div>
         <!-- Content -->
         <div class="main-content position-relative">
             <!-- Main nav -->
@@ -144,5 +195,33 @@
     @include('user.modals')
     @livewireScripts
     @stack('scripts')
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const shell = document.body;
+            const openers = document.querySelectorAll('[data-dashboard-sidebar-open]');
+            const closers = document.querySelectorAll('[data-dashboard-sidebar-close]');
+            const syncSidebarState = function() {
+                if (window.innerWidth >= 1200) {
+                    shell.classList.remove('dashboard-sidebar-open');
+                }
+            };
 
+            openers.forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    shell.classList.add('dashboard-sidebar-open');
+                });
+            });
+
+            closers.forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    shell.classList.remove('dashboard-sidebar-open');
+                });
+            });
+
+            window.addEventListener('resize', syncSidebarState);
+            syncSidebarState();
+        });
+    </script>
+</body>

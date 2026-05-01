@@ -251,14 +251,14 @@
                 <div class="ticket-header p-3 border-bottom border-secondary">
                     <div class="d-flex mb-3">
                         <div class="btn-group btn-group-sm w-100 mr-2">
-                            <button class="btn btn-secondary py-1 x-small active">Isolated</button>
-                            <button class="btn btn-secondary py-1 x-small">Cross</button>
+                            <button class="btn btn-primary py-1 x-small active">Isolated</button>
+                            <button class="btn btn-primary py-1 x-small">Cross</button>
                         </div>
                         <div class="dropdown w-50">
-                            <button class="btn btn-secondary btn-sm x-small px-3 w-100 dropdown-toggle" type="button" data-toggle="dropdown" id="leverageBtn">
+                            <button class="btn btn-primary btn-sm x-small px-3 w-100 dropdown-toggle" type="button" data-toggle="dropdown" id="leverageBtn">
                                 {{ $defaultLeverage }}X
                             </button>
-                            <div class="dropdown-menu dropdown-menu-right bg-dark border-secondary">
+                            <div class="dropdown-menu dropdown-menu-right bg-dark border-primary">
                                 @foreach($leverages as $lev)
                                     <a class="dropdown-item text-white x-small" href="javascript:void(0)" onclick="setLeverage({{ $lev }})">{{ $lev }}X</a>
                                 @endforeach
@@ -381,8 +381,8 @@
 
     /* Tables & Navs */
     .panel-header .nav-tabs .nav-link { color: #848e9c; border: 0; font-size: 0.7rem; padding: 12px 16px; position: relative; background: transparent; }
-    .panel-header .nav-tabs .nav-link.active { color: #1bd1c7; }
-    .panel-header .nav-tabs .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: #1bd1c7; }
+    .panel-header .nav-tabs .nav-link.active { color: #0e4152; }
+    .panel-header .nav-tabs .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: #0e4152; }
     
     .terminal-table { margin-bottom: 0; }
     .terminal-table thead th { border-bottom: 1px solid #2b3139; border-top: 0; font-size: 0.65rem; color: #848e9c; font-weight: 500; padding: 8px 12px; }
@@ -397,11 +397,11 @@
 
     /* Trade Ticket */
     .order-tabs button { background: transparent; border: 0; color: #848e9c; font-size: 0.7rem; font-weight: 600; padding-bottom: 6px; position: relative; }
-    .order-tabs button.active { color: #1bd1c7; }
-    .order-tabs button.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #1bd1c7; }
+    .order-tabs button.active { color: #0e4152; }
+    .order-tabs button.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #0e4152; }
 
     .ticket-input-group { background: #2b3139; border-radius: 4px; display: flex; align-items: center; padding: 4px 12px; border: 1px solid transparent; transition: border 0.2s; }
-    .ticket-input-group:focus-within { border-color: #1bd1c7; }
+    .ticket-input-group:focus-within { border-color: #0e4152; }
     .ticket-input { background: transparent; border: 0; color: #fff; font-size: 0.85rem; font-weight: 500; flex-grow: 1; padding: 8px 0; width: 100%; }
     .ticket-input:focus { outline: none; }
     .input-label { font-size: 0.7rem; color: #848e9c; margin-left: 8px; }
@@ -414,7 +414,7 @@
     /* Slider dots */
     .range-slider-container { position: relative; padding-top: 10px; }
     .terminal-range { width: 100%; height: 4px; background: #2b3139; border-radius: 2px; -webkit-appearance: none; position: relative; z-index: 2; }
-    .terminal-range::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: #1bd1c7; border: 2px solid #161a1e; border-radius: 50%; cursor: pointer; }
+    .terminal-range::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: #0e4152; border: 2px solid #161a1e; border-radius: 50%; cursor: pointer; }
     .range-dots { position: absolute; top: 11px; left: 0; right: 0; height: 2px; z-index: 1; pointer-events: none; }
     .range-dots .dot { position: absolute; width: 6px; height: 6px; background: #474d57; border-radius: 50%; transform: translate(-50%, -2px); }
 

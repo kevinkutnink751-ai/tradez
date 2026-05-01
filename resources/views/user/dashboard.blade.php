@@ -4,19 +4,20 @@
 
 <div class="dashboard-wrapper container-fluid px-0">
     {{-- Header Section --}}
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="dashboard-hero d-flex align-items-center justify-content-between mb-4">
         <div>
+            <div class="dashboard-kicker">Trading Desk</div>
             <h4 class="text-white font-weight-bold mb-1">Welcome back, {{ Auth::user()->name }}!</h4>
-            <p class="text-muted small mb-0">Here's what's happening with your trading account today.</p>
+            <p class="text-muted small mb-0">A full account snapshot across funding, spot, futures, and activity.</p>
         </div>
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center dashboard-actions">
             <div class="btn-group mr-3">
                 <button class="btn btn-dark-input btn-sm px-3 border-white-10" onclick="copyRef()">
                     <i class="fas fa-link mr-2 text-primary"></i> Referral Link
                 </button>
             </div>
             <div class="dropdown">
-                <button class="btn btn-primary btn-sm rounded-pill px-4" data-toggle="dropdown">
+                <button class="btn btn-primary btn-sm px-4" data-toggle="dropdown">
                     <i class="fas fa-plus mr-2"></i> Quick Actions
                 </button>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-dark">
@@ -28,16 +29,16 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row dashboard-grid">
         {{-- Main Content --}}
         <div class="col-lg-8">
             {{-- Portfolio Overview --}}
-            <div class="card bg-premium-gradient border-0 mb-4 overflow-hidden">
+            <div class="card bg-premium-gradient border-0 mb-4 overflow-hidden dashboard-balance-card">
                 <div class="card-body p-4 position-relative">
                     <div class="row align-items-center">
                         <div class="col-md-6">
                             <h6 class="text-white-50 text-uppercase small font-weight-bold mb-2" style="letter-spacing: 1px;">Total Portfolio Balance</h6>
-                            <h2 class="text-white font-weight-bold mb-2">${{ number_format(Auth::user()->account_bal + Auth::user()->spot_bal + Auth::user()->future_bal, 2) }}</h2>
+                            <h2 class="text-white font-weight-bold mb-2">${{ number_format(Auth::user()->getTotalBalanceAttribute(), 2) }}</h2>
                             <div class="d-flex align-items-center">
                                 <span class="text-success mr-2 font-weight-bold"><i class="fas fa-caret-up mr-1"></i> 2.45%</span>
                                 <span class="text-white-50 small">+$1,240.50 (24h)</span>
@@ -70,7 +71,7 @@
             </div>
 
             {{-- Market Overview --}}
-            <div class="card bg-dark-card border-0 mb-4">
+            <div class="card bg-dark-card border-0 mb-4 dashboard-panel">
                 <div class="card-header bg-transparent border-white-10 py-3 px-4 d-flex justify-content-between align-items-center">
                     <h5 class="text-white font-weight-bold mb-0">Market Overview</h5>
                     <a href="#" class="text-primary small">View All Markets</a>
@@ -142,7 +143,7 @@
             </div>
 
             {{-- Recent Activity --}}
-            <div class="card bg-dark-card border-0">
+            <div class="card bg-dark-card border-0 dashboard-panel">
                 <div class="card-header bg-transparent border-white-10 py-3 px-4">
                     <h5 class="text-white font-weight-bold mb-0">Recent Activity</h5>
                 </div>
@@ -179,7 +180,7 @@
                 @if(isset($mod['future']) && $mod['future'])
                 <div class="col-12 mb-4">
                     <a href="{{ route('future.trade') }}" class="card-link">
-                        <div class="card bg-dark-card border-0 product-card h-100 overflow-hidden">
+                        <div class="card bg-dark-card border-0 product-card h-100 overflow-hidden dashboard-panel">
                             <div class="card-body p-4">
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="product-icon bg-primary text-white mr-3">
@@ -200,7 +201,7 @@
                 @if(isset($mod['copy']) || isset($mod['subscription']))
                 <div class="col-12 mb-4">
                     <a href="{{ route('copy.trade') }}" class="card-link">
-                        <div class="card bg-dark-card border-0 product-card h-100 overflow-hidden">
+                        <div class="card bg-dark-card border-0 product-card h-100 overflow-hidden dashboard-panel">
                             <div class="card-body p-4">
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="product-icon bg-info text-white mr-3">
@@ -220,7 +221,7 @@
             </div>
 
             {{-- Recent Transactions --}}
-            <div class="card bg-dark-card border-0 mb-4">
+            <div class="card bg-dark-card border-0 mb-4 dashboard-panel">
                 <div class="card-header bg-transparent border-white-10 py-3 px-4 d-flex justify-content-between align-items-center">
                     <h6 class="text-white font-weight-bold mb-0">Transactions</h6>
                     <a href="{{ route('accounthistory') }}" class="text-primary small">See All</a>
@@ -250,12 +251,12 @@
             </div>
 
             {{-- Referral Card --}}
-            <div class="card border-0 bg-primary-transparent overflow-hidden">
+            <div class="card border-0 bg-primary-transparent overflow-hidden dashboard-panel">
                 <div class="card-body p-4 position-relative z-index-1">
                     <h6 class="text-primary font-weight-bold text-uppercase mb-2" style="letter-spacing: 1px; font-size: 0.65rem;">Affiliation</h6>
                     <h5 class="text-white font-weight-bold mb-2">Invite Friends, Earn Crypto</h5>
                     <p class="text-muted small mb-4">Get up to 20% commission on every trade your friends make on our platform.</p>
-                    <button class="btn btn-primary btn-sm btn-block rounded-pill" onclick="copyRef()">Copy Invite Link</button>
+                    <button class="btn btn-primary btn-sm btn-block rounded-xs" onclick="copyRef()">Copy Invite Link</button>
                 </div>
                 <div class="referral-decor">
                     <i class="fas fa-users"></i>
@@ -266,7 +267,93 @@
 </div>
 
 <style>
-    .bg-dark-card { background: #11151d; border-radius: 2px; }
+    .dashboard-wrapper {
+        padding: 0;
+    }
+    .dashboard-hero {
+        padding: 0.25rem 0 0.4rem;
+    }
+    .dashboard-kicker {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        margin-bottom: 0.9rem;
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 6px;
+        background: rgba(255,255,255,0.02);
+        color: #7d8ca5;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+    .dashboard-grid {
+        margin-left: -0.75rem;
+        margin-right: -0.75rem;
+    }
+    .dashboard-grid > [class*="col-"] {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    .dashboard-actions {
+        gap: 0.75rem;
+    }
+    .dashboard-actions .btn-group {
+        margin-right: 0 !important;
+    }
+    .dashboard-wrapper .card-header,
+    .dashboard-wrapper .card-body,
+    .dashboard-wrapper .card-footer {
+        border-color: rgba(255,255,255,0.06) !important;
+    }
+    .dashboard-wrapper .table th,
+    .dashboard-wrapper .table td {
+        vertical-align: middle;
+    }
+    .dashboard-panel,
+    .dashboard-balance-card {
+        border-radius: 10px;
+        box-shadow: none;
+    }
+    @media (max-width: 991.98px) {
+        .dashboard-hero {
+            padding: 0.3rem 0 0.2rem;
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 1rem;
+        }
+        .dashboard-actions {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .dashboard-actions .btn,
+        .dashboard-actions .dropdown,
+        .dashboard-actions .btn-group {
+            width: 100%;
+        }
+        .dashboard-wrapper .col-lg-8,
+        .dashboard-wrapper .col-lg-4 {
+            margin-bottom: 1rem;
+        }
+    }
+    @media (max-width: 767.98px) {
+        .dashboard-wrapper {
+            padding: 0;
+        }
+        .dashboard-wrapper .card {
+            border-radius: 10px;
+        }
+    }
+</style>
+
+<style>
+    .bg-dark-card {
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.02), transparent 32%),
+            #11151d;
+        border-radius: 10px;
+    }
     .bg-white-5 { background: rgba(255,255,255,0.03); }
     .border-white-10 { border-color: rgba(255,255,255,0.05) !important; }
     

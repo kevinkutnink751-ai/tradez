@@ -1,18 +1,18 @@
 <!-- Main nav -->
-<nav class="navbar navbar-main navbar-expand-lg navbar-dark border-bottom border-white-10" id="navbar-main" style="background: #11151d; padding-top: 0.75rem; padding-bottom: 0.75rem;">
+<nav class="navbar navbar-main navbar-expand-lg navbar-dark border-bottom border-white-10" id="navbar-main" style="background: rgba(17, 21, 29, 0.82); padding-top: 0.9rem; padding-bottom: 0.9rem;">
     <div class="container-fluid">
         <!-- Brand + Toggler (for mobile devices) -->
-        <div class="pl-0 d-block d-md-none">
+        <div class="pl-0 d-flex d-xl-none align-items-center">
+            <a href="#" class="nav-link nav-link-icon dashboard-sidebar-trigger mr-3 px-0" data-dashboard-sidebar-open aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </a>
             <a class="navbar-brand" href="{{ route('dashboard') }}">
                 <img src="{{ asset('storage/app/public/' . $settings->logo) }}" class="navbar-brand-img" alt="..." style="max-height: 35px; filter: brightness(0) invert(1);">
             </a>
         </div>
 
         <div class="d-none d-lg-flex align-items-center">
-            <a href="#" class="nav-link nav-link-icon sidenav-toggler mr-3" data-action="sidenav-pin" data-target="#sidenav-main">
-                <i class="fas fa-bars"></i>
-            </a>
-            <div class="search-bar-mock ml-2">
+            <div class="search-bar-mock">
                 <div class="input-group input-group-sm bg-dark-input rounded px-2" style="border: 1px solid rgba(255,255,255,0.05);">
                     <div class="input-group-prepend"><span class="input-group-text bg-transparent border-0 text-muted"><i class="fas fa-search"></i></span></div>
                     <input type="text" class="form-control bg-transparent border-0 text-white" placeholder="Search markets, trades..." style="width: 250px;">
@@ -86,11 +86,23 @@
                 </li>
             </ul>
         </div>
-    {{-- </div> --}}
+    </div>
 </nav>
 
 <style>
-    .navbar-main { border-radius: 0; box-shadow: none; }
+    .navbar-main {
+        border-radius: 0;
+        box-shadow: none;
+        margin-bottom: 0 !important;
+    }
+    .navbar-main .container-fluid {
+        width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    .navbar-user .navbar-nav {
+        gap: 0.35rem;
+    }
     .bg-white-10 { background: rgba(255,255,255,0.05); }
     .badge-soft-success { background: rgba(0, 200, 83, 0.1); color: #00c853; border-radius: 20px; font-weight: 600; font-size: 0.7rem; }
     .badge-soft-warning { background: rgba(255, 171, 0, 0.1); color: #ffab00; border-radius: 20px; font-weight: 600; font-size: 0.7rem; }
@@ -100,4 +112,17 @@
     .dropdown-item { color: rgba(255,255,255,0.7); font-size: 0.85rem; padding: 0.6rem 1.25rem; transition: all 0.2s; }
     .dropdown-item:hover { background: rgba(255,255,255,0.03); color: #fff; }
     .text-white-50 { color: rgba(255,255,255,0.5) !important; }
+    @media (max-width: 767.98px) {
+        .navbar-main {
+            padding-left: 0.2rem;
+            padding-right: 0.2rem;
+        }
+        .navbar-user .nav-item {
+            margin-right: 0 !important;
+        }
+        .navbar-user .nav-link {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+    }
 </style>

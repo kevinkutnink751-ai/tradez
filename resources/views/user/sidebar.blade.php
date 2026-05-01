@@ -1,13 +1,16 @@
 <!-- Sidenav -->
-<div class="sidenav" id="sidenav-main" style="background: #11151d; border-right: 1px solid rgba(255,255,255,0.05);">
+<div class="sidenav dashboard-sidenav" id="sidenav-main" style="background: #11151d; border-right: 1px solid rgba(255,255,255,0.05);">
     <!-- Sidenav header -->
-    <div class="sidenav-header d-flex align-items-center justify-content-center py-4 border-bottom border-white-10">
+    <div class="sidenav-header d-flex align-items-center justify-content-between py-4 px-4 border-bottom border-white-10">
         <a class="navbar-brand" href="{{ route('dashboard') }}">
             <img src="{{ asset('storage/app/public/' . $settings->logo) }}" class="navbar-brand-img" alt="logo" style="max-height: 40px; filter: brightness(0) invert(1);">
         </a>
+        <button type="button" class="btn btn-link text-white p-0 d-xl-none" data-dashboard-sidebar-close aria-label="Close menu">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
 
-    <div class="scrollbar-inner">
+    <div class="sidenav-scroll">
         <!-- User mini profile - Institutional Style -->
         <div class="sidenav-user px-4 py-4 mb-2">
             <div class="d-flex align-items-center mb-3">
@@ -22,10 +25,7 @@
                     <small class="text-muted text-uppercase" style="font-size: 0.6rem; letter-spacing: 1px;">Verified Trader</small>
                 </div>
             </div>
-            <div class="balance-card p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                <small class="text-muted d-block mb-1 text-uppercase font-weight-bold" style="font-size: 0.6rem; letter-spacing: 0.5px;">Account Equity</small>
-                <h5 class="text-white mb-0 font-weight-bold">{{ $settings->currency }}{{ number_format(Auth::user()->account_bal + Auth::user()->spot_bal + Auth::user()->future_bal, 2) }}</h5>
-            </div>
+            
         </div>
 
         <!-- Navigation -->
@@ -38,120 +38,122 @@
                     </a>
                 </li>
                 
-                <li class="nav-header">Trading Terminals</li>
+                <li class="nav-header">Trade</li>
 
+                @if(isset($mod['spot']) && $mod['spot'])
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs(['spot.trade', 'future.trade', 'binary.trade', 'options.trade', 'copy.trade']) ? '' : 'collapsed' }}" data-toggle="collapse" href="#tradingDropdown" role="button" aria-expanded="{{ request()->routeIs(['spot.trade', 'future.trade', 'binary.trade', 'options.trade', 'copy.trade']) ? 'true' : 'false' }}">
+                    <a class="nav-link {{ request()->routeIs('spot.trade') ? 'active' : '' }}" href="{{ route('spot.trade') }}">
                         <i class="fas fa-chart-line"></i>
-                        <span>Markets</span>
-                        <i class="fas fa-chevron-right ml-auto nav-arrow"></i>
+                        <span>Spot Trading</span>
                     </a>
-                    <div class="collapse {{ request()->routeIs(['spot.trade', 'future.trade', 'binary.trade', 'options.trade', 'copy.trade']) ? 'show' : '' }}" id="tradingDropdown">
-                        <ul class="nav flex-column ml-4 mt-1 border-left border-white-10">
-                            @if(isset($mod['spot']) && $mod['spot'])
-                            <li class="nav-item">
-                                <a class="nav-link py-2 {{ request()->routeIs('spot.trade') ? 'active' : '' }}" href="{{ route('spot.trade') }}">
-                                    <span>Spot Terminal</span>
-                                </a>
-                            </li>
-                            @endif
-                            @if(isset($mod['future']) && $mod['future'])
-                            <li class="nav-item">
-                                <a class="nav-link py-2 {{ request()->routeIs('future.trade') ? 'active' : '' }}" href="{{ route('future.trade') }}">
-                                    <span>Futures Terminal</span>
-                                </a>
-                            </li>
-                            @endif
-                            @if(isset($mod['binary']) && $mod['binary'])
-                            <li class="nav-item">
-                                <a class="nav-link py-2 {{ request()->routeIs('binary.trade') ? 'active' : '' }}" href="{{ route('binary.trade') }}">
-                                    <span>Binary Trading</span>
-                                </a>
-                            </li>
-                            @endif
-                            @if(isset($mod['options']) && $mod['options'])
-                            <li class="nav-item">
-                                <a class="nav-link py-2 {{ request()->routeIs('options.trade') ? 'active' : '' }}" href="{{ route('options.trade') }}">
-                                    <span>Options Market</span>
-                                </a>
-                            </li>
-                            @endif
-                            @if(isset($mod['subscription']) && $mod['subscription'])
-                            <li class="nav-item">
-                                <a class="nav-link py-2 {{ request()->routeIs('copy.trade') ? 'active' : '' }}" href="{{ route('copy.trade') }}">
-                                    <span>Copy Trading</span>
-                                </a>
-                            </li>
-                            @endif
-                        </ul>
-                    </div>
                 </li>
+                @endif
 
+                @if(isset($mod['future']) && $mod['future'])
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs(['tradinghistory', 'future.history', 'binary.history', 'options.history', 'accounthistory']) ? '' : 'collapsed' }}" data-toggle="collapse" href="#historyDropdown" role="button" aria-expanded="{{ request()->routeIs(['tradinghistory', 'future.history', 'binary.history', 'options.history', 'accounthistory']) ? 'true' : 'false' }}">
-                        <i class="fas fa-history"></i>
-                        <span>Reporting</span>
-                        <i class="fas fa-chevron-right ml-auto nav-arrow"></i>
+                    <a class="nav-link {{ request()->routeIs('future.trade') ? 'active' : '' }}" href="{{ route('future.trade') }}">
+                        <i class="fas fa-bolt"></i>
+                        <span>Futures</span>
                     </a>
-                    <div class="collapse {{ request()->routeIs(['tradinghistory', 'future.history', 'binary.history', 'options.history', 'accounthistory', 'spot.history']) ? 'show' : '' }}" id="historyDropdown">
-                        <ul class="nav flex-column ml-4 mt-1 border-left border-white-10">
-                            @if(isset($mod['spot']) && $mod['spot'])
-                            <li class="nav-item"><a class="nav-link py-2 {{ request()->routeIs('spot.history') ? 'active' : '' }}" href="{{ route('spot.history') }}"><span>Spot History</span></a></li>
-                            @endif
-                            @if(isset($mod['future']) && $mod['future'])
-                            <li class="nav-item"><a class="nav-link py-2 {{ request()->routeIs('future.history') ? 'active' : '' }}" href="{{ route('future.history') }}"><span>Futures Log</span></a></li>
-                            @endif
-                            @if(isset($mod['binary']) && $mod['binary'])
-                            <li class="nav-item"><a class="nav-link py-2 {{ request()->routeIs('binary.history') ? 'active' : '' }}" href="{{ route('binary.history') }}"><span>Binary Log</span></a></li>
-                            @endif
-                            @if(isset($mod['options']) && $mod['options'])
-                            <li class="nav-item"><a class="nav-link py-2 {{ request()->routeIs('options.history') ? 'active' : '' }}" href="{{ route('options.history') }}"><span>Options History</span></a></li>
-                            @endif
-                            <li class="nav-item"><a class="nav-link py-2 {{ request()->routeIs('accounthistory') ? 'active' : '' }}" href="{{ route('accounthistory') }}"><span>Transaction History</span></a></li>
-                        </ul>
-                    </div>
                 </li>
+                @endif
 
-                <li class="nav-header">Financial Center</li>
+                @if(isset($mod['subscription']) && $mod['subscription'])
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('copy.trade') ? 'active' : '' }}" href="{{ route('copy.trade') }}">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy Trading</span>
+                    </a>
+                </li>
+                @endif
+
+                @if(isset($mod['binary']) && $mod['binary'])
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('binary.trade') ? 'active' : '' }}" href="{{ route('binary.trade') }}">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>Binary Options</span>
+                    </a>
+                </li>
+                @endif
+
+                @if(isset($mod['options']) && $mod['options'])
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('options.trade') ? 'active' : '' }}" href="{{ route('options.trade') }}">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Vanilla Options</span>
+                    </a>
+                </li>
+                @endif
+
+                <li class="nav-header">Funds</li>
 
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('manage.wallet') ? 'active' : '' }}" href="{{ route('manage.wallet') }}">
                         <i class="fas fa-wallet"></i>
-                        <span>Asset Manager</span>
+                        <span>Wallets</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs(['deposit.history', 'withdraw.history']) ? '' : 'collapsed' }}" data-toggle="collapse" href="#fundDropdown" role="button" aria-expanded="false">
-                        <i class="fas fa-exchange-alt"></i>
-                        <span>Funds Control</span>
-                        <i class="fas fa-chevron-right ml-auto nav-arrow"></i>
+                    <a class="nav-link {{ request()->routeIs('deposits') ? 'active' : '' }}" href="{{ route('deposits') }}">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Deposit</span>
                     </a>
-                    <div class="collapse" id="fundDropdown">
-                        <ul class="nav flex-column ml-4 mt-1 border-left border-white-10">
-                            <li class="nav-item"><a class="nav-link py-2" href="{{ route('deposits') }}"><span>Add Funds</span></a></li>
-                            <li class="nav-item"><a class="nav-link py-2" href="{{ route('withdrawalsdeposits') }}"><span>Withdraw</span></a></li>
-                        </ul>
-                    </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('referuser') ? 'active' : '' }}" href="{{ route('referuser') }}">
-                        <i class="fas fa-users"></i>
-                        <span>Partner Program</span>
+                    <a class="nav-link {{ request()->routeIs('withdrawalsdeposits') ? 'active' : '' }}" href="{{ route('withdrawalsdeposits') }}">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Withdraw</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('accounthistory') ? 'active' : '' }}" href="{{ route('accounthistory') }}">
+                        <i class="fas fa-receipt"></i>
+                        <span>Transactions</span>
                     </a>
                 </li>
 
-                <li class="nav-header">Configuration</li>
+                <li class="nav-header">Reports</li>
+
+                @if(isset($mod['spot']) && $mod['spot'])
+                <li class="nav-item"><a class="nav-link {{ request()->routeIs('spot.history') ? 'active' : '' }}" href="{{ route('spot.history') }}"><i class="fas fa-list-alt"></i><span>Spot History</span></a></li>
+                @endif
+                @if(isset($mod['future']) && $mod['future'])
+                <li class="nav-item"><a class="nav-link {{ request()->routeIs('future.history') ? 'active' : '' }}" href="{{ route('future.history') }}"><i class="fas fa-clipboard-list"></i><span>Futures History</span></a></li>
+                @endif
+                @if(isset($mod['binary']) && $mod['binary'])
+                <li class="nav-item"><a class="nav-link {{ request()->routeIs('binary.history') ? 'active' : '' }}" href="{{ route('binary.history') }}"><i class="fas fa-history"></i><span>Binary History</span></a></li>
+                @endif
+                @if(isset($mod['options']) && $mod['options'])
+                <li class="nav-item"><a class="nav-link {{ request()->routeIs('options.history') ? 'active' : '' }}" href="{{ route('options.history') }}"><i class="fas fa-history"></i><span>Options History</span></a></li>
+                @endif
+
+                <li class="nav-header">Account</li>
+
+                @if ($settings->enable_kyc == 'yes' && Auth::user()->account_verify != 'Verified')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('account.verify') ? 'active' : '' }}" href="{{ route('account.verify') }}">
+                        <i class="fas fa-user-check"></i>
+                        <span>Verify Account</span>
+                    </a>
+                </li>
+                @endif
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('referuser') ? 'active' : '' }}" href="{{ route('referuser') }}">
+                        <i class="fas fa-users"></i>
+                        <span>Referrals</span>
+                    </a>
+                </li>
 
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}" href="{{ route('profile') }}">
                         <i class="fas fa-cog"></i>
-                        <span>Account Settings</span>
+                        <span>Settings</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('support') ? 'active' : '' }}" href="{{ route('support') }}">
                         <i class="fas fa-headset"></i>
-                        <span>Help Center</span>
+                        <span>Support</span>
                     </a>
                 </li>
                 <li class="nav-item mt-3">
@@ -164,41 +166,93 @@
                     </form>
                 </li>
             </ul>
+
+            <div class="sidebar-footer-card mt-4">
+                <small class="sidebar-footer-label">Need help?</small>
+                <h6 class="text-white mb-2">Talk to the trading desk</h6>
+                <p class="text-muted mb-3">Get support for funding, account access, and active market sessions.</p>
+                <a href="{{ route('support') }}" class="btn btn-primary btn-sm btn-block">Open Support</a>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
     .sidenav {
-        width: 260px;
-        transition: all 0.3s;
+        width: var(--sidebar-width);
+        min-width: var(--sidebar-width);
+        transition: transform 0.18s ease;
         z-index: 1000;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.03), transparent 16%),
+            #0d1219 !important;
+        border-right: 1px solid var(--border-color) !important;
+        box-shadow: none;
+    }
+    .dashboard-shell .container-application {
+        min-height: 100vh;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .dashboard-shell .dashboard-sidenav {
+        display: flex !important;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100vh;
+        overflow: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+    .sidenav-scroll {
+        flex: 1 1 auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+        min-height: 0;
+    }
+    .sidenav-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+    .sidenav-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .sidenav-scroll::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.14);
+        border-radius: 999px;
+    }
+    .dashboard-shell .main-content {
+        width: 100%;
+        margin-left: var(--sidebar-width);
+        min-height: 100vh;
     }
     .nav-wrapper .nav-link {
-        color: rgba(255, 255, 255, 0.45);
-        padding: 0.8rem 1.25rem;
-        /* font-size: 0.88rem; */
-        font-weight: 500;
+        color: rgba(255, 255, 255, 0.64);
+        padding: 0.78rem 0.9rem;
+        font-size: 0.9rem;
+        font-weight: 600;
         display: flex;
         align-items: center;
-        transition: all 0.2s;
-        border-radius: 4px;
-        margin-bottom: 2px;
+        transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+        border-radius: 8px;
+        margin-bottom: 0.18rem;
+        border: 1px solid transparent;
     }
     .nav-wrapper .nav-link i:first-child {
         width: 20px;
-        margin-right: 15px;
-        font-size: 1.1rem;
+        margin-right: 14px;
+        font-size: 1rem;
         text-align: center;
     }
     .nav-wrapper .nav-link:hover {
         color: #fff;
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255, 255, 255, 0.045);
+        border-color: rgba(255, 255, 255, 0.05);
     }
     .nav-wrapper .nav-link.active {
         color: #fff;
-        background: linear-gradient(90deg, rgba(21, 114, 232, 0.15) 0%, transparent 100%);
-        border-left: 3px solid #1572e8;
+        background: rgba(21, 114, 232, 0.16);
+        border: 1px solid rgba(21, 114, 232, 0.26);
         font-weight: 600;
     }
     .nav-header {
@@ -206,8 +260,8 @@
         text-transform: uppercase;
         letter-spacing: 1.5px;
         font-weight: 800;
-        color: rgba(255, 255, 255, 0.25);
-        padding: 1.5rem 1.25rem 0.75rem;
+        color: rgba(255, 255, 255, 0.28);
+        padding: 1.25rem 0.9rem 0.55rem;
     }
     .nav-arrow {
         font-size: 0.7rem;
@@ -229,5 +283,53 @@
     }
     .logout-link:hover {
         background: rgba(255, 61, 0, 0.05) !important;
+    }
+    .sidebar-footer-card {
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.06);
+        background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+    }
+    .sidebar-footer-label {
+        display: inline-block;
+        margin-bottom: 0.6rem;
+        color: rgba(255,255,255,0.46);
+        font-size: 0.68rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+    .balance-card {
+        border-radius: 8px !important;
+    }
+    .sidenav-user {
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    @media (max-width: 1199.98px) {
+        .dashboard-shell .dashboard-sidenav {
+            transform: translateX(-100%);
+            box-shadow: 24px 0 60px rgba(0, 0, 0, 0.35);
+        }
+        .dashboard-shell .main-content {
+            margin-left: 0;
+        }
+        .dashboard-shell.dashboard-sidebar-open .dashboard-sidenav {
+            transform: translateX(0);
+        }
+        .dashboard-shell.dashboard-sidebar-open .dashboard-sidebar-overlay {
+            opacity: 1;
+            visibility: visible;
+        }
+        .sidenav {
+            width: min(88vw, var(--sidebar-width));
+            min-width: 0;
+        }
+        .dashboard-shell .dashboard-sidenav {
+            margin-left: 0;
+        }
+    }
+    @media (min-width: 1200px) {
+        .dashboard-shell .dashboard-sidenav {
+            transform: none !important;
+        }
     }
 </style>

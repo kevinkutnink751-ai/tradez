@@ -12,17 +12,7 @@
     @parent
     <style>
         /* Institutional Design System */
-        :root {
-            --inst-bg: #0B0E11;
-            --inst-bg-sec: #161A1E;
-            --inst-border: #2B3139;
-            --inst-text: #EAECEF;
-            --inst-text-muted: #848E9C;
-            --inst-accent: #FCD535; /* Professional Muted Gold */
-            --inst-success: #0ECB81;
-            --inst-danger: #F6465D;
-            --inst-radius: 4px;
-        }
+
 
         body {
             background-color: var(--inst-bg) !important;
@@ -33,9 +23,6 @@
     
 
         .btn-primary {
-            background-color: var(--inst-accent) !important;
-            border-color: var(--inst-accent) !important;
-            color: #000 !important;
             font-weight: 700 !important;
             border-radius: var(--inst-radius) !important;
             text-transform: uppercase;
@@ -45,8 +32,6 @@
 
         .btn-outline-primary {
             border: 1px solid var(--inst-border) !important;
-            color: var(--inst-text) !important;
-            background: transparent !important;
             border-radius: var(--inst-radius) !important;
             font-weight: 600 !important;
         }
@@ -180,6 +165,44 @@
 
         footer .footer-list li a:hover {
             color: var(--inst-accent) !important;
+        }
+        @media (max-width: 991.98px) {
+            .section {
+                padding: 72px 0 !important;
+            }
+            .hero-section {
+                padding: 128px 0 72px 0;
+            }
+            .hero-title {
+                font-size: 2.4rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+                margin-bottom: 28px;
+            }
+            .hero-content .d-flex.gap-3,
+            .hero-content .mt-5.d-flex.align-items-center.text-muted.small {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.9rem;
+            }
+            .hero-content .d-flex.gap-3 .btn {
+                width: 100%;
+                margin-right: 0 !important;
+                text-align: center;
+            }
+            .stat-card,
+            .feature-card {
+                padding: 24px;
+            }
+            .exp-ui-mockup {
+                padding: 16px;
+            }
+            .market-table th,
+            .market-table td {
+                padding: 12px 10px;
+                font-size: 12px;
+            }
         }
     </style>
 @endsection
