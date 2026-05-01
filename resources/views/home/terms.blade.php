@@ -10,12 +10,31 @@
 
 @section('styles')
     @parent
-
+    <style>
+        :root {
+            --inst-bg: #0B0E11;
+            --inst-bg-sec: #161A1E;
+            --inst-border: #2B3139;
+            --inst-text: #EAECEF;
+            --inst-text-muted: #848E9C;
+            --inst-accent: #FCD535;
+        }
+        body { background-color: var(--inst-bg) !important; color: var(--inst-text) !important; }
+        .page-header { padding: 120px 0 60px 0; background: var(--inst-bg-sec); border-bottom: 1px solid var(--inst-border); }
+        .section { padding: 100px 0 !important; background-color: var(--inst-bg) !important; }
+        .trader-card { background: var(--inst-bg-sec); border: 1px solid var(--inst-border); border-radius: 4px; padding: 30px; transition: all 0.3s; }
+        .trader-card:hover { border-color: var(--inst-accent); transform: translateY(-5px); }
+        .trader-avatar { width: 64px; height: 64px; border-radius: 50%; background: #222; border: 2px solid var(--inst-border); margin-bottom: 20px; }
+        .metric-label { font-size: 10px; color: var(--inst-text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .metric-val { font-size: 18px; font-weight: 700; color: var(--inst-text); }
+        .win-rate { color: #0ecb81; }
+    </style>
 @endsection
+
 
 @section('content')
     <!-- Hero Start -->
-    <section class="bg-half bg-light d-table w-100">
+    <section class="page-header">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="text-center col-lg-12">

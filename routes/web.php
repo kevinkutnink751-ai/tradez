@@ -47,3 +47,22 @@ Route::get('privacy', [HomePageController::class, 'privacy'])->name('privacy');
 Route::get('about', [HomePageController::class, 'about'])->name('about');
 Route::get('contact', [HomePageController::class, 'contact'])->name('contact');
 Route::get('faq', [HomePageController::class, 'faq'])->name('faq');
+Route::get('insurance', [HomePageController::class, 'insurance'])->name('insurance');
+Route::get('regulations', [HomePageController::class, 'regulations'])->name('regulations');
+Route::get('security', [HomePageController::class, 'security'])->name('security');
+Route::get('master-account', [HomePageController::class, 'masterAccount'])->name('masterAccount');
+
+
+// Product Landing Pages
+Route::get('products/option-copy', [HomePageController::class, 'optionCopy'])->name('product.optionCopy');
+Route::get('products/advance-trading', [HomePageController::class, 'advanceTrading'])->name('product.advanceTrading');
+Route::get('products/live-trading', [HomePageController::class, 'liveTrading'])->name('product.liveTrading');
+Route::get('products/futures', [HomePageController::class, 'futuresTrading'])->name('product.futures');
+Route::get('products/options', [HomePageController::class, 'optionsTrading'])->name('product.options');
+Route::get('products/binary', [HomePageController::class, 'binaryTrading'])->name('product.binary');
+Route::get('products/spot', [HomePageController::class, 'spotTrading'])->name('product.spot');
+Route::get('products/mirroring', [HomePageController::class, 'expertMirroring'])->name('product.mirroring');
+Route::get('products/strategy', [HomePageController::class, 'strategyMarketplace'])->name('product.strategy');
+Route::get('products/forex', [HomePageController::class, 'forexTrading'])->name('product.forex');
+
+
