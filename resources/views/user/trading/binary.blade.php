@@ -348,7 +348,7 @@
 </div>
 @endsection 
 
-@section('scripts')
+@push('scripts')
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
     new TradingView.widget({
@@ -442,4 +442,4 @@
         switchHistoryTab('running');
     };
 </script>
-@endsection
+@endpush
