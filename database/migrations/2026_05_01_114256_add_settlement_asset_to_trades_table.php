@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('trades', function (Blueprint $table) {
-            $table->string('settlement_asset')->nullable()->after('quote_asset_symbol');
+            $table->string('settlement_asset')->nullable();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('trades', function (Blueprint $table) {
-            //
+            $table->dropColumn('settlement_asset');
         });
     }
 };
