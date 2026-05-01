@@ -51,6 +51,7 @@
                                             using
                                             your selected payment method.
                                         </h6>
+                                        <p class="text-muted mb-3">After confirmation, the deposit is converted and credited to your USD funding wallet.</p>
                                         <h4>
                                             @if (!empty($payment_mode->img_url))
                                                 <img src="{{ $payment_mode->img_url }}" alt="" class="w-25">
@@ -331,6 +332,8 @@
                                                 <input type="hidden" name="amount" value="{{ $amount }}">
                                                 <input type="hidden" name="paymethd_method"
                                                     value="{{ $payment_mode->name }}">
+                                                <input type="hidden" name="asset_id" value="{{ session('deposit_asset_id') }}">
+                                                <input type="hidden" name="balance_type" value="{{ session('deposit_balance_type', 'funding') }}">
 
                                                 <div class="form-group">
                                                     <input type="submit" class="btn btn-primary"
@@ -352,6 +355,8 @@
                                                 <input type="hidden" name="amount" value="{{ $amount }}">
                                                 <input type="hidden" name="paymethd_method"
                                                     value="{{ $payment_mode->name }}">
+                                                <input type="hidden" name="asset_id" value="{{ session('deposit_asset_id') }}">
+                                                <input type="hidden" name="balance_type" value="{{ session('deposit_balance_type', 'funding') }}">
 
                                                 <div class="form-group">
                                                     <input type="submit" class="btn btn-primary"

@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Settings;
 use App\Models\Deposit;
-use App\Models\Wdmethod;
+use App\Models\Asset;
+use App\Models\PaymentMethod;
+use App\Models\UserWallet;
 use App\Models\Tp_Transaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -16,11 +18,11 @@ use App\Traits\TemplateTrait;
 
 class DepositController extends Controller
 {
-    use TemplateTrait;
+    use TemplateTrait, \App\Traits\UserWalletTrait;
 
     public function getmethod($id)
     {
-        $methodname =  Wdmethod::where('id', $id)->first();
+        $methodname =  PaymentMethod::where('id', $id)->first();
         return response()->json($methodname->name);
     }
 
@@ -28,7 +30,8 @@ class DepositController extends Controller
     public function newdeposit(Request $request)
     {
         $settings = Settings::where('id', '1')->first();
-        $methodname =  Wdmethod::where('name', $request->payment_method)->first();
+        $methodname =  PaymentMethod::where('name', $request->payment_method)->firstOrFail();
+        $usdAsset = $this->resolveUsdAsset();
 
         if ($methodname->name == "Credit Card" and $settings->credit_card_provider == "Stripe") {
             $secretkey = $settings->s_s_k;
@@ -56,14 +59,17 @@ class DepositController extends Controller
 
             //return $client_secret;
             $client_secret = $paymentIntent->client_secret;
+        } else {
+            $client_secret = "";
         }
-        $client_secret = "";
 
 
         //store payment info in session
         $request->session()->put('amount', $request['amount']);
         $request->session()->put('payment_mode', $methodname->name);
         $request->session()->put('intent', $client_secret);
+        $request->session()->put('deposit_asset_id', $request->asset_id ?: $usdAsset->id);
+        $request->session()->put('deposit_balance_type', $request->balance_type ?: 'funding');
 
         return redirect()->route('payment');
     }
@@ -71,11 +77,12 @@ class DepositController extends Controller
     //payment route
     public function payment(Request $request)
     {
-        $methodname =  Wdmethod::firstWhere('name', $request->session()->get('payment_mode'));
+        $methodname =  PaymentMethod::firstWhere('name', $request->session()->get('payment_mode'));
         return view("user.payment")
             ->with(array(
                 'amount' => $request->session()->get('amount'),
                 'payment_mode' => $methodname,
+                'settlementAsset' => $this->resolveUsdAsset(),
                 'intent' => $request->session()->get('intent'),
                 'title' => 'Make Payment',
             ));
@@ -98,6 +105,9 @@ class DepositController extends Controller
         $dp->proof = "Credit Card";
         $dp->plan = 0;
         $dp->user = $user->id;
+        $dp->asset_id = $request->session()->get('deposit_asset_id', $this->resolveUsdAsset()->id);
+        $dp->balance_type = $request->session()->get('deposit_balance_type', 'funding');
+        $dp->wallet = ucfirst($dp->balance_type);
         $dp->save();
 
         if ($settings->deposit_bonus != NULL and $settings->deposit_bonus > 0) {
@@ -114,12 +124,11 @@ class DepositController extends Controller
         }
 
         //add funds to user's account
-        User::where('id', $user->id)
-            ->update([
-                'account_bal' => $user->account_bal + $request->amount + $bonus,
-                'bonus' => $user->bonus + $bonus,
-                'cstatus' => 'Customer',
-            ]);
+        $this->creditDepositWallet($user->id, $request->amount + $bonus);
+        User::where('id', $user->id)->update([
+            'bonus' => $user->bonus + $bonus,
+            'cstatus' => 'Customer',
+        ]);
 
         if (!empty($user->ref_by)) {
 
@@ -149,6 +158,8 @@ class DepositController extends Controller
         $request->session()->forget('payment_mode');
         $request->session()->forget('amount');
         $request->session()->forget('intent');
+        $request->session()->forget('deposit_asset_id');
+        $request->session()->forget('deposit_balance_type');
 
         return response()->json(['success' => 'Payment Completed, redirecting']);
     }
@@ -182,6 +193,9 @@ class DepositController extends Controller
         $dp->status = 'Pending';
         $dp->proof = $path;
         $dp->user = Auth::user()->id;
+        $dp->asset_id = $request->session()->get('deposit_asset_id', $this->resolveUsdAsset()->id);
+        $dp->balance_type = $request->session()->get('deposit_balance_type', 'funding');
+        $dp->wallet = ucfirst($dp->balance_type);
         $dp->save();
 
         //get user
@@ -196,6 +210,8 @@ class DepositController extends Controller
         // Kill the session variables
         $request->session()->forget('payment_mode');
         $request->session()->forget('amount');
+        $request->session()->forget('deposit_asset_id');
+        $request->session()->forget('deposit_balance_type');
 
         return redirect()->route('deposits')
             ->with('success', 'Account Fund Sucessful! Please wait for system to validate this transaction.');

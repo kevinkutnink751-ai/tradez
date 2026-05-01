@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\PaymentMethod;
 use App\Models\Settings;
 use App\Models\SettingsCont;
-use App\Models\Wdmethod;
 use App\Models\Paystack;
 use App\Models\Cp_transaction;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +16,7 @@ class PaymentController extends Controller
     // Return view
     public function paymentview(Request $request)
     {
-        $paymethod = Wdmethod::orderByDesc('id')->get();
+        $paymethod = PaymentMethod::orderByDesc('id')->get();
 
         return view('admin.Settings.PaymentSettings.show', [
             'title' => 'Payment settings',
@@ -41,8 +41,9 @@ class PaymentController extends Controller
             $path = NULL;
         }
 
-        $method = new Wdmethod();
+        $method = new PaymentMethod();
         $method->name = $request['name'];
+        $method->slug = \Illuminate\Support\Str::slug($request['name']);
         $method->minimum = $request['minimum'];
         $method->maximum = $request['maximum'];
         $method->charges_amount = $request['charges'];
@@ -66,7 +67,7 @@ class PaymentController extends Controller
 
     public function editmethod($id)
     {
-        $paymethod = Wdmethod::where('id', $id)->first();
+        $paymethod = PaymentMethod::where('id', $id)->first();
 
         return view('admin.Settings.PaymentSettings.editpaymethod', [
             'title' => 'Update Payment Method',
@@ -77,21 +78,21 @@ class PaymentController extends Controller
 
     public function deletepaymethod($id)
     {
-        Wdmethod::where('id', $id)->delete();
+        PaymentMethod::where('id', $id)->delete();
         return redirect()->back()->with('success', 'Payment Method Deleted Successfully');
     }
 
     //enable or disable payment method
     public function togglePaymentMethodStatus(int $id)
     {
-        $method = Wdmethod::where('id', $id)->first();
+        $method = PaymentMethod::where('id', $id)->first();
 
         if ($method->status == 'enabled') {
-            Wdmethod::where('id', $id)->update([
+            PaymentMethod::where('id', $id)->update([
                 'status' => 'disabled',
             ]);
         } else {
-            Wdmethod::where('id', $id)->update([
+            PaymentMethod::where('id', $id)->update([
                 'status' => 'enabled',
             ]);
         }
@@ -105,7 +106,7 @@ class PaymentController extends Controller
             'barcode' => 'image|mimes:jpg,jpeg,png|max:500',
         ]);
 
-        $method =  Wdmethod::where('id', $request->id)->first();
+        $method =  PaymentMethod::where('id', $request->id)->first();
 
         if ($request->hasfile('barcode')) {
             $file = $request->file('barcode');
@@ -118,8 +119,9 @@ class PaymentController extends Controller
             $path = $method->barcode;
         }
 
-        Wdmethod::where('id', $request->id)->update([
+        PaymentMethod::where('id', $request->id)->update([
             'name' => $request['name'],
+            'slug' => \Illuminate\Support\Str::slug($request['name']),
             'minimum' => $request['minimum'],
             'maximum' => $request['maximum'],
             'charges_amount' => $request['charges'],

@@ -22,6 +22,11 @@ class TradingPair extends Model
         'max_amount',
         'leverage',
         'status',
+        'binary_min_amount',
+        'binary_max_amount',
+        'binary_increment',
+        'binary_profit_percent',
+        'binary_durations',
     ];
 
     protected $appends = [
@@ -31,6 +36,7 @@ class TradingPair extends Model
     protected $casts = [
         'supported_markets' => 'array',
         'leverage_options' => 'array',
+        'binary_durations' => 'array',
         'status' => 'boolean',
     ];
 

@@ -20,9 +20,11 @@ class TradeController extends Controller
         $request->validate([
             'pair' => 'required|exists:trading_pairs,name',
             'type' => 'required|in:Buy,Sell',
-            'amount' => 'required|numeric|min:1',
+            'order_type' => 'required|in:Market,Limit,Stop',
+            'amount' => 'required|numeric|min:0.0001',
             'leverage' => 'required|numeric|min:1',
             'price' => 'nullable|numeric',
+            'settlement_asset' => 'nullable|string'
         ]);
 
         $user = User::find(Auth::id());
@@ -32,23 +34,44 @@ class TradeController extends Controller
             return response()->json(['status' => 400, 'message' => 'Invalid futures instrument.']);
         }
 
+        $settlementSymbol = $request->settlement_asset ?: $pair->quote_asset;
+        $settlementAsset = Asset::where('symbol', $settlementSymbol)->first();
+        
+        if (!$settlementAsset || !in_array($settlementAsset->type, ['Crypto', 'Fiat'])) {
+            $settlementSymbol = 'USD';
+            $settlementAsset = Asset::where('symbol', 'USD')->first();
+        }
+
+        $orderType = $request->order_type;
+        $price = ($orderType === 'Market') ? $pair->last_price : ($request->price ?: $pair->last_price);
+
+        // Interpretation logic
+        if ($settlementSymbol === $pair->symbol) {
+            $baseAmount = $request->amount;
+            $notionalUsd = $baseAmount * $price;
+        } else {
+            // Assume settlement asset is either quote or another margin asset
+            // If it's USD, amount is USD. If it's another asset, amount is in that asset's units.
+            $notionalUsd = $request->amount * ($settlementAsset->base_rate ?: 1);
+            $baseAmount = $notionalUsd / $price;
+        }
+
+        $marginRequiredUsd = $notionalUsd / $request->leverage;
+        
         if ($request->leverage > $pair->leverage) {
             return response()->json(['status' => 400, 'message' => 'Leverage exceeds market limit.']);
         }
 
-        if ($request->amount < $pair->min_amount || $request->amount > $pair->max_amount) {
+        if ($baseAmount < $pair->min_amount || $baseAmount > $pair->max_amount) {
             return response()->json(['status' => 400, 'message' => 'Trade size is outside the allowed range.']);
         }
 
-        $marginRequired = $request->amount / $request->leverage;
-        $settlementWallet = $this->getWalletForSymbol($user->id, $pair->quote_asset);
+        $marginRequired = $marginRequiredUsd / ($settlementAsset->base_rate ?: 1);
 
-        if (!$settlementWallet) {
-            return response()->json(['status' => 400, 'message' => "{$pair->quote_asset} futures wallet not found."]);
-        }
+        $settlementWallet = $this->getOrCreateWalletForSymbol($user->id, $settlementSymbol);
 
-        if ($settlementWallet->future_bal < $marginRequired) {
-            return response()->json(['status' => 400, 'message' => "Insufficient {$pair->quote_asset} futures balance."]);
+        if (!$settlementWallet || $settlementWallet->future_bal < $marginRequired) {
+            return response()->json(['status' => 400, 'message' => "Insufficient {$settlementSymbol} futures balance."]);
         }
 
         Trade::create([
@@ -57,13 +80,15 @@ class TradeController extends Controller
             'pair' => $pair->display_name,
             'asset_symbol' => $pair->symbol,
             'quote_asset_symbol' => $pair->quote_asset,
+            'settlement_asset' => $settlementSymbol,
             'type' => $request->type,
             'market_type' => 'Future',
+            'order_type' => $orderType,
             'instrument_category' => $pair->instrument_category,
-            'amount' => $request->amount,
-            'price' => $pair->last_price,
+            'amount' => $baseAmount,
+            'price' => $price,
             'leverage' => $request->leverage,
-            'status' => 'Open',
+            'status' => ($orderType === 'Market') ? 'Open' : 'Pending',
             'pnl' => 0,
         ]);
 
@@ -78,8 +103,9 @@ class TradeController extends Controller
         $request->validate([
             'pair' => 'required|exists:trading_pairs,name',
             'type' => 'required|in:Buy,Sell',
-            'amount' => 'required|numeric|min:1',
+            'amount' => 'required|numeric|min:0.000001',
             'price' => 'nullable|numeric',
+            'settlement_asset' => 'nullable|string'
         ]);
 
         $user = User::find(Auth::id());
@@ -89,37 +115,50 @@ class TradeController extends Controller
             return response()->json(['status' => 400, 'message' => 'Invalid trading pair.']);
         }
 
-        if ($request->amount < $pair->min_amount || $request->amount > $pair->max_amount) {
-            return response()->json(['status' => 400, 'message' => 'Trade size is outside the allowed range.']);
+        $settlementSymbol = $request->settlement_asset ?: $pair->quote_asset;
+        $settlementAsset = Asset::where('symbol', $settlementSymbol)->first();
+        
+        if (!$settlementAsset || !in_array($settlementAsset->type, ['Crypto', 'Fiat'])) {
+            $settlementSymbol = 'USD';
+            $settlementAsset = Asset::where('symbol', 'USD')->first();
         }
 
         $price = $pair->last_price;
-        $quoteWallet = $this->getWalletForSymbol($user->id, $pair->quote_asset);
-        $assetWallet = $this->getOrCreateWalletForSymbol($user->id, $pair->symbol);
 
-        if ($request->type == 'Buy') {
-            $cost = $request->amount * $price;
-            if (!$quoteWallet || $quoteWallet->spot_bal < $cost) {
-                return response()->json(['status' => 400, 'message' => "Insufficient {$pair->quote_asset} spot balance."]);
-            }
-
-            $quoteWallet->spot_bal -= $cost;
-            $quoteWallet->save();
-            $assetWallet->spot_bal += $request->amount;
-            $assetWallet->save();
+        if ($settlementSymbol === $pair->symbol) {
+            $baseAmount = $request->amount;
+            $quoteAmount = $baseAmount * $price;
         } else {
-            if (!$assetWallet || $assetWallet->spot_bal < $request->amount) {
-                return response()->json(['status' => 400, 'message' => "Insufficient {$pair->symbol} spot balance."]);
-            }
+            // If paying with quote or another asset
+            $usdValue = $request->amount * ($settlementAsset->base_rate ?: 1);
+            $baseAmount = $usdValue / $price;
+            $quoteAmount = $usdValue;
+        }
 
-            if (!$quoteWallet) {
-                return response()->json(['status' => 400, 'message' => "{$pair->quote_asset} wallet not found."]);
-            }
+        $settlementWallet = $this->getOrCreateWalletForSymbol($user->id, $settlementSymbol);
+        $cost = $request->amount; // The actual amount of settlement asset spent
 
-            $assetWallet->spot_bal -= $request->amount;
-            $assetWallet->save();
-            $quoteWallet->spot_bal += ($request->amount * $price);
-            $quoteWallet->save();
+        if ($request->type === 'Buy') {
+            if ($settlementWallet->spot_bal < $cost) {
+                return response()->json(['status' => 400, 'message' => "Insufficient {$settlementSymbol} balance."]);
+            }
+            $settlementWallet->spot_bal -= $cost;
+            $baseWallet = $this->getOrCreateWalletForSymbol($user->id, $pair->symbol);
+            $baseWallet->spot_bal += $baseAmount;
+            
+            $settlementWallet->save();
+            $baseWallet->save();
+        } else {
+            // Selling: user must have enough base asset
+            $baseWallet = $this->getOrCreateWalletForSymbol($user->id, $pair->symbol);
+            if ($baseWallet->spot_bal < $baseAmount) {
+                return response()->json(['status' => 400, 'message' => "Insufficient {$pair->symbol} balance."]);
+            }
+            $baseWallet->spot_bal -= $baseAmount;
+            $settlementWallet->spot_bal += $cost;
+            
+            $baseWallet->save();
+            $settlementWallet->save();
         }
 
         Trade::create([
@@ -128,17 +167,18 @@ class TradeController extends Controller
             'pair' => $pair->display_name,
             'asset_symbol' => $pair->symbol,
             'quote_asset_symbol' => $pair->quote_asset,
+            'settlement_asset' => $settlementSymbol,
             'type' => $request->type,
             'market_type' => 'Spot',
             'instrument_category' => $pair->instrument_category,
-            'amount' => $request->amount,
+            'amount' => $baseAmount,
             'price' => $price,
             'leverage' => 1,
             'status' => 'Completed',
             'pnl' => 0,
         ]);
 
-        return response()->json(['status' => 200, 'message' => 'Order placed successfully.']);
+        return response()->json(['status' => 200, 'message' => 'Spot trade executed successfully.']);
     }
 
     public function closeTrade($id)
@@ -146,38 +186,67 @@ class TradeController extends Controller
         $trade = Trade::where('id', $id)->where('user_id', Auth::id())->where('status', 'Open')->firstOrFail();
         $user = User::find(Auth::id());
 
-        $mockPnlPercent = rand(-10, 20) / 100;
-        $pnl = $trade->amount * $mockPnlPercent;
-        $settlementSymbol = $trade->quote_asset_symbol ?: 'USD';
+        // Simple P&L simulation for demo purposes
+        // In production, this would be (Current Price - Entry Price) * Amount
+        $mockPnlPercent = rand(-5, 15) / 100;
+        $pnl = ($trade->amount * $trade->price) * $mockPnlPercent;
+        
+        $settlementSymbol = $trade->settlement_asset ?: 'USD';
         $settlementWallet = $this->getWalletForSymbol($user->id, $settlementSymbol);
         
+        $margin = ($trade->amount * $trade->price) / $trade->leverage;
+        $pnlInSettlement = $pnl / ($trade->price ?: 1); // rough conversion if settlement is base
+
         if ($trade->market_type == 'Future') {
-            $margin = $trade->amount / $trade->leverage;
             if ($settlementWallet) {
-                $settlementWallet->future_bal += ($margin + $pnl);
+                $settlementWallet->future_bal += ($margin + $pnlInSettlement);
                 $settlementWallet->save();
-            } else {
-                $user->future_bal += ($margin + $pnl);
-            }
-        } else {
-            if ($settlementWallet) {
-                $settlementWallet->spot_bal += (($trade->amount * $trade->price) + $pnl);
-                $settlementWallet->save();
-            } else {
-                $user->spot_bal += ($trade->amount + $pnl);
             }
         }
 
         $trade->update([
             'status' => 'Completed',
-            'pnl' => $pnl,
+            'pnl' => $pnlInSettlement,
         ]);
-
-        $user->save();
 
         return response()->json([
             'status' => 200, 
-            'message' => 'Position closed with ' . ($pnl >= 0 ? 'profit' : 'loss') . ' of ' . abs($pnl) . ' ' . $settlementSymbol
+            'message' => 'Position closed successfully.',
+            'data' => [
+                'pnl' => number_format($pnlInSettlement, 4),
+                'symbol' => $settlementSymbol,
+                'completion_type' => 'Auto-Settled',
+                'new_balance' => number_format($settlementWallet->future_bal ?? 0, 4)
+            ]
+        ]);
+    }
+
+    public function cancelTrade($id)
+    {
+        $trade = Trade::where('id', $id)->where('user_id', Auth::id())->where('status', 'Pending')->firstOrFail();
+        $user = User::find(Auth::id());
+
+        $settlementSymbol = $trade->settlement_asset ?: 'USD';
+        $settlementWallet = $this->getWalletForSymbol($user->id, $settlementSymbol);
+
+        $margin = ($trade->amount * $trade->price) / $trade->leverage;
+
+        if ($trade->market_type == 'Future') {
+            if ($settlementWallet) {
+                $settlementWallet->future_bal += $margin;
+                $settlementWallet->save();
+            }
+        }
+
+        $trade->update(['status' => 'Canceled']);
+
+        return response()->json([
+            'status' => 200, 
+            'message' => 'Order canceled and margin released.',
+            'data' => [
+                'completion_type' => 'Auto',
+                'new_balance' => number_format($settlementWallet->future_bal ?? 0, 4)
+            ]
         ]);
     }
 
@@ -223,7 +292,7 @@ class TradeController extends Controller
             'pair' => 'required|exists:trading_pairs,name',
             'type' => 'required|in:Call,Put',
             'amount' => 'required|numeric|min:1',
-            'expiry' => 'required|string',
+            'expiry' => 'required|numeric',
         ]);
 
         $user = User::find(Auth::id());
@@ -246,7 +315,7 @@ class TradeController extends Controller
             'type' => $request->type,
             'amount' => $request->amount,
             'strike_price' => $pair->last_price,
-            'expiration' => $request->expiry,
+            'expiration' => now()->addSeconds((int)$request->expiry),
             'status' => 'Pending',
             'pnl' => 0,
         ]);
@@ -254,13 +323,14 @@ class TradeController extends Controller
         return response()->json(['status' => 200, 'message' => 'Options trade placed successfully.']);
     }
 
+
     protected function resolvePair(string $name, string $type): ?TradingPair
     {
         return TradingPair::with(['asset', 'quoteAssetModel'])
             ->where('name', $name)
-            ->where('type', $type)
             ->where('status', true)
-            ->first();
+            ->get()
+            ->first(fn ($pair) => $pair->supportsMarket($type));
     }
 
     protected function getWalletForSymbol(int $userId, string $symbol): ?UserWallet

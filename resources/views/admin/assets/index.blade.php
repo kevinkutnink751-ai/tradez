@@ -20,6 +20,7 @@
                     <table class="table table-hover text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }}">
                         <thead>
                             <tr>
+                                <th>Logo</th>
                                 <th>Name</th>
                                 <th>Symbol</th>
                                 <th>Type</th>
@@ -32,6 +33,13 @@
                         <tbody>
                             @foreach($assets as $asset)
                             <tr>
+                                <td>
+                                    @if($asset->logo)
+                                        <img src="{{ $asset->logo }}" alt="{{ $asset->symbol }}" width="32" height="32" style="object-fit:cover;border-radius:8px;">
+                                    @else
+                                        <div style="width:32px;height:32px;border-radius:8px;background:#22303c;color:#fff;display:flex;align-items:center;justify-content:center;">{{ substr($asset->symbol,0,1) }}</div>
+                                    @endif
+                                </td>
                                 <td>{{ $asset->name }}</td>
                                 <td>{{ $asset->symbol }}</td>
                                 <td>
@@ -91,6 +99,10 @@
                                                 <div class="form-group">
                                                     <label>Base Rate (to USD)</label>
                                                     <input type="number" step="0.00000001" name="base_rate" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" value="{{ $asset->base_rate }}" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Logo URL</label>
+                                                    <input type="text" name="logo" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" value="{{ $asset->logo }}">
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Price Source</label>
@@ -163,6 +175,10 @@
                     <div class="form-group">
                         <label>Base Rate (to USD)</label>
                         <input type="number" step="0.00000001" name="base_rate" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Logo URL</label>
+                        <input type="text" name="logo" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" placeholder="https://...">
                     </div>
                     <div class="form-group">
                         <label>Price Source</label>

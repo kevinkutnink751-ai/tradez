@@ -15,12 +15,21 @@ use KingFlamez\Rave\Facades\Rave as Flutterwave;
 
 class FlutterwaveController extends Controller
 {
+    use \App\Traits\UserWalletTrait;
+
     //initialize flutterwave payment
     public function initialize(Request $request)
     {
         //This generates a payment reference
         $reference = Flutterwave::generateReference();
         $settings = Settings::find(1);
+
+        // Store target wallet/asset in session if they came in the request
+        if ($request->has('asset_id')) {
+            $request->session()->put('deposit_asset_id', $request->asset_id);
+            $request->session()->put('deposit_balance_type', $request->balance_type);
+        }
+
         // Enter the details of the payment
         $data = [
             'payment_options' => 'card,banktransfer',
@@ -83,6 +92,9 @@ class FlutterwaveController extends Controller
         $dp->proof = "Credit Card";
         $dp->plan = "0";
         $dp->user = $user->id;
+        $dp->asset_id = session()->get('deposit_asset_id', $this->resolveUsdAsset()->id);
+        $dp->balance_type = session()->get('deposit_balance_type', 'funding');
+        $dp->wallet = ucfirst($dp->balance_type);
         $dp->save();
 
         if ($settings->deposit_bonus != NULL and $settings->deposit_bonus > 0) {
@@ -99,10 +111,10 @@ class FlutterwaveController extends Controller
         }
 
         //add funds to user's account
+        $this->creditDepositWallet($user->id, $amount + $bonus);
+        
         User::where('id', $user->id)
             ->update([
-                'account_bal' => $user->account_bal + $amount + $bonus,
-                'bonus' => $user->bonus + $bonus,
                 'cstatus' => 'Customer',
             ]);
 

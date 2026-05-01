@@ -14,6 +14,8 @@ use Unicodeveloper\Paystack\Facades\Paystack;
 
 class PaystackController extends Controller
 {
+    use \App\Traits\UserWalletTrait;
+
     public function redirectToGateway()
     {
         try {
@@ -46,6 +48,9 @@ class PaystackController extends Controller
         $dp->proof = "Credit Card";
         $dp->plan = "0";
         $dp->user = $user->id;
+        $dp->asset_id = session()->get('deposit_asset_id', $this->resolveUsdAsset()->id);
+        $dp->balance_type = session()->get('deposit_balance_type', 'funding');
+        $dp->wallet = ucfirst($dp->balance_type);
         $dp->save();
 
 
@@ -63,10 +68,10 @@ class PaystackController extends Controller
         }
 
         //add funds to user's account
+        $this->creditDepositWallet($user->id, $amount + $bonus);
+
         User::where('id', $user->id)
             ->update([
-                'account_bal' => $user->account_bal + $amount + $bonus,
-                'bonus' => $user->bonus + $bonus,
                 'cstatus' => 'Customer',
             ]);
 

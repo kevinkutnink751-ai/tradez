@@ -137,6 +137,7 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->group(func
         Route::get('future-trade', [ViewsController::class, 'futureTrade'])->name('future.trade');
         Route::post('future-trade', [TradeController::class, 'storeFutureTrade'])->name('future.trade.store');
         Route::get('close-trade/{id}', [TradeController::class, 'closeTrade'])->name('trade.close');
+        Route::get('cancel-trade/{id}', [TradeController::class, 'cancelTrade'])->name('trade.cancel');
         Route::get('spot-trade-history', [ViewsController::class, 'spotHistory'])->name('spot.history');
         Route::get('future-trade-history', [ViewsController::class, 'futureHistory'])->name('future.history');
         Route::post('spot-trade', [TradeController::class, 'storeSpotTrade'])->name('spot.trade.store');

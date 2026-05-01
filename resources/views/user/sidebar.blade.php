@@ -128,8 +128,8 @@
                     </a>
                     <div class="collapse" id="fundDropdown">
                         <ul class="nav flex-column ml-4 mt-1 border-left border-white-10">
-                            <li class="nav-item"><a class="nav-link py-2" href="{{ route('newdeposit') }}"><span>Add Funds</span></a></li>
-                            <li class="nav-item"><a class="nav-link py-2" href="{{ route('withdrawamount') }}"><span>Withdraw</span></a></li>
+                            <li class="nav-item"><a class="nav-link py-2" href="{{ route('deposits') }}"><span>Add Funds</span></a></li>
+                            <li class="nav-item"><a class="nav-link py-2" href="{{ route('withdrawalsdeposits') }}"><span>Withdraw</span></a></li>
                         </ul>
                     </div>
                 </li>

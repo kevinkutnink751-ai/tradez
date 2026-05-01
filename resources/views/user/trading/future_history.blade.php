@@ -13,13 +13,10 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <ul class="nav nav-tabs nav-tabs-trading border-0">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#open" data-toggle="tab">Open Positions</a>
+                                <a class="nav-link active" href="#open" data-toggle="tab">Open Positions ({{ $trades->where('status', 'Open')->count() }})</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#history" data-toggle="tab">Order History</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#trade" data-toggle="tab">Trade History</a>
+                                <a class="nav-link" href="#history" data-toggle="tab">History ({{ $trades->whereIn('status', ['Completed', 'Canceled'])->count() }})</a>
                             </li>
                         </ul>
                     </div>
@@ -36,33 +33,33 @@
                                             <th>Entry Price</th>
                                             <th>Mark Price</th>
                                             <th>Liq. Price</th>
-                                            <th>Margin Ratio</th>
-                                            <th>PnL (ROE %)</th>
-                                            <th>Action</th>
+                                            <th>Margin</th>
+                                            <th>PnL (ROI %)</th>
+                                            <th class="text-right">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($trades->where('status', 'Open') as $trade)
                                             <tr>
-                                                <td class="text-white font-weight-bold">{{ $trade->pair }} <span class="badge badge-soft-warning ml-1">{{ $trade->leverage }}x</span></td>
+                                                <td class="text-white font-weight-bold">{{ $trade->pair }} <span class="badge badge-soft-success ml-1">{{ $trade->leverage }}x</span></td>
                                                 <td class="text-{{ $trade->type == 'Buy' ? 'success' : 'danger' }}">{{ $trade->type == 'Buy' ? '+' : '-' }}{{ number_format($trade->amount, 4) }}</td>
-                                                <td>{{ number_format($trade->price, 2) }}</td>
-                                                <td>{{ number_format($trade->price * 1.01, 2) }}</td> {{-- Mock mark price --}}
-                                                <td class="text-warning">{{ number_format($trade->price * 0.8, 2) }}</td> {{-- Mock liq price --}}
-                                                <td>2.45%</td>
+                                                <td>{{ number_format($trade->price, 4) }}</td>
+                                                <td>{{ number_format($trade->price, 4) }}</td>
+                                                <td class="text-warning">--</td>
+                                                <td>{{ number_format($trade->amount / $trade->leverage, 4) }} {{ $trade->settlement_asset }}</td>
                                                 <td>
                                                     <div class="text-{{ $trade->pnl >= 0 ? 'success' : 'danger' }} font-weight-bold">
-                                                        {{ $trade->pnl >= 0 ? '+' : '' }}{{ number_format($trade->pnl, 2) }} {{ $trade->quote_asset_symbol ?: 'USD' }}
+                                                        {{ $trade->pnl >= 0 ? '+' : '' }}{{ number_format($trade->pnl, 2) }} {{ $trade->settlement_asset }}
                                                     </div>
-                                                    <small class="text-muted">(+12.4%)</small>
+                                                    <small class="text-muted">({{ number_format(($trade->pnl / max(0.0001, $trade->amount / $trade->leverage)) * 100, 2) }}%)</small>
                                                 </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-danger px-3">Close</button>
+                                                <td class="text-right">
+                                                    <a href="{{ route('trade.close', $trade->id) }}" class="btn btn-sm btn-soft-danger px-3 font-weight-bold" onclick="return confirm('Close this position?')">Market Close</a>
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="8" class="text-center py-5 text-muted">No open positions.</td>
+                                                <td colspan="8" class="text-center py-5 text-muted">No open positions found.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -80,21 +77,21 @@
                                             <th>Side</th>
                                             <th>Price</th>
                                             <th>Amount</th>
-                                            <th>Filled</th>
+                                            <th>PNL</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse($trades as $trade)
+                                        @forelse($trades->whereIn('status', ['Completed', 'Canceled']) as $trade)
                                             <tr>
-                                                <td class="small">{{ $trade->created_at->format('Y-m-d H:i') }}</td>
+                                                <td class="small text-muted">{{ $trade->created_at->format('Y-m-d H:i') }}</td>
                                                 <td class="text-white font-weight-bold">{{ $trade->pair }}</td>
-                                                <td>Market</td>
+                                                <td>{{ $trade->order_type }}</td>
                                                 <td class="text-{{ $trade->type == 'Buy' ? 'success' : 'danger' }}">{{ $trade->type }}</td>
-                                                <td>{{ number_format($trade->price, 2) }}</td>
+                                                <td>{{ number_format($trade->price, 4) }}</td>
                                                 <td>{{ number_format($trade->amount, 4) }}</td>
-                                                <td>100%</td>
-                                                <td><span class="badge badge-soft-success">Filled</span></td>
+                                                <td class="{{ $trade->pnl >= 0 ? 'text-success' : 'text-danger' }}">{{ number_format($trade->pnl, 4) }}</td>
+                                                <td><span class="badge badge-soft-{{ $trade->status == 'Completed' ? 'success' : 'secondary' }}">{{ $trade->status }}</span></td>
                                             </tr>
                                         @empty
                                             <tr>

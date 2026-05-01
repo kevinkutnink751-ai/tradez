@@ -35,10 +35,10 @@
                                             <th>ID</th>
                                             <th>Name</th>
                                             <th>Symbol</th>
-                                            <th>Type</th>
+                                            <th>Markets</th>
                                             <th>Category</th>
                                             <th>Min/Max</th>
-                                            <th>Leverage</th>
+                                            <th>Leverage Options</th>
                                             <th>Status</th>
                                             <th>Action</th>
                                         </tr>
@@ -49,10 +49,10 @@
                                             <td>{{ $pair->id }}</td>
                                             <td>{{ $pair->name }}</td>
                                             <td>{{ $pair->symbol }}/{{ $pair->quote_asset }}</td>
-                                            <td><span class="badge badge-info">{{ $pair->type }}</span></td>
+                                            <td>{{ strtoupper(implode(', ', $pair->supported_markets ?? [])) }}</td>
                                             <td>{{ $pair->instrument_category }}</td>
                                             <td>{{ $pair->min_amount }} / {{ $pair->max_amount }}</td>
-                                            <td>{{ $pair->leverage }}x</td>
+                                            <td>{{ implode(', ', array_map(fn($item) => $item . 'x', $pair->availableLeverages())) }}</td>
                                             <td>
                                                 @if($pair->status)
                                                 <span class="badge badge-success">Active</span>
@@ -97,13 +97,13 @@
                                                                 <input type="text" name="quote_asset" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->quote_asset }}" required>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label class="text-primary">Type</label>
-                                                                <select name="type" class="form-control bg-{{$bg}} text-primary">
-                                                                    <option value="Spot" {{ $pair->type == 'Spot' ? 'selected' : '' }}>Spot</option>
-                                                                    <option value="Future" {{ $pair->type == 'Future' ? 'selected' : '' }}>Future</option>
-                                                                    <option value="Binary" {{ $pair->type == 'Binary' ? 'selected' : '' }}>Binary</option>
-                                                                    <option value="Option" {{ $pair->type == 'Option' ? 'selected' : '' }}>Option</option>
-                                                                </select>
+                                                                <label class="text-primary">Supported Markets</label>
+                                                                @foreach(['spot' => 'Spot', 'future' => 'Futures', 'binary' => 'Binary', 'option' => 'Options'] as $marketKey => $marketLabel)
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="checkbox" name="supported_markets[]" value="{{ $marketKey }}" {{ in_array($marketKey, $pair->supported_markets ?? []) ? 'checked' : '' }}>
+                                                                        <label class="form-check-label text-primary">{{ $marketLabel }}</label>
+                                                                    </div>
+                                                                @endforeach
                                                             </div>
                                                             <div class="form-group">
                                                                 <label class="text-primary">Instrument Category</label>
@@ -122,8 +122,32 @@
                                                                 <input type="number" step="any" name="max_amount" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->max_amount }}" required>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label class="text-primary">Default Leverage (Futures only)</label>
-                                                                <input type="number" step="any" name="leverage" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->leverage }}">
+                                                                <label class="text-primary">Leverage Options</label>
+                                                                <input type="text" name="leverage_options" class="form-control bg-{{$bg}} text-primary" value="{{ implode(',', $pair->availableLeverages()) }}" placeholder="1,5,10,25,50">
+                                                            </div>
+                                                            <hr class="border-secondary mt-4">
+                                                            <h4 class="text-primary font-weight-bold">Binary & Options Configuration</h4>
+                                                            <div class="row">
+                                                                <div class="col-md-6 form-group">
+                                                                    <label class="text-primary x-small">Min Trade Amount</label>
+                                                                    <input type="number" step="any" name="binary_min_amount" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->binary_min_amount }}">
+                                                                </div>
+                                                                <div class="col-md-6 form-group">
+                                                                    <label class="text-primary x-small">Max Trade Amount</label>
+                                                                    <input type="number" step="any" name="binary_max_amount" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->binary_max_amount }}">
+                                                                </div>
+                                                                <div class="col-md-6 form-group">
+                                                                    <label class="text-primary x-small">Increment Amount</label>
+                                                                    <input type="number" step="any" name="binary_increment" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->binary_increment }}">
+                                                                </div>
+                                                                <div class="col-md-6 form-group">
+                                                                    <label class="text-primary x-small">Profit Percent (%)</label>
+                                                                    <input type="number" step="any" name="binary_profit_percent" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->binary_profit_percent }}">
+                                                                </div>
+                                                                <div class="col-md-12 form-group">
+                                                                    <label class="text-primary x-small">Durations (seconds, comma separated)</label>
+                                                                    <input type="text" name="binary_durations" class="form-control bg-{{$bg}} text-primary" value="{{ implode(',', $pair->binary_durations ?? [60, 300, 3600]) }}" placeholder="60,300,3600">
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
@@ -168,13 +192,13 @@
                             <input type="text" name="quote_asset" class="form-control bg-{{$bg}} text-primary" placeholder="USD" required>
                         </div>
                         <div class="form-group">
-                            <label class="text-primary">Type</label>
-                            <select name="type" class="form-control bg-{{$bg}} text-primary">
-                                <option value="Spot">Spot</option>
-                                <option value="Future">Future</option>
-                                <option value="Binary">Binary</option>
-                                <option value="Option">Option</option>
-                            </select>
+                            <label class="text-primary">Supported Markets</label>
+                            @foreach(['spot' => 'Spot', 'future' => 'Futures', 'binary' => 'Binary', 'option' => 'Options'] as $marketKey => $marketLabel)
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="supported_markets[]" value="{{ $marketKey }}" {{ $marketKey === 'spot' ? 'checked' : '' }}>
+                                    <label class="form-check-label text-primary">{{ $marketLabel }}</label>
+                                </div>
+                            @endforeach
                         </div>
                         <div class="form-group">
                             <label class="text-primary">Instrument Category</label>
@@ -193,8 +217,32 @@
                             <input type="number" step="any" name="max_amount" class="form-control bg-{{$bg}} text-primary" value="10000" required>
                         </div>
                         <div class="form-group">
-                            <label class="text-primary">Default Leverage (Futures only)</label>
-                            <input type="number" step="any" name="leverage" class="form-control bg-{{$bg}} text-primary" value="1">
+                            <label class="text-primary">Leverage Options</label>
+                            <input type="text" name="leverage_options" class="form-control bg-{{$bg}} text-primary" value="1,5,10" placeholder="1,5,10,25,50">
+                        </div>
+                        <hr class="border-secondary mt-4">
+                        <h4 class="text-primary font-weight-bold">Binary & Options Configuration</h4>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label class="text-primary x-small">Min Trade Amount</label>
+                                <input type="number" step="any" name="binary_min_amount" class="form-control bg-{{$bg}} text-primary" value="1">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="text-primary x-small">Max Trade Amount</label>
+                                <input type="number" step="any" name="binary_max_amount" class="form-control bg-{{$bg}} text-primary" value="10000">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="text-primary x-small">Increment Amount</label>
+                                <input type="number" step="any" name="binary_increment" class="form-control bg-{{$bg}} text-primary" value="0.001">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="text-primary x-small">Profit Percent (%)</label>
+                                <input type="number" step="any" name="binary_profit_percent" class="form-control bg-{{$bg}} text-primary" value="85">
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <label class="text-primary x-small">Durations (seconds, comma separated)</label>
+                                <input type="text" name="binary_durations" class="form-control bg-{{$bg}} text-primary" value="60,300,3600" placeholder="60,300,3600">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

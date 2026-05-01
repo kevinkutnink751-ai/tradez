@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Settings;
 use App\Models\Deposit;
+use App\Models\Asset;
 use App\Models\Tp_Transaction;
+use App\Models\UserWallet;
 use App\Mail\DepositStatus;
 use App\Traits\PingServer;
 use Illuminate\Support\Facades\Mail;
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ManageDepositController extends Controller
 {
-    use PingServer;
+    use PingServer, \App\Traits\UserWalletTrait;
 
     //Delete deposit
     public function deldeposit($id)
@@ -34,32 +36,22 @@ class ManageDepositController extends Controller
         //get settings 
         $settings = Settings::where('id', '=', '1')->first();
 
-        // $response = $this->callServer('earnings', '/process-deposit', [
-        //     'referral_commission' => $settings->referral_commission,
-        //     'amount' => $deposit->amount,
-        //     'account_bal' => $user->account_bal,
-        //     'depositBonus' => $settings->deposit_bonus,
-        // ]);
-
-        // if ($response->failed()) {
-        //     return redirect()->back()->with('message', $response['message']);
-        // }
-
-        // $data = json_decode($response);
         #NOTE: Propely build the bonus and earnings
         $earnings = floatval(0);
         $bonus = intval(0);
 
         if ($deposit->user == $user->id) {
-            // Determine which wallet to credit
-            if ($deposit->wallet == 'Spot') {
-                $user->spot_bal += $deposit->amount;
-            } elseif ($deposit->wallet == 'Future') {
-                $user->future_bal += $deposit->amount;
-            } elseif ($deposit->wallet == 'Funding') {
-                $user->funding_bal += $deposit->amount;
-            } else {
-                $user->account_bal += $deposit->amount;
+            // Logic fix: Credit the actual asset and wallet type stored on the deposit record
+            $assetId = $deposit->asset_id ?: $this->resolveUsdAsset()->id;
+            $balanceType = $deposit->balance_type ?: 'funding';
+
+            $this->creditDepositWallet($user->id, $deposit->amount + $bonus, $assetId, $balanceType);
+
+            // Update deposit record to reflect what was actually credited if missing
+            if (!$deposit->asset_id) {
+                $deposit->asset_id = $assetId;
+                $deposit->balance_type = $balanceType;
+                $deposit->wallet = ucfirst($balanceType);
             }
 
             $user->cstatus = 'Customer';

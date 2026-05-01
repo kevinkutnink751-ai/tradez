@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\UserWallet;
 use App\Models\Asset;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class WalletController extends Controller
 {
@@ -22,7 +23,13 @@ class WalletController extends Controller
         return view('user.wallets.index', [
             'title' => 'My Wallets',
             'wallets' => $wallets,
-            'availableAssets' => $availableAssets
+            'availableAssets' => $availableAssets,
+            'balanceTypes' => [
+                'spot' => 'Spot',
+                'funding' => 'Funding',
+                'future' => 'Futures',
+                'copy_trade' => 'Copy Trade',
+            ],
         ]);
     }
 
@@ -50,27 +57,65 @@ class WalletController extends Controller
     public function transfer(Request $request)
     {
         $request->validate([
-            'wallet_id' => 'required|exists:user_wallets,id',
-            'from_type' => 'required|string',
-            'to_type' => 'required|string|different:from_type',
-            'amount' => 'required|numeric|min:0.01'
+            'from_wallet_id' => 'required|exists:user_wallets,id',
+            'to_wallet_id' => 'required|exists:user_wallets,id',
+            'from_type' => ['required', Rule::in(['spot', 'funding', 'future', 'copy_trade'])],
+            'to_type' => ['required', Rule::in(['spot', 'funding', 'future', 'copy_trade'])],
+            'amount' => 'required|numeric|min:0.00000001'
         ]);
 
-        $wallet = UserWallet::where('id', $request->wallet_id)
-            ->where('user_id', Auth::user()->id)
+        $fromWallet = UserWallet::with('asset')->where('id', $request->from_wallet_id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+        $toWallet = UserWallet::with('asset')->where('id', $request->to_wallet_id)
+            ->where('user_id', Auth::id())
             ->firstOrFail();
 
         $fromCol = $request->from_type . '_bal';
         $toCol = $request->to_type . '_bal';
 
-        if ($wallet->$fromCol < $request->amount) {
-            return response()->json(['status' => 'error', 'message' => 'Insufficient balance in source wallet.']);
+        // Check if we are transferring from/to the same asset segment in the same wallet
+        if ($request->from_wallet_id == $request->to_wallet_id && $request->from_type == $request->to_type) {
+            return response()->json(['status' => 'error', 'message' => 'Source and destination cannot be identical.']);
         }
 
-        $wallet->$fromCol -= $request->amount;
-        $wallet->$toCol += $request->amount;
-        $wallet->save();
+        if ($fromWallet->$fromCol < $request->amount) {
+            return response()->json(['status' => 'error', 'message' => 'Insufficient balance in source account.']);
+        }
 
-        return response()->json(['status' => 'success', 'message' => 'Transfer completed successfully.']);
+        // Logic fix: If transferring same asset between sub-wallets, no conversion needed
+        if ($fromWallet->asset_id === $toWallet->asset_id) {
+            $convertedAmount = $request->amount;
+        } else {
+            // Conversion logic if moving between different assets
+            $fromRate = (float) ($fromWallet->asset->base_rate ?: 0);
+            $toRate = (float) ($toWallet->asset->base_rate ?: 0);
+
+            if ($fromRate <= 0 || $toRate <= 0) {
+                return response()->json(['status' => 'error', 'message' => 'Unable to price one of the selected assets.']);
+            }
+
+            $usdValue = $request->amount * $fromRate;
+            $convertedAmount = $usdValue / $toRate;
+        }
+
+        // Atomic update if same wallet record
+        if ($fromWallet->id === $toWallet->id) {
+            $fromWallet->$fromCol -= $request->amount;
+            $fromWallet->$toCol += $convertedAmount;
+            $fromWallet->save();
+        } else {
+            $fromWallet->$fromCol -= $request->amount;
+            $toWallet->$toCol += $convertedAmount;
+            $fromWallet->save();
+            $toWallet->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transfer completed successfully.',
+            'converted_amount' => round($convertedAmount, 8),
+            'target_symbol' => $toWallet->asset->symbol,
+        ]);
     }
 }

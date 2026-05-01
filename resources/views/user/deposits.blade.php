@@ -5,7 +5,7 @@
     <div class="page-title">
         <div class="row justify-content-between align-items-center">
             <div class="mb-3 col-md-6 mb-md-0">
-                <h5 class="mb-0 text-white h3 font-weight-400">Fund your account balance</h5>
+                <h5 class="mb-0 text-white h3 font-weight-400">Fund USD wallet</h5>
             </div>
         </div>
     </div>
@@ -21,9 +21,40 @@
                                 @csrf
                                 <div class="row">
                                     <div class="mb-4 col-md-12">
-                                        <h5 class="card-title ">Enter Amount</h5>
-                                        <input class="form-control " placeholder="Enter Amount"
-                                            min="{{ $moresettings->minamt }}" type="number" name="amount" required>
+                                        <h5 class="card-title">Enter Amount</h5>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-transparent border-right-0">$</span>
+                                            </div>
+                                            <input class="form-control" placeholder="0.00"
+                                                min="{{ $moresettings->minamt }}" type="number" step="any" name="amount" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4 col-md-6">
+                                        <h5 class="card-title">Destination Wallet</h5>
+                                        <select name="balance_type" class="form-control" id="walletSelect" onchange="updateSettlementRule()">
+                                            <option value="funding" {{ $selectedBalanceType == 'funding' ? 'selected' : '' }}>Funding Wallet</option>
+                                            <option value="spot" {{ $selectedBalanceType == 'spot' ? 'selected' : '' }}>Spot Wallet</option>
+                                            <option value="future" {{ $selectedBalanceType == 'future' ? 'selected' : '' }}>Futures Wallet</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4 col-md-6">
+                                        <h5 class="card-title">Select Asset</h5>
+                                        <select name="asset_id" class="form-control" id="assetSelect" onchange="updateSettlementRule()">
+                                            @foreach($assets as $asset)
+                                                <option value="{{ $asset->id }}" data-symbol="{{ $asset->symbol }}" {{ (optional($selectedAsset)->id == $asset->id || (!$selectedAsset && $asset->symbol == 'USD')) ? 'selected' : '' }}>
+                                                    {{ $asset->name }} ({{ $asset->symbol }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="mb-4 col-md-12">
+                                        <h5 class="card-title">Settlement Summary</h5>
+                                        <div class="p-3 rounded border bg-light">
+                                            <p class="mb-0 text-dark small" id="settlementRuleText">
+                                                Paid amount will be credited to your <strong>USD Funding Wallet</strong>.
+                                            </p>
+                                        </div>
                                     </div>
                                     <div class="mb-4 col-md-12">
                                         <input type="hidden" name="payment_method" id="paymethod">
@@ -82,12 +113,17 @@
                                                 <span class="text-sm text-muted">-</span>
                                             </div>
                                             <div class="col-6">
-                                                <h6 class="mb-1">
+                                        <h6 class="mb-1">
                                                     <b>{{ $settings->currency }}{{ number_format($deposited, 2, '.', ',') }}
                                                     </b>
                                                 </h6>
                                                 <span class="text-sm text-muted">Amount</span>
                                             </div>
+                                        </div>
+                                        <div class="mt-3 p-3 rounded" style="background: rgba(255,255,255,0.04);">
+                                            <small class="text-muted d-block">Deposit settlement</small>
+                                            <strong>USD</strong>
+                                            <div class="small text-muted">Every confirmed deposit settles to the funding wallet.</div>
                                         </div>
                                     </div>
                                 </div>
@@ -112,7 +148,15 @@
         <!-- Bootstrap Notify -->
         <script src="{{ asset('dash2/libs/bootstrap-notify/bootstrap-notify.min.js') }} "></script>
 
+        <script>
+            function updateSettlementRule() {
+                const wallet = document.getElementById('walletSelect').options[document.getElementById('walletSelect').selectedIndex].text;
+                const asset = document.getElementById('assetSelect').options[document.getElementById('assetSelect').selectedIndex].getAttribute('data-symbol');
+                document.getElementById('settlementRuleText').innerHTML = `Paid amount will be credited to your <strong>${asset} ${wallet}</strong>.`;
+            }
+            // Initialize on load
+            document.addEventListener('DOMContentLoaded', updateSettlementRule);
+        </script>
         @include('user.script')
-
     @endsection
 @endsection

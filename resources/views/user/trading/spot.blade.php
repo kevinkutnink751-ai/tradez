@@ -1,294 +1,378 @@
-@extends('layouts.dash')
+@extends('layouts.terminal')
 @section('title', $title)
 @section('content')
+@php
+    $baseSymbol = $currentPair->symbol;
+    $quoteSymbol = $currentPair->quote_asset ?? 'USD';
+    
+    $quoteWallet = Auth::user()->wallets()->whereHas('asset', function($q) use ($quoteSymbol) { $q->where('symbol', $quoteSymbol); })->first();
+    $baseWallet = Auth::user()->wallets()->whereHas('asset', function($q) use ($baseSymbol) { $q->where('symbol', $baseSymbol); })->first();
+@endphp
 
-    <div class="spot-trading-container">
-        @php
-            $quoteSymbol = $currentPair->quote_asset ?? 'USD';
-            $quoteWallet = Auth::user()->wallets()->whereHas('asset', function($q) use ($quoteSymbol) {
-                $q->where('symbol', $quoteSymbol);
-            })->first();
-            $baseWallet = Auth::user()->wallets()->whereHas('asset', function($q) use ($currentPair) {
-                $q->where('symbol', $currentPair->symbol);
-            })->first();
-        @endphp
-        {{-- Trading Header --}}
-        <div class="trading-header px-3 py-2 border-bottom d-flex align-items-center justify-content-between" style="background: #11151d;">
-            <div class="d-flex align-items-center">
-                <div class="dropdown mr-4">
-                    <button class="btn btn-dark-input dropdown-toggle font-weight-bold text-white px-3" type="button" data-toggle="dropdown">
-                        <i class="fas fa-coins mr-2 text-warning"></i> {{ $currentPair->display_name }}
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-dark shadow-lg">
-                        <div class="px-3 py-2 border-bottom border-white-10">
-                            <input type="text" class="form-control form-control-sm bg-dark border-0 text-white" placeholder="Search pairs...">
-                        </div>
-                        @foreach($pairs as $pair)
-                        <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('spot.trade', ['pair' => $pair->name]) }}">
-                            <span>{{ $pair->display_name }}</span>
-                            <small class="{{ $pair->change_24h >= 0 ? 'text-success' : 'text-danger' }}">
-                                {{ $pair->change_24h >= 0 ? '+' : '' }}{{ number_format($pair->change_24h, 2) }}%
-                            </small>
-                        </a>
-                        @endforeach
-                    </div>
-                </div>
-                <div class="price-info d-flex align-items-center">
-                    <div class="mr-4 {{ $currentPair->change_24h >= 0 ? 'text-success' : 'text-danger' }} font-weight-bold">
-                        {{ number_format($currentPair->last_price, 5) }}
-                    </div>
-                    <div class="mr-4 small">
-                        <span class="text-muted">24h Change</span> 
-                        <span class="{{ $currentPair->change_24h >= 0 ? 'text-success' : 'text-danger' }} ml-1">
-                            {{ $currentPair->change_24h >= 0 ? '+' : '' }}{{ number_format($currentPair->change_24h, 2) }}%
-                        </span>
-                    </div>
-                    <div class="mr-4 small"><span class="text-muted">24h High</span> <span class="text-white ml-1">{{ number_format($currentPair->high_24h, 5) }}</span></div>
-                    <div class="mr-4 small"><span class="text-muted">24h Low</span> <span class="text-white ml-1">{{ number_format($currentPair->low_24h, 5) }}</span></div>
+<div class="terminal-shell">
+    <div class="terminal-grid">
+        <!-- Left: Order Book -->
+        <div class="terminal-panel orderbook-panel">
+            <div class="panel-header d-flex justify-content-between">
+                <h6 class="mb-0 font-weight-bold">Order Book</h6>
+                <div class="x-small">
+                    <span class="text-info mr-2 cursor-pointer">All</span>
+                    <span class="text-danger mr-2 cursor-pointer">Sell</span>
+                    <span class="text-success cursor-pointer">Buy</span>
                 </div>
             </div>
-            <div class="d-flex align-items-center">
-                <div class="text-right mr-3">
-                    <small class="text-muted d-block small-label">Spot Balance</small>
-                    <span class="text-white font-weight-bold">{{ number_format($quoteWallet->spot_bal ?? 0, 2) }} {{ $quoteSymbol }}</span>
+            <div class="orderbook-content flex-grow-1 overflow-hidden d-flex flex-column">
+                <div class="px-3 py-2 d-flex justify-content-between x-small text-muted">
+                    <span>Price({{ $quoteSymbol }})</span>
+                    <span>Amount({{ $baseSymbol }})</span>
+                    <span>Total</span>
                 </div>
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-dark-input rounded-pill px-3 mr-2" data-toggle="modal" data-target="#transferModal"><i class="fas fa-sync-alt mr-1"></i> Transfer</button>
-                    <button class="btn btn-sm btn-primary rounded-pill px-3">Deposit</button>
+                <div class="book-container flex-grow-1 overflow-hidden" id="spotDepthBook">
+                    <!-- Populated by JS -->
                 </div>
             </div>
         </div>
 
-        <div class="row no-gutters">
-            {{-- Left Column: Order Book --}}
-            <div class="col-lg-3 trading-panel border-right">
-                <div class="panel-header px-3 py-2">
-                    <h6 class="mb-0 text-white font-weight-bold">Order Book</h6>
+        <!-- Middle: Market Ticker, Chart & Tickets -->
+        <div class="grid-main">
+            <!-- Market Ticker -->
+            <div class="market-ticker d-flex align-items-center">
+                <div class="ticker-pair mr-5">
+                    <h2 class="text-white font-weight-bold">{{ $currentPair->display_name }}</h2>
                 </div>
-                <div class="order-book px-3 py-2">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-borderless trading-table">
-                            <thead>
-                                <tr class="text-muted small text-uppercase">
-                                    <th>Price({{ $quoteSymbol }})</th>
-                                    <th class="text-right">Amount({{ $currentPair->symbol }})</th>
-                                    <th class="text-right">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody class="sell-orders">
-                                @for($i=0; $i<10; $i++)
-                                <tr class="sell-row">
-                                    <td class="text-danger">64,{{ rand(300,400) }}.{{ rand(10,99) }}</td>
-                                    <td class="text-right text-white">{{ number_format(rand(1,1000)/100, 4) }}</td>
-                                    <td class="text-right text-white">{{ number_format(rand(100,5000), 2) }}</td>
-                                </tr>
-                                @endfor
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="spread-line my-2 text-center bg-dark-input rounded py-1">
-                        <h5 class="text-success mb-0 font-weight-bold">{{ number_format($currentPair->last_price, 5) }} <i class="fas fa-arrow-up small"></i></h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-borderless trading-table">
-                            <tbody class="buy-orders">
-                                @for($i=0; $i<10; $i++)
-                                <tr class="buy-row">
-                                    <td class="text-success">64,{{ rand(100,200) }}.{{ rand(10,99) }}</td>
-                                    <td class="text-right text-white">{{ number_format(rand(1,1000)/100, 4) }}</td>
-                                    <td class="text-right text-white">{{ number_format(rand(100,5000), 2) }}</td>
-                                </tr>
-                                @endfor
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="ticker-stats d-flex flex-grow-1 justify-content-between">
+                    <div class="ticker-item"><label>Price</label><span class="text-{{ $currentPair->change_24h >= 0 ? 'success' : 'danger' }} d-block">{{ number_format($currentPair->last_price, 4) }}</span></div>
+                    <div class="ticker-item"><label>Last Price</label><span class="text-white d-block">{{ number_format($currentPair->last_price, 4) }}</span></div>
+                    <div class="ticker-item"><label>1h Change</label><span class="text-danger d-block">0.0083%</span></div>
+                    <div class="ticker-item"><label>24h Change</label><span class="text-{{ $currentPair->change_24h >= 0 ? 'success' : 'danger' }} d-block">{{ number_format($currentPair->change_24h, 2) }}%</span></div>
+                    <div class="ticker-item d-none d-xl-block"><label>Market Cap</label><span class="text-white d-block">1,557,372,308,946.70</span></div>
                 </div>
             </div>
 
-            {{-- Middle Column: Chart & Forms --}}
-            <div class="col-lg-6 trading-panel border-right d-flex flex-column">
-                <div class="chart-container flex-grow-1" style="min-height: 400px;">
-                    <div id="tradingview_spot" style="height: 100%;"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                    <script type="text/javascript">
-                    new TradingView.widget({
-                        "autosize": true,
-                        "symbol": "{{ $currentPair->resolveChartSymbol() }}",
-                        "interval": "H",
-                        "timezone": "Etc/UTC",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "en",
-                        "toolbar_bg": "#11151d",
-                        "enable_publishing": false,
-                        "hide_side_toolbar": false,
-                        "allow_symbol_change": true,
-                        "container_id": "tradingview_spot"
-                    });
-                    </script>
-                </div>
-
-                <div class="order-forms p-3 border-top" style="background: #11151d;">
-                    <div class="d-flex mb-3">
-                        <button class="btn btn-xs btn-dark-input active mr-2">Market</button>
-                        <button class="btn btn-xs btn-dark-input mr-2">Limit</button>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <form id="spotBuyForm">
-                                @csrf
-                                <input type="hidden" name="pair" value="{{ $currentPair->name }}">
-                                <input type="hidden" name="type" value="Buy">
-                                <input type="hidden" name="price" value="{{ $currentPair->last_price }}">
-
-                                <div class="d-flex justify-content-between mb-2">
-                                    <small class="text-muted">Available</small>
-                                    <small class="text-white font-weight-bold">{{ number_format($quoteWallet->spot_bal ?? 0, 2) }} {{ $quoteSymbol }}</small>
-                                </div>
-                                <div class="input-group input-group-sm mb-3">
-                                    <div class="input-group-prepend"><span class="input-group-text bg-dark border-secondary text-muted">Amount</span></div>
-                                    <input type="number" name="amount" step="any" class="form-control bg-dark border-secondary text-white" placeholder="0.00">
-                                    <div class="input-group-append"><span class="input-group-text bg-dark border-secondary text-muted">{{ $currentPair->symbol }}</span></div>
-                                </div>
-                                <button type="submit" class="btn btn-success btn-block font-weight-bold py-2 shadow-success">Buy {{ $currentPair->symbol }}</button>
-                            </form>
-                        </div>
-                        <div class="col-md-6">
-                            <form id="spotSellForm">
-                                @csrf
-                                <input type="hidden" name="pair" value="{{ $currentPair->name }}">
-                                <input type="hidden" name="type" value="Sell">
-                                <input type="hidden" name="price" value="{{ $currentPair->last_price }}">
-
-                                <div class="d-flex justify-content-between mb-2">
-                                    <small class="text-muted">Available</small>
-                                    <small class="text-white font-weight-bold">{{ number_format($baseWallet->spot_bal ?? 0, 4) }} {{ $currentPair->symbol }}</small>
-                                </div>
-                                <div class="input-group input-group-sm mb-3">
-                                    <div class="input-group-prepend"><span class="input-group-text bg-dark border-secondary text-muted">Amount</span></div>
-                                    <input type="number" name="amount" step="any" class="form-control bg-dark border-secondary text-white" placeholder="0.00">
-                                    <div class="input-group-append"><span class="input-group-text bg-dark border-secondary text-muted">{{ $currentPair->symbol }}</span></div>
-                                </div>
-                                <button type="submit" class="btn btn-danger btn-block font-weight-bold py-2 shadow-danger">Sell {{ $currentPair->symbol }}</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+            <!-- Chart Panel -->
+            <div class="terminal-panel chart-panel">
+                <div id="tradingview_spot_widget" style="height: 100%;"></div>
             </div>
 
-            {{-- Right Column: Markets & Trade History --}}
-            <div class="col-lg-3 trading-panel">
-                <div class="market-list border-bottom" style="height: 50%;">
-                    <div class="px-3 py-2">
-                        <div class="input-group input-group-sm bg-dark-input rounded mb-2">
-                            <div class="input-group-prepend"><span class="input-group-text bg-transparent border-0 text-muted"><i class="fas fa-search"></i></span></div>
-                            <input type="text" class="form-control bg-transparent border-0 text-white" placeholder="Search Pairs">
-                        </div>
-                        <ul class="nav nav-pills nav-pills-xs mb-2">
-                            <li class="nav-item"><a class="nav-link active" href="#">Favorites</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">{{ $quoteSymbol }}</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">Cross-Asset</a></li>
+            <!-- Trade Tickets -->
+            <div class="trade-tickets">
+                <!-- Buy Ticket -->
+                <div class="terminal-panel p-4">
+                    <div class="d-flex justify-content-between x-small mb-3">
+                        <ul class="nav nav-pills market-categories">
+                            <li class="nav-item"><a class="nav-link active px-0" href="#">Limit</a></li>
+                            <li class="nav-item"><a class="nav-link px-0" href="#">Market</a></li>
+                            <li class="nav-item"><a class="nav-link px-0" href="#">Stop Limit</a></li>
                         </ul>
-                        <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
-                            <table class="table table-sm table-borderless trading-table">
-                                <thead class="text-muted small">
-                                    <tr><th>Pair</th><th>Price</th><th class="text-right">Change</th></tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($pairs->take(6) as $pair)
-                                    <tr>
-                                        <td><i class="far fa-star mr-1"></i>{{ $pair->display_name }}</td>
-                                        <td class="text-white">{{ number_format($pair->last_price, 4) }}</td>
-                                        <td class="text-{{ $pair->change_24h >= 0 ? 'success' : 'danger' }} text-right">
-                                            {{ $pair->change_24h >= 0 ? '+' : '' }}{{ number_format($pair->change_24h, 2) }}%
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                    </div>
+                    <div class="d-flex justify-content-between x-small mb-2">
+                        <span class="text-muted">Available</span>
+                        <span class="text-white">{{ number_format($quoteWallet->spot_bal ?? 0, 4) }} {{ $quoteSymbol }} <i class="mdi mdi-plus-circle-outline text-info"></i></span>
+                    </div>
+                    <form action="{{ route('spot.trade.store') }}" method="POST" class="ajax-trade-form">
+                        @csrf
+                        <input type="hidden" name="pair" value="{{ $currentPair->name }}">
+                        <input type="hidden" name="type" value="Buy">
+                        
+                        <div class="ticket-input-group mb-3">
+                            <span class="input-label">Price</span>
+                            <input type="number" step="any" name="price" class="ticket-input" value="{{ $currentPair->last_price }}">
+                            <span class="input-unit">{{ $quoteSymbol }}</span>
                         </div>
+                        <div class="ticket-input-group mb-2">
+                            <span class="input-label">Amount</span>
+                            <input type="number" step="any" name="amount" id="buyAmountInput" class="ticket-input" placeholder="Minimum 0.0001">
+                            <span class="input-unit">{{ $baseSymbol }}</span>
+                        </div>
+                        
+                        <div class="range-slider-container mb-4">
+                            <input type="range" class="terminal-range" id="buySlider" min="0" max="100" step="1" value="0" oninput="handleSlider('Buy', this.value)">
+                            <div class="d-flex justify-content-between x-small text-muted mt-1" style="font-size: 9px;">
+                                <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+                            </div>
+                        </div>
+
+                        <div class="ticket-input-group mb-4">
+                            <span class="input-label">Total</span>
+                            <input type="number" step="any" id="buyTotalDisplay" class="ticket-input" placeholder="0.00">
+                            <span class="input-unit">{{ $quoteSymbol }}</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-buy btn-block font-weight-bold">BUY {{ $baseSymbol }}</button>
+                    </form>
+                </div>
+
+                <!-- Sell Ticket -->
+                <div class="terminal-panel p-4">
+                    <div class="d-flex justify-content-between x-small mb-3">
+                        <ul class="nav nav-pills market-categories">
+                            <li class="nav-item"><a class="nav-link active px-0" href="#">Limit</a></li>
+                            <li class="nav-item"><a class="nav-link px-0" href="#">Market</a></li>
+                            <li class="nav-item"><a class="nav-link px-0" href="#">Stop Limit</a></li>
+                        </ul>
+                    </div>
+                    <div class="d-flex justify-content-between x-small mb-2">
+                        <span class="text-muted">Available</span>
+                        <span class="text-white">{{ number_format($baseWallet->spot_bal ?? 0, 4) }} {{ $baseSymbol }} <i class="mdi mdi-plus-circle-outline text-info"></i></span>
+                    </div>
+                    <form action="{{ route('spot.trade.store') }}" method="POST" class="ajax-trade-form">
+                        @csrf
+                        <input type="hidden" name="pair" value="{{ $currentPair->name }}">
+                        <input type="hidden" name="type" value="Sell">
+                        
+                        <div class="ticket-input-group mb-3">
+                            <span class="input-label">Price</span>
+                            <input type="number" step="any" name="price" class="ticket-input" value="{{ $currentPair->last_price }}">
+                            <span class="input-unit">{{ $quoteSymbol }}</span>
+                        </div>
+                        <div class="ticket-input-group mb-2">
+                            <span class="input-label">Amount</span>
+                            <input type="number" step="any" name="amount" id="sellAmountInput" class="ticket-input" placeholder="Minimum 0.0001">
+                            <span class="input-unit">{{ $baseSymbol }}</span>
+                        </div>
+                        
+                        <div class="range-slider-container mb-4">
+                            <input type="range" class="terminal-range" id="sellSlider" min="0" max="100" step="1" value="0" oninput="handleSlider('Sell', this.value)">
+                            <div class="d-flex justify-content-between x-small text-muted mt-1" style="font-size: 9px;">
+                                <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+                            </div>
+                        </div>
+
+                        <div class="ticket-input-group mb-4">
+                            <span class="input-label">Total</span>
+                            <input type="number" step="any" id="sellTotalDisplay" class="ticket-input" placeholder="0.00">
+                            <span class="input-unit">{{ $quoteSymbol }}</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-sell btn-block font-weight-bold">SELL {{ $baseSymbol }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Markets & Trades -->
+        <div class="grid-right d-flex flex-column gap-2" style="height: 100%; overflow: hidden;">
+            <div class="terminal-panel flex-grow-1 overflow-hidden" style="height: 60%;">
+                <div class="panel-header d-flex justify-content-between align-items-center" id="marketHeader">
+                    <div id="marketTitleContainer" class="d-flex align-items-center w-100">
+                        <h6 class="mb-0 font-weight-bold text-white flex-grow-1">Markets</h6>
+                        <i class="mdi mdi-magnify text-muted cursor-pointer" onclick="toggleMarketSearch()"></i>
+                    </div>
+                    <div id="marketSearchContainer" class="d-none w-100 align-items-center">
+                        <input type="text" id="marketSearchInput" class="form-control form-control-sm bg-transparent border-0 text-white p-0" placeholder="Search pairs..." onkeyup="filterMarkets()">
+                        <i class="mdi mdi-close text-muted cursor-pointer ml-2" onclick="toggleMarketSearch()"></i>
                     </div>
                 </div>
-                <div class="trade-history" style="height: 50%;">
-                    <div class="px-3 py-2 border-bottom">
-                        <h6 class="mb-0 text-white font-weight-bold">Market Trade</h6>
-                    </div>
-                    <div class="px-3 py-2">
-                        <table class="table table-sm table-borderless trading-table">
-                            <thead class="text-muted small">
-                                <tr><th>Price({{ $quoteSymbol }})</th><th class="text-right">Amount</th><th class="text-right">Time</th></tr>
-                            </thead>
-                            <tbody>
-                                @for($i=0; $i<15; $i++)
-                                <tr>
-                                    <td class="text-{{ rand(0,1) ? 'success' : 'danger' }}">65,{{ rand(100,999) }}.{{ rand(10,99) }}</td>
-                                    <td class="text-right text-white">0.{{ rand(1000,9999) }}</td>
-                                    <td class="text-right text-muted">{{ date('H:i:s') }}</td>
-                                </tr>
-                                @endfor
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="p-3 border-bottom border-secondary">
+                    <ul class="nav nav-pills market-categories justify-content-between">
+                        <li class="nav-item"><a class="nav-link market-category-link active p-0" href="javascript:void(0)" data-category="All" onclick="setMarketCategory('All')">All</a></li>
+                        <li class="nav-item"><a class="nav-link market-category-link p-0" href="javascript:void(0)" data-category="BTC" onclick="setMarketCategory('BTC')">BTC</a></li>
+                        <li class="nav-item"><a class="nav-link market-category-link p-0" href="javascript:void(0)" data-category="ETH" onclick="setMarketCategory('ETH')">ETH</a></li>
+                        <li class="nav-item"><a class="nav-link market-category-link p-0" href="javascript:void(0)" data-category="USDT" onclick="setMarketCategory('USDT')">USDT</a></li>
+                        <li class="nav-item"><a class="nav-link market-category-link p-0" href="javascript:void(0)" data-category="USDC" onclick="setMarketCategory('USDC')">USDC</a></li>
+                    </ul>
+                </div>
+                <div class="flex-grow-1 overflow-auto">
+                    <table class="table terminal-table mb-0">
+                        <thead>
+                            <tr>
+                                <th class="pl-3">Pair</th>
+                                <th class="text-right">Price</th>
+                                <th class="text-right pr-3">Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($pairs as $pair)
+                            <tr class="market-row cursor-pointer" data-quote="{{ $pair->quote_asset }}" onclick="window.location.href='{{ route('spot.trade', ['pair' => $pair->name]) }}'">
+                                <td class="pl-3"><i class="mdi mdi-star-outline text-warning mr-1"></i> {{ $pair->display_name }}</td>
+                                <td class="text-right text-white">{{ number_format($pair->last_price, 4) }}</td>
+                                <td class="text-right pr-3 text-{{ $pair->change_24h >= 0 ? 'success' : 'danger' }}">{{ number_format($pair->change_24h, 2) }}%</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="terminal-panel flex-grow-1 overflow-hidden" style="height: 40%;">
+                <div class="panel-header">
+                    <h6 class="mb-0 font-weight-bold text-white">Trade History</h6>
+                </div>
+                <div class="trades-list flex-grow-1 overflow-auto p-3" id="recentTradesList">
+                    <!-- Populated by JS -->
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <style>
-        .spot-trading-container { background: #090c10; margin: -1.5rem; }
-        .trading-panel { background: #11151d; height: calc(100vh - 100px); border-right: 1px solid rgba(255,255,255,0.05); }
-        .panel-header { border-bottom: 1px solid rgba(255,255,255,0.05); background: #11151d; }
-        .trading-table { font-size: 0.72rem; }
-        .trading-table th { font-weight: 500; color: rgba(255,255,255,0.3); border: 0; padding-bottom: 5px; }
-        .trading-table td { padding: 1px 0.5rem; line-height: 1.4; border: 0; }
-        .sell-row:hover, .buy-row:hover { background: rgba(255,255,255,0.03); }
-        .sell-row { background: linear-gradient(to left, rgba(220, 53, 69, 0.05) 0%, transparent 100%); }
-        .buy-row { background: linear-gradient(to left, rgba(40, 167, 69, 0.05) 0%, transparent 100%); }
-        .spread-line { border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 4px 0; background: rgba(0,0,0,0.1); }
-        .nav-tabs-trading .nav-link { color: rgba(255,255,255,0.4); border: 0; font-weight: 600; font-size: 0.75rem; padding: 0.5rem 0.8rem; border-radius: 0; }
-        .nav-tabs-trading .nav-link.active { background: transparent; color: #1572e8; border-bottom: 2px solid #1572e8; }
-        .bg-dark-input { background: #090c10; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); }
-        .nav-pills-xs .nav-link { font-size: 0.65rem; padding: 2px 6px; color: rgba(255,255,255,0.4); border-radius: 2px; }
-        .nav-pills-xs .nav-link.active { background: rgba(21, 114, 232, 0.1); color: #1572e8; }
-        .btn-xs { padding: 0.15rem 0.4rem; font-size: 0.65rem; border-radius: 2px; }
-        .btn-success, .btn-danger { border-radius: 2px; font-size: 0.85rem; }
-        .form-control { border-radius: 2px; font-size: 0.85rem; }
-        .input-group-text { border-radius: 2px; font-size: 0.75rem; }
-        .percentage-buttons .btn { flex: 1; margin: 0 2px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); }
-        .percentage-buttons .btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
-    </style>
-    <script>
-        document.querySelectorAll('#spotBuyForm, #spotSellForm').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const btn = this.querySelector('button[type="submit"]');
-                const originalText = btn.innerText;
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+@push('scripts')
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+    const currentPrice = {{ $currentPair->last_price }};
+    const buyBalance = {{ $quoteWallet->spot_bal ?? 0 }};
+    const sellBalance = {{ $baseWallet->spot_bal ?? 0 }};
 
-                const formData = new FormData(this);
-                fetch("{{ route('spot.trade.store') }}", {
-                    method: "POST",
-                    body: formData,
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 200) {
-                        $.notify({ icon: 'fas fa-check-circle', message: data.message }, { type: 'success', placement: { from: "top", align: "right" } });
-                        setTimeout(() => location.reload(), 1500);
+    let activeCategory = 'All';
+
+    function toggleMarketSearch() {
+        const title = document.getElementById('marketTitleContainer');
+        const search = document.getElementById('marketSearchContainer');
+        const input = document.getElementById('marketSearchInput');
+        
+        if (title.classList.contains('d-none')) {
+            title.classList.remove('d-none');
+            title.classList.add('d-flex');
+            search.classList.add('d-none');
+            search.classList.remove('d-flex');
+            input.value = '';
+            filterMarkets();
+        } else {
+            title.classList.add('d-none');
+            title.classList.remove('d-flex');
+            search.classList.remove('d-none');
+            search.classList.add('d-flex');
+            input.focus();
+        }
+    }
+
+    function setMarketCategory(category) {
+        activeCategory = category;
+        document.querySelectorAll('.market-category-link').forEach(link => {
+            link.classList.toggle('active', link.dataset.category === category);
+        });
+        filterMarkets();
+    }
+
+    function filterMarkets() {
+        const query = document.getElementById('marketSearchInput').value.toLowerCase();
+        
+        document.querySelectorAll('.market-row').forEach(row => {
+            const pair = row.innerText.toLowerCase();
+            const quote = row.dataset.quote;
+            
+            const matchCategory = (activeCategory === 'All' || quote === activeCategory);
+            const matchSearch = pair.includes(query);
+            
+            row.style.display = (matchCategory && matchSearch) ? '' : 'none';
+        });
+    }
+
+    function handleSlider(side, percent) {
+        const balance = side === 'Buy' ? buyBalance : sellBalance;
+        if (balance <= 0) {
+            toastr.warning(`Insufficient ${side === 'Buy' ? 'USDT' : 'asset'} balance in your Spot wallet.`);
+            return;
+        }
+
+        let amount = 0;
+        if (side === 'Buy') {
+            if (currentPrice > 0) {
+                amount = (buyBalance / currentPrice) * (percent / 100);
+            }
+        } else {
+            amount = sellBalance * (percent / 100);
+        }
+        
+        const inputId = side === 'Buy' ? 'buyAmountInput' : 'sellAmountInput';
+        document.getElementById(inputId).value = amount.toFixed(8);
+        updateTotals(side);
+    }
+
+    function updateTotals(side) {
+        const amount = parseFloat(document.getElementById(side === 'Buy' ? 'buyAmountInput' : 'sellAmountInput').value) || 0;
+        const total = amount * currentPrice;
+        document.getElementById(side === 'Buy' ? 'buyTotalDisplay' : 'sellTotalDisplay').value = total.toFixed(4);
+    }
+
+    document.getElementById('buyAmountInput').addEventListener('input', () => updateTotals('Buy'));
+    document.getElementById('sellAmountInput').addEventListener('input', () => updateTotals('Sell'));
+
+    function populateDepth() {
+        const container = document.getElementById('spotDepthBook');
+        if(!container) return;
+        let html = '<div class="asks-section">';
+        for(let i=8; i>=1; i--) {
+            const p = currentPrice + (i * 0.5);
+            const a = (Math.random() * 2).toFixed(4);
+            html += `<div class="d-flex justify-content-between px-3 x-small text-danger py-1"><span>${p.toFixed(4)}</span><span>${a}</span><span>${(p*a).toFixed(2)}</span></div>`;
+        }
+        html += '</div>';
+        html += `<div class="ob-price-middle text-center">
+                    <div class="h3 mb-0 text-success font-weight-bold d-flex align-items-center justify-content-center">
+                        ${currentPrice.toFixed(4)} 
+                        <i class="mdi mdi-arrow-up ml-2"></i>
+                    </div>
+                 </div>`;
+        html += '<div class="bids-section">';
+        for(let i=1; i<=8; i++) {
+            const p = currentPrice - (i * 0.5);
+            const a = (Math.random() * 2).toFixed(4);
+            html += `<div class="d-flex justify-content-between px-3 x-small text-success py-1"><span>${p.toFixed(4)}</span><span>${a}</span><span>${(p*a).toFixed(2)}</span></div>`;
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function populateTrades() {
+        const container = document.getElementById('recentTradesList');
+        if(!container) return;
+        let html = '<table class="table table-sm terminal-table x-small mb-0"><tbody>';
+        for(let i=0; i<15; i++) {
+            const isUp = Math.random() > 0.5;
+            html += `<tr>
+                <td class="${isUp ? 'text-success' : 'text-danger'}">${(currentPrice + (Math.random() * 10 - 5)).toFixed(4)}</td>
+                <td class="text-white text-right">${(Math.random() * 0.5).toFixed(4)}</td>
+                <td class="text-muted text-right">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</td>
+            </tr>`;
+        }
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        populateDepth();
+        populateTrades();
+        setInterval(populateDepth, 3000);
+        setInterval(populateTrades, 5000);
+
+        if (window.TradingView) {
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": @json($currentPair->resolveChartSymbol()),
+                "interval": "60",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": "#161a1e",
+                "enable_publishing": false,
+                "hide_side_toolbar": false,
+                "container_id": "tradingview_spot_widget"
+            });
+        }
+
+        $('.ajax-trade-form').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const btn = form.find('button[type="submit"]');
+            btn.prop('disabled', true);
+            $.post(form.attr('action'), form.serialize())
+                .done(resp => {
+                    if(resp.status == 200) {
+                        toastr.success(resp.message);
+                        setTimeout(() => location.reload(), 1000);
                     } else {
-                        $.notify({ icon: 'fas fa-exclamation-triangle', message: data.message }, { type: 'danger', placement: { from: "top", align: "right" } });
-                        btn.disabled = false;
-                        btn.innerText = originalText;
+                        toastr.error(resp.message);
+                        btn.prop('disabled', false);
                     }
                 })
-                .catch(error => {
-                    $.notify({ icon: 'fas fa-exclamation-circle', message: "Error processing trade." }, { type: 'danger', placement: { from: "top", align: "right" } });
-                    btn.disabled = false;
-                    btn.innerText = originalText;
+                .fail(() => {
+                    toastr.error('Trade execution failed');
+                    btn.prop('disabled', false);
                 });
-            });
         });
-    </script>
+    });
+</script>
+@endpush
 @endsection

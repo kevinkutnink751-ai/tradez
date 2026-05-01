@@ -17,6 +17,7 @@ use App\Models\Withdrawal;
 use App\Models\Tp_Transaction;
 use App\Models\BinaryTrade;
 use App\Models\Trade;
+use App\Models\Asset;
 use App\Models\MasterAccount;
 use App\Models\OptionTrade;
 use App\Models\TradingPair;
@@ -76,6 +77,14 @@ class ViewsController extends Controller
             return redirect()->route('dashboard');
         }
 
+        $marketPairs = TradingPair::with(['asset', 'quoteAssetModel'])
+            ->where('status', true)
+            ->get()
+            ->filter(fn ($pair) => $pair->supportsMarket('spot') || $pair->supportsMarket('future'))
+            ->sortByDesc(fn ($pair) => abs($pair->change_24h))
+            ->take(6)
+            ->values();
+
         return view("user.dashboard", [
             'title' => 'Account Dashboard',
             'deposited' => $total_deposited,
@@ -91,6 +100,7 @@ class ViewsController extends Controller
             'canceled_orders_count' => Trade::where('user_id', Auth::user()->id)->where('status', 'Canceled')->count(),
             'total_trades_count' => Trade::where('user_id', Auth::user()->id)->count(),
             'recent_orders' => Trade::where('user_id', Auth::user()->id)->orderByDesc('id')->limit(5)->get(),
+            'marketPairs' => $marketPairs,
         ]);
     }
 
@@ -176,6 +186,9 @@ class ViewsController extends Controller
             ->with(array(
                 'title' => 'Fund your account',
                 'dmethods' => $paymethod,
+                'assets' => Asset::where('status', true)->orderBy('name')->get(),
+                'selectedAsset' => Asset::where('id', request()->query('asset_id'))->first(),
+                'selectedBalanceType' => request()->query('balance_type', 'funding'),
                 'deposits' => Deposit::where(['user' => Auth::user()->id])
                     ->orderBy('id', 'desc')
                     ->get(),
@@ -399,7 +412,7 @@ class ViewsController extends Controller
         if (isset($mod['spot']) && !$mod['spot']) {
             abort(404);
         }
-        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('type', 'Spot')->where('status', true)->get();
+        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('status', true)->get()->filter(fn ($pair) => $pair->supportsMarket('spot'))->values();
         $selectedPair = $request->query('pair');
         $currentPair = $pairs->firstWhere('name', $selectedPair) ?? $pairs->first();
         
@@ -416,7 +429,7 @@ class ViewsController extends Controller
         if (isset($mod['binary']) && !$mod['binary']) {
             abort(404);
         }
-        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('type', 'Binary')->where('status', true)->get();
+        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('status', true)->get()->filter(fn ($pair) => $pair->supportsMarket('binary'))->values();
         $selectedPair = $request->query('pair');
         $currentPair = $pairs->firstWhere('name', $selectedPair) ?? $pairs->first();
 
@@ -427,18 +440,38 @@ class ViewsController extends Controller
         ]);
     }
 
-    public function binaryHistory()
+    public function binaryHistory(Request $request)
     {
         $mod = Settings::where('id', 1)->first()->modules;
         if (isset($mod['binary']) && !$mod['binary']) {
             abort(404);
         }
-        $trades = BinaryTrade::where('user_id', Auth::user()->id)->orderByDesc('id')->paginate(20);
+
+        $tab = $request->query('tab', 'running');
+        $query = BinaryTrade::where('user_id', Auth::user()->id);
+
+        if ($tab === 'running') {
+            $query->where('status', 'Pending');
+        } else {
+            $query->whereIn('status', ['Won', 'Lost', 'Completed']);
+        }
+
+        $trades = $query->orderByDesc('id')->paginate(20);
+
+        if ($request->ajax()) {
+            $html = view('user.trading.partials.binary_history_table', [
+                'trades' => $trades,
+                'tab' => $tab
+            ])->render();
+            return response()->json(['html' => $html]);
+        }
+
         return view('user.trading.binary_history', [
             'title' => 'Binary Trade History',
             'trades' => $trades,
         ]);
     }
+
 
     public function futureTrade(Request $request)
     {
@@ -446,9 +479,10 @@ class ViewsController extends Controller
         if (isset($mod['future']) && !$mod['future']) {
             abort(404);
         }
-        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('type', 'Future')->where('status', true)->get();
+        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('status', true)->get()->filter(fn ($pair) => $pair->supportsMarket('future'))->values();
         $selectedPair = $request->query('pair');
         $currentPair = $pairs->firstWhere('name', $selectedPair) ?? $pairs->first();
+        
         $openPositions = Trade::with('tradingPair')
             ->where('user_id', Auth::id())
             ->where('market_type', 'Future')
@@ -456,11 +490,28 @@ class ViewsController extends Controller
             ->orderByDesc('id')
             ->get();
 
+        $pendingOrders = Trade::with('tradingPair')
+            ->where('user_id', Auth::id())
+            ->where('market_type', 'Future')
+            ->where('status', 'Pending')
+            ->orderByDesc('id')
+            ->get();
+
+        $tradeHistory = Trade::with('tradingPair')
+            ->where('user_id', Auth::id())
+            ->where('market_type', 'Future')
+            ->whereIn('status', ['Completed', 'Canceled'])
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get();
+
         return view('user.trading.future', [
             'title' => 'Future Trading',
             'pairs' => $pairs,
             'currentPair' => $currentPair,
             'openPositions' => $openPositions,
+            'pendingOrders' => $pendingOrders,
+            'tradeHistory' => $tradeHistory,
         ]);
     }
 
@@ -487,32 +538,66 @@ class ViewsController extends Controller
         if (isset($mod['options']) && !$mod['options']) {
             abort(404);
         }
-        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('type', 'Option')->where('status', true)->get();
+        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('status', true)->get()->filter(fn ($pair) => $pair->supportsMarket('option'))->values();
         $selectedPair = $request->query('pair');
         $currentPair = $pairs->firstWhere('name', $selectedPair) ?? $pairs->first();
+
+        $currentPrice = $currentPair->last_price ?: 1.0;
+        $strikes = [];
+        $intervals = [0.98, 0.99, 1.0, 1.01, 1.02]; // -2%, -1%, Current, +1%, +2%
+        foreach($intervals as $i) {
+            $strike = $currentPrice * $i;
+            $strikes[] = [
+                'price' => $strike,
+                'call_premium' => ($currentPrice * 0.05) / $i, // dummy calculation
+                'put_premium' => ($currentPrice * 0.05) * $i, // dummy calculation
+                'delta' => 0.5 + (1 - $i) * 10,
+                'theta' => -0.02 * $i
+            ];
+        }
+
 
         return view('user.trading.options', [
             'title' => 'Options Trading',
             'pairs' => $pairs,
             'currentPair' => $currentPair,
+            'strikes' => $strikes,
         ]);
+
     }
 
-    public function optionsHistory()
+    public function optionsHistory(Request $request)
     {
         $mod = Settings::where('id', 1)->first()->modules;
         if (isset($mod['options']) && !$mod['options']) {
             abort(404);
         }
-        $trades = OptionTrade::where('user_id', Auth::user()->id)
-            ->orderByDesc('id')
-            ->get();
-            
+
+        $tab = $request->query('tab', 'running');
+        $query = OptionTrade::where('user_id', Auth::user()->id);
+
+        if ($tab === 'running') {
+            $query->where('status', 'Pending');
+        } else {
+            $query->whereIn('status', ['Won', 'Lost', 'Settled', 'Completed']);
+        }
+
+        $trades = $query->orderByDesc('id')->paginate(20);
+
+        if ($request->ajax()) {
+            $html = view('user.trading.partials.options_history_table', [
+                'trades' => $trades,
+                'tab' => $tab
+            ])->render();
+            return response()->json(['html' => $html]);
+        }
+
         return view('user.trading.options_history', [
             'title' => 'Options Trading History',
             'trades' => $trades,
         ]);
     }
+
 
     public function copyTrade()
     {

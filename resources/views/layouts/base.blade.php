@@ -205,6 +205,8 @@
         <script src="{{ asset('themes/purposeTheme/temp/js/app.js') }}"></script>
         <script src="{{ asset('themes/purposeTheme/temp/js/widget.js') }}"></script>
     @show
+        <script src="{{ asset('themes/purposeTheme/assets/js/scriptfile.js') }}"></script>
+    @stack('scripts')
 </body>
 
 </html>
