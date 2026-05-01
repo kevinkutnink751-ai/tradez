@@ -84,55 +84,64 @@
                             <p>Manage Withdrawal</p>
                         </a>
                     </li>
-                    <li
-                        class="nav-item {{ request()->routeIs('msubtrade') ? 'active' : '' }} {{ request()->routeIs('tsettings') ? 'active' : '' }} {{ request()->routeIs('tacnts') ? 'active' : '' }} {{ request()->routeIs('subview') ? 'active' : '' }}">
-                        <a data-toggle="collapse" href="#mgacnt">
-                            <i class="fa fa-sync-alt"></i>
-                            <p>Manage Accounts</p>
+                    <li class="nav-item {{ request()->routeIs('admin.trading.pairs') || request()->routeIs('admin.futures.index') || request()->routeIs('admin.options.index') ? 'active' : '' }}">
+                        <a data-toggle="collapse" href="#tradingmod">
+                            <i class="fa fa-chart-line"></i>
+                            <p>Trading Modules</p>
                             <span class="caret"></span>
                         </a>
-                        <div class="collapse" id="mgacnt">
+                        <div class="collapse" id="tradingmod">
                             <ul class="nav nav-collapse">
                                 <li>
-                                    <a href="{{ route('msubtrade') }}">
-                                        <span class="sub-item">Trading-Accounts</span>
+                                    <a href="{{ route('admin.trading.pairs') }}">
+                                        <span class="sub-item">Trading Pairs</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('tsettings') }}">
-                                        <span class="sub-item">Trading Settings</span>
+                                    <a href="{{ route('admin.futures.index') }}">
+                                        <span class="sub-item">Manage Futures</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('subview') }}">
-                                        <span class="sub-item">Fee Settings</span>
+                                    <a href="{{ route('admin.options.index') }}">
+                                        <span class="sub-item">Manage Options</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('admin.assets.index') }}">
+                                        <span class="sub-item">Manage Assets</span>
                                     </a>
                                 </li>
                             </ul>
                         </div>
                     </li>
                     <li
-                        class="nav-item {{ request()->routeIs('signals') ? 'active' : '' }} {{ request()->routeIs('signal.settings') ? 'active' : '' }} {{ request()->routeIs('signal.subs') ? 'active' : '' }}">
-                        <a data-toggle="collapse" href="#signals">
-                            <i class="fa fa-signal"></i>
-                            <p>Signal Provider</p>
+                        class="nav-item {{ request()->routeIs('tsettings') || request()->routeIs('msubtrade') || request()->routeIs('subview') || request()->routeIs('signals') || request()->routeIs('signal.subs') || request()->routeIs('signal.settings') ? 'active' : '' }}">
+                        <a data-toggle="collapse" href="#copytrading">
+                            <i class="fa fa-robot"></i>
+                            <p>Copy Trading Bots</p>
                             <span class="caret"></span>
                         </a>
-                        <div class="collapse" id="signals">
+                        <div class="collapse" id="copytrading">
                             <ul class="nav nav-collapse">
+                                <li>
+                                    <a href="{{ route('tsettings') }}">
+                                        <span class="sub-item">Master Bots</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('msubtrade') }}">
+                                        <span class="sub-item">Subscribers</span>
+                                    </a>
+                                </li>
                                 <li>
                                     <a href="{{ route('signals') }}">
                                         <span class="sub-item">Trade Signals</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('signal.subs') }}">
-                                        <span class="sub-item">Subscribers</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('signal.settings') }}">
-                                        <span class="sub-item">Settings</span>
+                                    <a href="{{ route('subview') }}">
+                                        <span class="sub-item">Fee Settings</span>
                                     </a>
                                 </li>
                             </ul>

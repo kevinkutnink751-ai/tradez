@@ -30,6 +30,35 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
 
         <link rel="stylesheet" href="{{ asset('themes/purposeTheme/assets/libs/flatpickr/dist/flatpickr.min.css') }}">
+        <style>
+            :root {
+                --primary-color: #1572e8;
+                --bg-main: #090c10;
+                --bg-card: #11151d;
+                --border-color: rgba(255, 255, 255, 0.05);
+            }
+            body {
+                background-color: var(--bg-main) !important;
+                color: #fff !important;
+                font-family: 'Inter', sans-serif;
+            }
+            .main-content {
+                background-color: var(--bg-main) !important;
+                min-height: 100vh;
+            }
+            .page-content {
+                padding: 2rem 1.5rem !important;
+            }
+            .card {
+                background-color: var(--bg-card);
+                border: 1px solid var(--border-color);
+            }
+            .scrollbar-inner::-webkit-scrollbar { width: 4px; }
+            .scrollbar-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+            .bg-dark-input { background: #090c10 !important; }
+            .border-white-10 { border-color: rgba(255,255,255,0.05) !important; }
+            .text-white-50 { color: rgba(255,255,255,0.5) !important; }
+        </style>
     @show
     @livewireStyles
 </head>
@@ -52,19 +81,23 @@
                 @yield('content')
             </div>
             <!-- Footer -->
-            <div class="pt-5 pb-4 footer footer-light sticky-bottom" id="footer-main">
-                <div class="text-center row text-sm-left align-items-sm-center">
-                    <div class="col-sm-6">
-                        <p class="mb-0 text-sm">All Rights Reserved &copy; {{ $settings->site_name }}
-                            {{ date('Y') }}</p>
+            <footer class="footer pt-5 pb-4 bg-dark-main border-top border-white-10" id="footer-main">
+                <div class="row align-items-center justify-content-between px-4">
+                    <div class="col-md-6 text-center text-md-left mb-3 mb-md-0">
+                        <p class="text-sm text-white-50 mb-0">&copy; {{ date('Y') }} {{ $settings->site_name }}. All rights reserved.</p>
                     </div>
-                    @if ($settings->google_translate == 'on')
-                        <div class="text-right col-sm-6 text-md-center">
-                            <div id="google_translate_element"></div>
-                        </div>
-                    @endif
+                    <div class="col-md-6">
+                        <ul class="nav justify-content-center justify-content-md-end">
+                            <li class="nav-item"><a href="#" class="nav-link text-sm text-white-50 px-3">Terms</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link text-sm text-white-50 px-3">Privacy</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link text-sm text-white-50 px-3">Support</a></li>
+                            @if ($settings->google_translate == 'on')
+                                <li class="nav-item"><div id="google_translate_element" class="ml-3"></div></li>
+                            @endif
+                        </ul>
+                    </div>
                 </div>
-            </div>
+            </footer>
         </div>
     </div>
 
@@ -108,7 +141,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"
         integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous">
     </script>
+    @include('user.modals')
     @livewireScripts
+    @stack('scripts')
 </body>
 
-</html>

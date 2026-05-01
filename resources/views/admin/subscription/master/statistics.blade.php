@@ -9,7 +9,7 @@
                                 <i class="fa fa-download text-warning"></i>
                             </div>
                         </div>
-                        <div class="col-md-6 col-8 col-stats">
+                        {{-- <div class="col-md-6 col-8 col-stats">
                             <div class="numbers">
                                 <p class="card-category">Trading Account Slot</p>
                                 <h2>
@@ -20,7 +20,7 @@
                                     @endif
                                 </h2>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="col-md-2">
                             <a href="" class="btn btn-sm btn-primary" data-toggle="modal"
                                 data-target="#buySlotModal">Buy Slot</a>
@@ -55,12 +55,12 @@
                             </div>
                         </div>
                         <div class="col-md-6 col-8 col-stats">
-                            <div class="numbers">
+                            {{-- <div class="numbers">
                                 <p class="card-category">Wallet Balance</p>
                                 <h2>
                                     ${{ $myaccount ? number_format($myaccount->wallet_balance, 2, '.') : '0.00' }}
                                 </h2>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="col-md-2">
                             <a href="{{ route('tra.pay') }}" class="btn btn-sm btn-primary">Topup</a>
@@ -81,7 +81,7 @@
                         <div class="col-8 col-stats">
                             <div class="numbers">
                                 <p class="card-category">Subscriber Accounts</p>
-                                <h2>{{ $data ? count($data) : '0' }}</h2>
+                                <h2>{{ $trading_accounts ? count($trading_accounts) : '0' }}</h2>
                             </div>
                         </div>
                     </div>

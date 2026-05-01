@@ -8,37 +8,49 @@ use App\Models\SettingsCont;
 
 class ManageAssetController extends Controller
 {
-    //
-
-    public function setassetstatus($asset, $status){
-
-        SettingsCont::where('id', 1)->update([
-            $asset => $status,
-        ]);
-
-        return redirect()->back()->with('success', "Asset Status $status");
+    public function index()
+    {
+        $assets = \App\Models\Asset::orderBy('name')->get();
+        return view('admin.assets.index', compact('assets'));
     }
 
-    public function useexchange($value){
-        SettingsCont::where('id', 1)->update([
-            'use_crypto_feature' => $value,
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'symbol' => 'required|string|max:10|unique:assets',
+            'type' => 'required|in:Fiat,Crypto',
+            'category' => 'nullable|string',
+            'base_rate' => 'required|numeric|min:0',
+            'logo' => 'nullable|string',
         ]);
 
-        return response()->json(['status'=> 200, 'success'=> "Action Successful"]);
+        \App\Models\Asset::create($request->all());
+        return redirect()->back()->with('success', 'Asset created successfully.');
     }
 
-    public function exchangefee(Request $request){
-        if ($request->rate) {
-            $rate = $request->rate;
-        }else {
-            $rate = NULL;
-        }
-
-        SettingsCont::where('id', 1)->update([
-            'fee' => $request->fee,
-            'currency_rate' => $rate
+    public function update(Request $request, $id)
+    {
+        $asset = \App\Models\Asset::findOrFail($id);
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'symbol' => 'required|string|max:10|unique:assets,symbol,'.$id,
+            'type' => 'required|in:Fiat,Crypto',
+            'category' => 'nullable|string',
+            'base_rate' => 'required|numeric|min:0',
+            'logo' => 'nullable|string',
+            'status' => 'required|boolean',
         ]);
 
-        return redirect()->back()->with('success', "Exchange fee and Rate Updated");
+        $asset->update($request->all());
+        return redirect()->back()->with('success', 'Asset updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $asset = \App\Models\Asset::findOrFail($id);
+        $asset->delete();
+        return redirect()->back()->with('success', 'Asset deleted successfully.');
     }
 }

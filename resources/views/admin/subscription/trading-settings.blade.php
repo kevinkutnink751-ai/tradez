@@ -56,14 +56,13 @@
                                                 <table class="table table-hover">
                                                     <thead>
                                                         <tr>
-                                                            <th>Account ID</th>
-                                                            <th>Account Password</th>
-                                                            <th>Account Type</th>
-                                                            <th>Account Name</th>
-                                                            <th>Server</th>
-                                                            <th>Deployment status</th>
-                                                            <th>Started at</th>
-                                                            <th>Expiring at</th>
+                                                            <th>Bot Name</th>
+                                                            <th>Bot Type</th>
+                                                            <th>Strategy</th>
+                                                            <th>Risk Level</th>
+                                                            <th>Win Rate</th>
+                                                            <th>ROI</th>
+                                                            <th>Status</th>
                                                             <th></th>
                                                         </tr>
                                                     </thead>
@@ -71,47 +70,54 @@
                                                         @forelse ($accounts as $item)
                                                             <tr>
                                                                 <td>
-                                                                    {{ $item->login }}
+                                                                    <strong>{{ $item->name }}</strong>
                                                                 </td>
                                                                 <td>
-                                                                    {{ $item->password }}
+                                                                    <span class="badge badge-{{ $item->bot_type == 'winning' ? 'success' : ($item->bot_type == 'losing' ? 'danger' : 'info') }}">
+                                                                        {{ ucfirst($item->bot_type) }}
+                                                                    </span>
                                                                 </td>
                                                                 <td>
-                                                                    {{ $item->account_type }}
+                                                                    {{ $item->strategy_mode }}
                                                                 </td>
                                                                 <td>
-                                                                    {{ $item->account_name }}
+                                                                    {{ $item->risk_level }}
                                                                 </td>
                                                                 <td>
-                                                                    {{ $item->server }}
+                                                                    {{ $item->win_rate }}%
                                                                 </td>
                                                                 <td>
-                                                                    @if ($item->deployment_status == 'Deployed')
-                                                                        <h2 class="badge badge-success">
-                                                                            {{ $item->deployment_status }}</h2>
+                                                                    <span class="{{ $item->roi >= 0 ? 'text-success' : 'text-danger' }}">{{ $item->roi }}%</span>
+                                                                </td>
+                                                                <td>
+                                                                    @if ($item->is_active)
+                                                                        <h2 class="badge badge-success">Active</h2>
                                                                     @else
-                                                                        <h2 class="badge badge-warning">
-                                                                            {{ $item->deployment_status }}</h2>
+                                                                        <h2 class="badge badge-warning">Inactive</h2>
                                                                     @endif
                                                                 </td>
                                                                 <td>
-                                                                    <span>{{ \Carbon\Carbon::parse($item->start_date)->toDayDateTimeString() }}</span>
-                                                                </td>
-                                                                <td>
-                                                                    {{ \Carbon\Carbon::parse($item->end_date)->toDayDateTimeString() }}
-                                                                </td>
-                                                                <td>
-                                                                    @if (now()->greaterThanOrEqualTo(\Carbon\Carbon::parse($item->end_date)))
-                                                                        <a href="#" class="btn btn-info btn-sm m-1"
-                                                                            data-toggle="modal"
-                                                                            data-target="#renewModal{{ $item->id }}">Renew</a>
-                                                                    @endif
+                                                                    <button type="button" data-toggle="modal"
+                                                                        data-target="#signalModal{{ $item->id }}"
+                                                                        class="btn btn-success btn-sm m-1">
+                                                                        <i class="fa fa-signal"></i>
+                                                                        <span> Send Signal</span>
+                                                                    </button>
+                                                                    <a href="{{ route('master.audit', $item->id) }}"
+                                                                        class="btn btn-info btn-sm m-1">
+                                                                        <i class="fa fa-chart-bar"></i>
+                                                                        <span> Audit</span>
+                                                                    </a>
+                                                                    <button type="button" data-toggle="modal"
+                                                                        data-target="#closeSignalModal{{ $item->id }}"
+                                                                        class="btn btn-warning btn-sm m-1">
+                                                                        <i class="fa fa-times-circle"></i>
+                                                                        <span> Close Signals</span>
+                                                                    </button>
                                                                     <button type="button" data-toggle="modal"
                                                                         data-target="#strategyModal{{ $item->id }}"
                                                                         class="btn btn-secondary btn-sm m-1">
-                                                                        <span>
-                                                                            Update Strategy
-                                                                        </span>
+                                                                        <span> Update Strategy</span>
                                                                     </button>
                                                                     <button type="button" data-toggle="modal"
                                                                         data-target="#deleteModal{{ $item->id }}"
@@ -120,7 +126,8 @@
                                                                         <span> Delete</span>
                                                                     </button>
                                                                     @include('admin.subscription.master.delete-master')
-                                                                    @include('admin.subscription.master.renew-master')
+                                                                    @include('admin.subscription.master.signal-master')
+                                                                    @include('admin.subscription.master.close-signal')
                                                                 </td>
                                                             </tr>
                                                         @empty

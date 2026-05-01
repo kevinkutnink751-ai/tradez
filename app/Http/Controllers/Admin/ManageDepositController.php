@@ -34,25 +34,34 @@ class ManageDepositController extends Controller
         //get settings 
         $settings = Settings::where('id', '=', '1')->first();
 
-        $response = $this->callServer('earnings', '/process-deposit', [
-            'referral_commission' => $settings->referral_commission,
-            'amount' => $deposit->amount,
-            'account_bal' => $user->account_bal,
-            'depositBonus' => $settings->deposit_bonus,
-        ]);
+        // $response = $this->callServer('earnings', '/process-deposit', [
+        //     'referral_commission' => $settings->referral_commission,
+        //     'amount' => $deposit->amount,
+        //     'account_bal' => $user->account_bal,
+        //     'depositBonus' => $settings->deposit_bonus,
+        // ]);
 
-        if ($response->failed()) {
-            return redirect()->back()->with('message', $response['message']);
-        }
+        // if ($response->failed()) {
+        //     return redirect()->back()->with('message', $response['message']);
+        // }
 
-        $data = json_decode($response);
-        $earnings = floatval($data->data->earnings);
-        $bonus = intval($data->data->bonusToAdd);
-        $funds = intval($data->data->funding);
+        // $data = json_decode($response);
+        #NOTE: Propely build the bonus and earnings
+        $earnings = floatval(0);
+        $bonus = intval(0);
 
         if ($deposit->user == $user->id) {
-            //add funds to user's account
-            $user->account_bal = $funds;
+            // Determine which wallet to credit
+            if ($deposit->wallet == 'Spot') {
+                $user->spot_bal += $deposit->amount;
+            } elseif ($deposit->wallet == 'Future') {
+                $user->future_bal += $deposit->amount;
+            } elseif ($deposit->wallet == 'Funding') {
+                $user->funding_bal += $deposit->amount;
+            } else {
+                $user->account_bal += $deposit->amount;
+            }
+
             $user->cstatus = 'Customer';
             $user->bonus = $user->bonus + $bonus;
             $user->save();

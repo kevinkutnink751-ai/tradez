@@ -9,6 +9,17 @@ class Deposit extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'txn_id',
+        'user',
+        'amount',
+        'payment_mode',
+        'plan',
+        'status',
+        'proof',
+        'wallet',
+    ];
+
     public function duser(){
     	return $this->belongsTo('App\Models\User', 'user');
     }

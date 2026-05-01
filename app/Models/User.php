@@ -42,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name', 'l_name', 'email', 'phone', 'country', 'password', 'ref_by', 'status', 'username', 'email_verified_at',
+        'account_bal', 'spot_bal', 'future_bal', 'funding_bal',
     ];
 
     /**
@@ -107,5 +108,21 @@ class User extends Authenticatable implements MustVerifyEmail
             ->orWhere('name', 'like', '%' . $search . '%')
             ->orWhere('username', 'like', '%' . $search . '%')
             ->orWhere('email', 'like', '%' . $search . '%');
+    }
+
+    public function wallets()
+    {
+        return $this->hasMany(\App\Models\UserWallet::class);
+    }
+
+    public function getTotalBalanceAttribute()
+    {
+        $total = 0;
+        foreach ($this->wallets as $wallet) {
+            $rate = $wallet->asset ? $wallet->asset->base_rate : 1;
+            $walletTotal = $wallet->spot_bal + $wallet->funding_bal + $wallet->future_bal + $wallet->copy_trade_bal;
+            $total += ($walletTotal * $rate);
+        }
+        return $total;
     }
 }

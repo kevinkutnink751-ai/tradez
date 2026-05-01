@@ -2,374 +2,412 @@
 @section('title', $title)
 @section('content')
 
-    <!-- Page title -->
-    <div class="page-title">
-        <div class="row justify-content-between align-items-center">
-            <div class="mb-3 col-md-6 mb-md-0">
-                <h5 class="mb-0 text-white h3 font-weight-400">Welcome, {{ Auth::user()->name }}!</h5>
+<div class="dashboard-wrapper container-fluid px-0">
+    {{-- Header Section --}}
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h4 class="text-white font-weight-bold mb-1">Welcome back, {{ Auth::user()->name }}!</h4>
+            <p class="text-muted small mb-0">Here's what's happening with your trading account today.</p>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="btn-group mr-3">
+                <button class="btn btn-dark-input btn-sm px-3 border-white-10" onclick="copyRef()">
+                    <i class="fas fa-link mr-2 text-primary"></i> Referral Link
+                </button>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-primary btn-sm rounded-pill px-4" data-toggle="dropdown">
+                    <i class="fas fa-plus mr-2"></i> Quick Actions
+                </button>
+                <div class="dropdown-menu dropdown-menu-right dropdown-menu-dark">
+                    <a class="dropdown-item" href="{{ route('newdeposit') }}"><i class="fas fa-wallet mr-2"></i> Deposit</a>
+                    <a class="dropdown-item" href="{{ route('withdrawamount') }}"><i class="fas fa-arrow-up mr-2"></i> Withdraw</a>
+                    {{-- <a class="dropdown-item" href="{{ route('transfer') }}"><i class="fas fa-exchange-alt mr-2"></i> Transfer</a> --}}
+                </div>
             </div>
         </div>
     </div>
-    <x-danger-alert />
-    <x-success-alert />
-    @if (!empty($settings->welcome_message) and Auth::user()->created_at->diffInDays() <= 3)
-        <div class="row">
-            <div class="col-12">
-                <div class="py-4 alert alert-primary alert-dismissible fade show" role="alert">
-                    {{ $settings->welcome_message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    @endif
-    @if ($settings->enable_annoc == 'on' and !empty($settings->newupdate))
-        <div class="row">
-            <div class="col-12">
-                <div class="py-4 alert alert-info alert-dismissible fade show" role="alert">
-                    {{ $settings->newupdate }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    @endif
 
     <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="nk-block-head-content">
-                                <h5 class="text-primary h5">Account Summary</h5>
+        {{-- Main Content --}}
+        <div class="col-lg-8">
+            {{-- Portfolio Overview --}}
+            <div class="card bg-premium-gradient border-0 mb-4 overflow-hidden">
+                <div class="card-body p-4 position-relative">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h6 class="text-white-50 text-uppercase small font-weight-bold mb-2" style="letter-spacing: 1px;">Total Portfolio Balance</h6>
+                            <h2 class="text-white font-weight-bold mb-2">${{ number_format(Auth::user()->account_bal + Auth::user()->spot_bal + Auth::user()->future_bal, 2) }}</h2>
+                            <div class="d-flex align-items-center">
+                                <span class="text-success mr-2 font-weight-bold"><i class="fas fa-caret-up mr-1"></i> 2.45%</span>
+                                <span class="text-white-50 small">+$1,240.50 (24h)</span>
                             </div>
                         </div>
-                        <div class="col-xl-4 col-md-6">
-                            <div class="card card-stats">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col">
-                                            <h6 class="mb-1 text-muted">Account balance</h6>
-                                            <span
-                                                class="mb-0 h5 font-weight-bold">{{ $settings->currency }}{{ number_format(Auth::user()->account_bal, 2, '.', ',') }}</span>
-                                        </div>
-                                        <div class="col-auto">
-                                            <div class="text-white icon bg-gradient-primary rounded-circle icon-shape">
-                                                <i class="fas fa-sack-dollar"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @if ($mod['investment'])
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card card-stats">
-                                    <!-- Card body -->
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col">
-                                                <h6 class="mb-1 text-muted">Total Profit</h6>
-                                                <span
-                                                    class="mb-0 h5 font-weight-bold">{{ $settings->currency }}{{ number_format(Auth::user()->roi, 2, '.', ',') }}</span>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="text-white icon bg-gradient-primary rounded-circle icon-shape">
-                                                    <i class="fas fa-coins"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                        <div class="col-xl-4 col-md-6">
-                            <div class="card card-stats">
-                                <!-- Card body -->
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col">
-                                            <h6 class="mb-1 text-muted">Bonus</h6>
-                                            <span
-                                                class="mb-0 h5 font-weight-bold">{{ $settings->currency }}{{ number_format(Auth::user()->bonus, 2, '.', ',') }}</span>
-                                        </div>
-                                        <div class="col-auto">
-                                            <div class="text-white icon bg-gradient-primary rounded-circle icon-shape">
-                                                <i class="fas fa-gift"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if ($mod['subscription'])
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card card-stats">
-                                    <!-- Card body -->
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col">
-                                                <h6 class="mb-1 text-muted">Trading Accounts</h6>
-                                                <span class="mb-0 h5 font-weight-bold">{{ $trading_accounts }}</span>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="text-white icon bg-gradient-primary rounded-circle icon-shape">
-                                                    <i class="fas fa-th-list"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                        <div class="col-xl-4 col-md-6">
-                            <div class="card card-stats">
-                                <!-- Card body -->
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col">
-                                            <h6 class="mb-1 text-muted">Referral Bonus</h6>
-                                            <span
-                                                class="mb-0 h5 font-weight-bold">{{ $settings->currency }}{{ number_format(Auth::user()->ref_bonus, 2, '.', ',') }}</span>
-                                        </div>
-                                        <div class="col-auto">
-                                            <div class="text-white icon bg-gradient-primary rounded-circle icon-shape">
-                                                <i class="fas fa-gifts"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-4 col-md-6">
-                            <div class="card card-stats">
-                                <!-- Card body -->
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col">
-                                            <h6 class="mb-1 text-muted">Total Deposit</h6>
-                                            <span class="mb-0 h5 font-weight-bold">
-                                                <span
-                                                    class="mb-0 h5 font-weight-bold ">{{ $settings->currency }}{{ number_format($deposited, 2, '.', ',') }}
-                                                </span>
-                                            </span>
-                                        </div>
-                                        <div class="col-auto">
-                                            <div class="text-white icon bg-gradient-primary rounded-circle icon-shape">
-                                                <i class="fas fa-arrow-alt-circle-down"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @if ($mod['investment'] || $mod['cryptoswap'])
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card card-stats">
-                                    <!-- Card body -->
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col">
-                                                <h6 class="mb-1 text-muted">Total Withdrawal</h6>
-                                                <span class="mb-0 h5 font-weight-bold">
-                                                    {{ $settings->currency }}{{ number_format($total_withdrawal, 2, '.', ',') }}
-                                                </span>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="text-white icon bg-gradient-primary rounded-circle icon-shape">
-                                                    <i class="fas fa-arrow-circle-up"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-
-
-                    @if ($mod['investment'])
-                        {{-- Active Investment plans section --}}
-                        <div class="mt-4 row">
-                            <div class="col-12">
-                                <div class="nk-block-head-content">
-                                    {{-- <h5 class="text-white h5 d-md-block d-none">Recent Plan(s) <span class="text-base count">(2)</span></h5> --}}
-                                    <h5 class="text-primary h5">Active Plan(s) <span
-                                            class="text-base count">({{ $plans ? count($plans) : '0' }})</span></h5>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                @forelse ($plans as $plan)
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="py-4 card">
-                                                <div class="card-body d-flex justify-content-between align-items-center">
-
-                                                    <div class="">
-                                                        <h6 class="text-black h6">{{ $plan->dplan->name }}</h6>
-                                                        <p class="text-muted">Amount - <span
-                                                                class="amount">{{ $settings->currency }}{{ number_format($plan->amount) }}</span>
-                                                        </p>
-                                                    </div>
-                                                    <div class="d-none d-md-block">
-                                                        <div class="d-flex justify-content-around">
-                                                            <div class="mr-3">
-                                                                <h6 class="text-black bold">
-                                                                    {{ $plan->created_at->toDayDateTimeString() }}
-                                                                </h6>
-                                                                <span class="nk-iv-scheme-value date">Start Date</span>
-                                                            </div>
-                                                            <i class="fas fa-arrow-right text-muted"></i>
-                                                            <div class="ml-3">
-                                                                <h6 class="text-black bold">
-                                                                    {{ \Carbon\Carbon::parse($plan->expire_date)->toDayDateTimeString() }}
-                                                                </h6>
-                                                                <span class="nk-iv-scheme-value date">End Date</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div>
-                                                        <h6 class="text-black">
-                                                            @if ($plan->active == 'yes')
-                                                                <span class="badge badge-success">Active</span>
-                                                            @elseif($plan->active == 'expired')
-                                                                <span class="badge badge-danger">Expired</span>
-                                                            @else
-                                                                <span class="badge badge-danger">Inactive</span>
-                                                            @endif
-                                                        </h6>
-                                                        <span class="nk-iv-scheme-value amount">Status</span>
-                                                    </div>
-
-                                                    <a href="{{ route('plandetails', $plan->id) }}">
-                                                        <i class="fas fa-chevron-right fa-2x"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                @empty
-                                    <div class="mt-4 row">
-                                        <div class="col-md-12">
-                                            <div class="py-4 card">
-                                                <div class="text-center card-body">
-                                                    <p>You do not have an active investment plan at the moment.</p>
-                                                    <a href="{{ route('mplans') }}" class="px-3 btn btn-primary">Buy a
-                                                        plan</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforelse
-                                @if (count($plans) > 0)
-                                    <div class="text-right">
-                                        <a href="{{ route('myplans', 'yes') }}"> <i class="fas fa-archive"></i> Go to my
-                                            plans</a>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                        {{-- end of active investmet and purchase of investment plan --}}
-                    @endif
-
-
-                    {{-- 10 Recent transaction begin --}}
-                    <div class="mt-4 row">
-                        <div class="col-12">
-                            <div class="nk-block-head-content">
-                                <h6 class="text-primary h5">Recent transactions <span
-                                        class="text-base count">({{ count($t_history) }})</span>
-                                </h6>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="mb-2 text-right">
-                                        <a href="{{ route('accounthistory') }}"> <i class="fas fa-clipboard"></i> View
-                                            all
-                                            transactions</a>
-                                    </div>
-                                    <div class="table-responsive">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr class="bg-light">
-                                                    <th>Date</th>
-                                                    <th>Type</th>
-                                                    <th>Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse ($t_history as $item)
-                                                    <tr>
-                                                        <td>
-                                                            {{ $item->created_at->toDayDateTimeString() }}
-                                                        </td>
-                                                        <td>
-                                                            {{ $item->type }}
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge badge-secondary">
-                                                                {{ $settings->currency }}{{ number_format($item->amount) }}</span>
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <td colspan="3">
-                                                        No record yet
-                                                    </td>
-                                                @endforelse
-
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                    {{-- end of recent transactions --}}
-
-                    <div class="mt-4 row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="text-black">Refer Us & Earn</h5>
-                                    <p>Use the below link to invite your friends.</p>
-                                    <div class="mb-3 input-group">
-                                        <input type="text" class="form-control myInput readonly"
-                                            value="{{ Auth::user()->ref_link }}" id="reflink" readonly>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-outline-primary" onclick="myFunction()"
-                                                type="button">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="col-md-6 text-right d-none d-md-block">
+                            <div class="mini-chart-container" style="height: 100px;">
+                                {{-- Placeholder for sparkline --}}
+                                <canvas id="portfolioChart"></canvas>
                             </div>
                         </div>
                     </div>
-                    {{-- <div class="mt-4 row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="text-black">Live Market Data</h5>
-                                    @include('includes.chart')
-                                    </div>
+                </div>
+                <div class="card-footer bg-white-5 border-0 py-3">
+                    <div class="row text-center">
+                        <div class="col-4 border-right border-white-10">
+                            <small class="text-white-50 d-block">Spot</small>
+                            <span class="text-white font-weight-bold">${{ number_format(Auth::user()->spot_bal, 2) }}</span>
+                        </div>
+                        <div class="col-4 border-right border-white-10">
+                            <small class="text-white-50 d-block">Futures</small>
+                            <span class="text-white font-weight-bold">${{ number_format(Auth::user()->future_bal, 2) }}</span>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-white-50 d-block">Funding</small>
+                            <span class="text-white font-weight-bold">${{ number_format(Auth::user()->account_bal, 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Market Overview --}}
+            <div class="card bg-dark-card border-0 mb-4">
+                <div class="card-header bg-transparent border-white-10 py-3 px-4 d-flex justify-content-between align-items-center">
+                    <h5 class="text-white font-weight-bold mb-0">Market Overview</h5>
+                    <a href="#" class="text-primary small">View All Markets</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark-custom mb-0">
+                            <thead>
+                                <tr class="text-muted text-uppercase small">
+                                    <th class="pl-4">Asset</th>
+                                    <th>Price</th>
+                                    <th>Change (24h)</th>
+                                    <th class="text-right pr-4">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="pl-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="asset-icon-sm bg-warning mr-3">B</div>
+                                            <div>
+                                                <h6 class="text-white mb-0 font-weight-bold">Bitcoin</h6>
+                                                <small class="text-muted">BTC/USDT</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-white font-weight-bold">$64,231.50</span></td>
+                                    <td><span class="text-success font-weight-bold">+2.45%</span></td>
+                                    <td class="text-right pr-4">
+                                        <a href="{{ route('spot.trade', ['pair' => 'BTC/USDT']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pl-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="asset-icon-sm bg-primary mr-3">E</div>
+                                            <div>
+                                                <h6 class="text-white mb-0 font-weight-bold">Ethereum</h6>
+                                                <small class="text-muted">ETH/USDT</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-white font-weight-bold">$3,450.20</span></td>
+                                    <td><span class="text-danger font-weight-bold">-1.12%</span></td>
+                                    <td class="text-right pr-4">
+                                        <a href="{{ route('spot.trade', ['pair' => 'ETH/USDT']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pl-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="asset-icon-sm bg-info mr-3">S</div>
+                                            <div>
+                                                <h6 class="text-white mb-0 font-weight-bold">Solana</h6>
+                                                <small class="text-muted">SOL/USDT</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-white font-weight-bold">$145.75</span></td>
+                                    <td><span class="text-success font-weight-bold">+5.60%</span></td>
+                                    <td class="text-right pr-4">
+                                        <a href="{{ route('spot.trade', ['pair' => 'SOL/USDT']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Recent Activity --}}
+            <div class="card bg-dark-card border-0">
+                <div class="card-header bg-transparent border-white-10 py-3 px-4">
+                    <h5 class="text-white font-weight-bold mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="activity-timeline">
+                        @forelse ($recent_orders->take(5) as $order)
+                        <div class="activity-item d-flex mb-4">
+                            <div class="activity-icon bg-{{ $order->type == 'Buy' ? 'success' : 'danger' }}-transparent text-{{ $order->type == 'Buy' ? 'success' : 'danger' }} mr-3">
+                                <i class="fas fa-{{ $order->type == 'Buy' ? 'arrow-down' : 'arrow-up' }}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="text-white mb-1 font-weight-bold">{{ $order->type }} {{ $order->pair }}</h6>
+                                    <small class="text-muted">{{ $order->created_at->diffForHumans() }}</small>
                                 </div>
+                                <p class="text-muted small mb-0">Order #{{ $order->id }} completed for {{ $order->amount }} {{ $order->coin }} at market price.</p>
                             </div>
                         </div>
-                    </div> --}}
+                        @empty
+                        <div class="text-center py-4">
+                            <i class="fas fa-history text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No recent activity to show.</p>
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Sidebar Content --}}
+        <div class="col-lg-4">
+            {{-- Product Shortcuts --}}
+            <div class="row">
+                @if(isset($mod['future']) && $mod['future'])
+                <div class="col-12 mb-4">
+                    <a href="{{ route('future.trade') }}" class="card-link">
+                        <div class="card bg-dark-card border-0 product-card h-100 overflow-hidden">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="product-icon bg-primary text-white mr-3">
+                                        <i class="fas fa-bolt"></i>
+                                    </div>
+                                    <h6 class="text-white font-weight-bold mb-0">Futures Trading</h6>
+                                </div>
+                                <p class="text-muted small mb-0">Trade with up to 125x leverage on major crypto and forex pairs.</p>
+                            </div>
+                            <div class="product-card-bg">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                @endif
+
+                @if(isset($mod['copy']) || isset($mod['subscription']))
+                <div class="col-12 mb-4">
+                    <a href="{{ route('copy.trade') }}" class="card-link">
+                        <div class="card bg-dark-card border-0 product-card h-100 overflow-hidden">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="product-icon bg-info text-white mr-3">
+                                        <i class="fas fa-copy"></i>
+                                    </div>
+                                    <h6 class="text-white font-weight-bold mb-0">Copy Trading</h6>
+                                </div>
+                                <p class="text-muted small mb-0">Follow elite traders and mirror their winning strategies automatically.</p>
+                            </div>
+                            <div class="product-card-bg">
+                                <i class="fas fa-copy"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                @endif
+            </div>
+
+            {{-- Recent Transactions --}}
+            <div class="card bg-dark-card border-0 mb-4">
+                <div class="card-header bg-transparent border-white-10 py-3 px-4 d-flex justify-content-between align-items-center">
+                    <h6 class="text-white font-weight-bold mb-0">Transactions</h6>
+                    <a href="{{ route('accounthistory') }}" class="text-primary small">See All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @forelse ($t_history->take(4) as $item)
+                        <div class="list-group-item bg-transparent border-white-10 py-3 px-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="tx-icon rounded-circle mr-3 {{ $item->amount > 0 ? 'bg-success-transparent text-success' : 'bg-danger-transparent text-danger' }}">
+                                        <i class="fas fa-{{ $item->amount > 0 ? 'plus' : 'minus' }}"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-white small font-weight-bold mb-0">{{ $item->plan }}</h6>
+                                        <small class="text-muted">{{ $item->created_at->format('M d, Y') }}</small>
+                                    </div>
+                                </div>
+                                <h6 class="text-white small font-weight-bold mb-0">{{ $item->amount > 0 ? '+' : '' }}{{ number_format($item->amount, 2) }} {{ $item->coin ?? 'USD' }}</h6>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="text-center py-4 text-muted small">No transactions.</div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            {{-- Referral Card --}}
+            <div class="card border-0 bg-primary-transparent overflow-hidden">
+                <div class="card-body p-4 position-relative z-index-1">
+                    <h6 class="text-primary font-weight-bold text-uppercase mb-2" style="letter-spacing: 1px; font-size: 0.65rem;">Affiliation</h6>
+                    <h5 class="text-white font-weight-bold mb-2">Invite Friends, Earn Crypto</h5>
+                    <p class="text-muted small mb-4">Get up to 20% commission on every trade your friends make on our platform.</p>
+                    <button class="btn btn-primary btn-sm btn-block rounded-pill" onclick="copyRef()">Copy Invite Link</button>
+                </div>
+                <div class="referral-decor">
+                    <i class="fas fa-users"></i>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
+<style>
+    .bg-dark-card { background: #11151d; border-radius: 2px; }
+    .bg-white-5 { background: rgba(255,255,255,0.03); }
+    .border-white-10 { border-color: rgba(255,255,255,0.05) !important; }
+    
+    /* Premium Gradient Card */
+    .bg-premium-gradient {
+        background: linear-gradient(135deg, #1572e8 0%, #0c4a9a 100%);
+        box-shadow: 0 10px 30px rgba(21, 114, 232, 0.2);
+    }
+    
+    /* Stats & Icons */
+    .asset-icon-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #fff;
+        font-size: 0.8rem;
+    }
+    .product-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+    .tx-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+    }
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+    
+    /* Transparent BG utilities */
+    .bg-primary-transparent { background: rgba(21, 114, 232, 0.05); }
+    .bg-success-transparent { background: rgba(0, 200, 83, 0.1); }
+    .bg-danger-transparent { background: rgba(255, 61, 0, 0.1); }
+    
+    /* Product Cards */
+    .product-card {
+        transition: all 0.3s;
+        position: relative;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        background: #1a1f2c;
+    }
+    .product-card-bg {
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        font-size: 5rem;
+        opacity: 0.02;
+        color: #fff;
+        transform: rotate(-15deg);
+    }
+    .card-link:hover { text-decoration: none; }
+    
+    /* Table Styling */
+    .table-dark-custom th { border-top: 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .table-dark-custom td { border-top: 1px solid rgba(255,255,255,0.03); vertical-align: middle; padding: 1.25rem 0.75rem; }
+    
+    /* Referral Decor */
+    .referral-decor {
+        position: absolute;
+        right: -10px;
+        top: -10px;
+        font-size: 4rem;
+        opacity: 0.05;
+        color: #1572e8;
+        transform: rotate(15deg);
+    }
+    
+    /* Button Tweaks */
+    .btn-xs { padding: 0.25rem 0.75rem; font-size: 0.7rem; border-radius: 2px; }
+    .btn-outline-primary { border-color: rgba(21, 114, 232, 0.3); color: #1572e8; }
+    .btn-outline-primary:hover { background: rgba(21, 114, 232, 0.1); border-color: #1572e8; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('portfolioChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        data: [65, 59, 80, 81, 56, 95],
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+            });
+        }
+    });
+
+    function copyRef() {
+        var dummy = document.createElement("input");
+        document.body.appendChild(dummy);
+        dummy.value = "{{ Auth::user()->ref_link }}";
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+        
+        $.notify({
+            icon: 'fas fa-check-circle',
+            message: "Referral link copied!"
+        }, {
+            type: 'success',
+            placement: { from: "top", align: "right" },
+            time: 1000,
+        });
+    }
+</script>
 @endsection

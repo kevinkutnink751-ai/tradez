@@ -15,8 +15,8 @@ class BuySlot extends Component
 
     public function mount()
     {
-        $response = $this->fetctApi('/settings');
-        $this->amountPerSlot = $response['data']['amount_per_slot'];
+        // $response = $this->fetctApi('/settings');
+        $this->amountPerSlot = 100;
     }
 
     public function render()

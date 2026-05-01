@@ -27,6 +27,8 @@ use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\SignalProvderController;
 use App\Http\Controllers\Admin\TopupController;
 use App\Http\Controllers\Admin\TradingAccountController;
+use App\Http\Controllers\Admin\TradingPairController;
+use App\Http\Controllers\Admin\ManageOptionsController;
 use Illuminate\Support\Facades\Route;
 
 // Admin Login Routes
@@ -80,7 +82,7 @@ Route::middleware(['isadmin', '2fa'])->prefix('admin')->group(function () {
         Route::get('dashboard/agents',  'agents')->name('agents');
         Route::get('dashboard/addmanager', 'addmanager')->name('addmanager');
         Route::get('dashboard/madmin', 'madmin')->name('madmin');
-        Route::get('dashboard/msubtrade', 'msubtrade')->name('msubtrade');
+        Route::get('dashboard/msubtrade', [App\Http\Controllers\Admin\TradingAccountController::class, 'tradingAccounts'])->name('msubtrade');
         Route::get('dashboard/settings', 'settings')->name('settings');
         Route::get('dashboard/frontpage', 'frontpage')->name('frontpage');
         Route::get('dashboard/adduser', 'adduser')->name('adduser');
@@ -255,10 +257,10 @@ Route::middleware(['isadmin', '2fa'])->prefix('admin')->group(function () {
     });
 
     Route::controller(ManageAssetController::class)->group(function () {
-        // Crypto Asset
-        Route::get('dashboard/setcryptostatus/{asset}/{status}', 'setassetstatus')->name('setassetstatus');
-        Route::get('dashboard/useexchange/{value}', 'useexchange')->name('useexchange');
-        Route::post('dashboard/exchangefee', 'exchangefee')->name('exchangefee');
+        Route::get('dashboard/assets', 'index')->name('admin.assets.index');
+        Route::post('dashboard/assets', 'store')->name('admin.assets.store');
+        Route::put('dashboard/assets/{id}', 'update')->name('admin.assets.update');
+        Route::delete('dashboard/assets/{id}', 'destroy')->name('admin.assets.destroy');
     });
 
 
@@ -290,6 +292,8 @@ Route::middleware(['isadmin', '2fa'])->prefix('admin')->group(function () {
         Route::post('/renew-master-account', 'renewAccount')->name('renew.master');
         //update strategy
         Route::post('/update-strategy', 'updateStrategy')->name('updatestrategy');
+        Route::post('/send-master-signal', 'sendSignal')->name('master.send_signal');
+        Route::post('/close-master-signal', 'closeSignal')->name('master.close_signal');
         Route::get('dashboard/delsub/{id}', 'delsub');
         Route::get('dashboard/confirmsub/{id}', 'confirmsub');
     });
@@ -297,14 +301,19 @@ Route::middleware(['isadmin', '2fa'])->prefix('admin')->group(function () {
     Route::controller(TradingAccountController::class)->group(function () {
         //subscriber account
         Route::get('/trading-accounts', 'tradingAccounts')->name('tacnts');
+        Route::get('/trading-accounts/{id}', 'accountDetail')->name('account.detail');
+        Route::get('/master-audit/{id}', 'masterAudit')->name('master.audit');
+        Route::get('/toggle-copy-trade/{id}', 'toggleCopyTrade')->name('toggle.copytrade');
         Route::post('/create-sub-account', 'createSubscriberAccount')->name('create.sub');
         Route::get('/delete-sub-account/{id}', 'deleteSubAccount')->name('del.sub');
+        Route::get('/stop-copying/{id}', 'stopCopying')->name('stop.sub');
         Route::get('/payment', 'payment')->name('tra.pay');
         Route::post('/renew-trading-account', 'renewAccount')->name('renew.acnt');
         //Copy trade
         Route::post('/start-copy-account', 'copyTrade')->name('cptrade');
         //deployment.
         Route::get('/deployment/{id}/{deployment}', 'deployment')->name('acnt.deployment');
+        Route::post('/update-account-details', 'updateAccountDetails')->name('update.acnt.details');
     });
 
     /*
@@ -326,6 +335,28 @@ Route::middleware(['isadmin', '2fa'])->prefix('admin')->group(function () {
         Route::get('delete-id', 'deleteChatId')->name('delete.id');
         //subscribers
         Route::get('signal-subscribers', 'subscribers')->name('signal.subs');
+    });
+
+    // Trading Pairs (Spot/Future)
+    Route::controller(TradingPairController::class)->group(function () {
+        Route::get('trading-pairs', [TradingPairController::class, 'index'])->name('admin.trading.pairs');
+        Route::post('trading-pairs', [TradingPairController::class, 'store'])->name('admin.trading.pairs.store');
+        Route::put('trading-pairs/{id}', [TradingPairController::class, 'update'])->name('admin.trading.pairs.update');
+        Route::delete('trading-pairs/{id}', [TradingPairController::class, 'destroy'])->name('admin.trading.pairs.destroy');
+
+        Route::get('manage-options', [ManageOptionsController::class, 'index'])->name('admin.options.index');
+        Route::put('manage-options/{id}', [ManageOptionsController::class, 'update'])->name('admin.options.update');
+        Route::delete('manage-options/{id}', [ManageOptionsController::class, 'destroy'])->name('admin.options.destroy');
+
+        Route::get('trading-pairs/toggle/{id}', 'toggleStatus')->name('admin.trading.pairs.toggle');
+    });
+
+    // Manage Futures Trades
+    Route::controller(App\Http\Controllers\Admin\ManageFutureController::class)->group(function () {
+        Route::get('futures-trades', 'index')->name('admin.futures.index');
+        Route::post('futures-trades/close', 'closeTrade')->name('admin.futures.close');
+        Route::post('futures-trades/edit-pnl', 'editPnl')->name('admin.futures.edit_pnl');
+        Route::delete('futures-trades/{id}', 'destroy')->name('admin.futures.destroy');
     });
 
     // clear cache

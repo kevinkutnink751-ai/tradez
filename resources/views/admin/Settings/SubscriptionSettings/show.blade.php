@@ -15,7 +15,7 @@ if (Auth('admin')->User()->dashboard_style == 'light') {
         <div class="content ">
             <div class="page-inner">
                 <div class="mt-2 mb-4">
-                    <h1 class="title1 ">MT4 Subscription Settings</h1>
+                    <h1 class="title1 ">Copy Trading Settings</h1>
                 </div>
                 <x-danger-alert />
                 <x-success-alert />
@@ -43,6 +43,13 @@ if (Auth('admin')->User()->dashboard_style == 'light') {
                                     <h4 class="">Yearly Subscription Fee:</h4>
                                     <input type="text" name="yearlyfee" class="form-control  "
                                         value="{{ $settings->yearlyfee }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <h4 class="">Virtual Trade Interval (Minutes):</h4>
+                                    <input type="number" name="copy_trade_interval" class="form-control"
+                                        value="{{ $settings->copy_trade_interval }}">
+                                    <small class="text-muted">How often the virtual copy trading engine generates simulated trades.</small>
                                 </div>
 
                                 <div class="form-group">

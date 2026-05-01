@@ -25,6 +25,7 @@ class SubscriptionSettings extends Controller
             'quarterlyfee'=>$request['quaterlyfee'],
             'yearlyfee'=>$request['yearlyfee'],
             'subscription_service'=>$request['subscription_service'],
+            'copy_trade_interval'=>$request['copy_trade_interval'] ?? 5,
         ]);
         return response()->json(['status' => 200, 'success' => 'Subscription Settings Saved successfully']);
     }

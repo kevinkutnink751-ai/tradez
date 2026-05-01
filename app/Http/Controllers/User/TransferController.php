@@ -127,4 +127,41 @@ class TransferController extends Controller
         }
         return redirect()->back()->with('Something went wrong');
     }
+    public function internalTransfer(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'from' => 'required|string',
+            'to' => 'required|string',
+        ]);
+
+        $user = User::find(Auth::user()->id);
+        $amount = $request->amount;
+
+        // Check if balance exists
+        if ($user->{$request->from} < $amount) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Insufficient balance in ' . str_replace('_', ' ', $request->from),
+            ]);
+        }
+
+        // Deduct and add
+        $user->{$request->from} -= $amount;
+        $user->{$request->to} += $amount;
+        $user->save();
+
+        // Log transaction
+        Tp_Transaction::create([
+            'user' => $user->id,
+            'plan' => "Internal Transfer: " . strtoupper(str_replace('_bal', '', $request->from)) . " to " . strtoupper(str_replace('_bal', '', $request->to)),
+            'amount' => $amount,
+            'type' => "Internal Transfer",
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Transfer successful',
+        ]);
+    }
 }

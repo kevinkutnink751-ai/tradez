@@ -95,3 +95,85 @@
         }
     }
 </script>
+
+<!-- Transfer Modal -->
+<div id="transferModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: #11151d; border: 1px solid rgba(255,255,255,0.05);">
+            <div class="modal-header border-bottom border-white-10">
+                <h5 class="modal-title text-white font-weight-bold">Internal Transfer</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="internalTransferForm">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <div class="form-group mb-3">
+                        <label class="text-muted small">From</label>
+                        <select name="from" class="form-control bg-dark border-secondary text-white">
+                            <option value="account_bal">Funding Wallet</option>
+                            <option value="spot_bal">Spot Wallet</option>
+                            <option value="future_bal">Futures Wallet</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3 text-center">
+                        <i class="fas fa-exchange-alt fa-2x text-primary" style="transform: rotate(90deg);"></i>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="text-muted small">To</label>
+                        <select name="to" class="form-control bg-dark border-secondary text-white">
+                            <option value="future_bal">Futures Wallet</option>
+                            <option value="spot_bal">Spot Wallet</option>
+                            <option value="account_bal">Funding Wallet</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="text-muted small">Amount (USDT)</label>
+                        <div class="input-group bg-dark border-secondary rounded">
+                            <input type="number" name="amount" class="form-control bg-transparent border-0 text-white" placeholder="0.00" step="any" required>
+                            <div class="input-group-append">
+                                <span class="input-group-text bg-transparent border-0 text-muted">USDT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block py-3 font-weight-bold">CONFIRM TRANSFER</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('internalTransferForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch("{{ route('internal.transfer') }}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 200) {
+                $.notify({
+                    icon: 'fas fa-check-circle',
+                    message: data.message
+                }, {
+                    type: 'success',
+                    placement: { from: "top", align: "right" }
+                });
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                $.notify({
+                    icon: 'fas fa-exclamation-triangle',
+                    message: data.message
+                }, {
+                    type: 'danger',
+                    placement: { from: "top", align: "right" }
+                });
+            }
+        });
+    });
+</script>

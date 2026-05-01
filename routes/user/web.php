@@ -16,6 +16,7 @@ use App\Http\Controllers\User\ExchangeController;
 use App\Http\Controllers\User\FlutterwaveController;
 use App\Http\Controllers\User\MembershipController;
 use App\Http\Controllers\User\TransferController;
+use App\Http\Controllers\User\TradeController;
 use Illuminate\Support\Facades\Route;
 
 // Email verification routes
@@ -127,8 +128,34 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->group(func
         Route::post('exchange', [ExchangeController::class, 'exchange'])->name('exchangenow');
         Route::get('balances/{coin}', [ExchangeController::class, 'getBalance'])->name('getbalance');
 
+        // Trading Routes
+        Route::get('manage-orders', [ViewsController::class, 'manageOrder'])->name('manage.order');
+        Route::get('spot-trade', [ViewsController::class, 'spotTrade'])->name('spot.trade');
+        Route::get('binary-trade', [ViewsController::class, 'binaryTrade'])->name('binary.trade');
+        Route::post('binary-trade', [TradeController::class, 'storeBinaryTrade'])->name('binary.trade.store');
+        Route::get('binary-trade-history', [ViewsController::class, 'binaryHistory'])->name('binary.history');
+        Route::get('future-trade', [ViewsController::class, 'futureTrade'])->name('future.trade');
+        Route::post('future-trade', [TradeController::class, 'storeFutureTrade'])->name('future.trade.store');
+        Route::get('close-trade/{id}', [TradeController::class, 'closeTrade'])->name('trade.close');
+        Route::get('spot-trade-history', [ViewsController::class, 'spotHistory'])->name('spot.history');
+        Route::get('future-trade-history', [ViewsController::class, 'futureHistory'])->name('future.history');
+        Route::post('spot-trade', [TradeController::class, 'storeSpotTrade'])->name('spot.trade.store');
+        Route::get('options-trade', [ViewsController::class, 'optionsTrade'])->name('options.trade');
+        Route::post('options-trade', [TradeController::class, 'storeOptionsTrade'])->name('options.trade.store');
+        Route::get('options-trade-history', [ViewsController::class, 'optionsHistory'])->name('options.history');
+        Route::get('copy-trade', [ViewsController::class, 'copyTrade'])->name('copy.trade');
+        Route::post('copy-trade/subscribe', [UserSubscriptionController::class, 'subscribeToMaster'])->name('user.copy.subscribe');
+        Route::get('my-subscriptions', [ViewsController::class, 'mySubscriptions'])->name('user.my.subscriptions');
+        Route::get('p2p-center', [ViewsController::class, 'p2pCenter'])->name('p2p.center');
+        Route::get('manage-wallet', [\App\Http\Controllers\User\WalletController::class, 'index'])->name('manage.wallet');
+        Route::post('manage-wallet/create', [\App\Http\Controllers\User\WalletController::class, 'create'])->name('wallet.create');
+        Route::post('manage-wallet/transfer', [\App\Http\Controllers\User\WalletController::class, 'transfer'])->name('wallet.transfer');
+        Route::get('deposit-history', [ViewsController::class, 'depositHistory'])->name('deposit.history');
+        Route::get('withdraw-history', [ViewsController::class, 'withdrawHistory'])->name('withdraw.history');
+
         // USer to User transfer
         Route::post('transfertouser', [TransferController::class, 'transfertouser'])->name('transfertouser');
+        Route::post('internal-transfer', [TransferController::class, 'internalTransfer'])->name('internal.transfer');
 
         // binance crypto payments routes
         Route::get('/binance/success', [ViewsController::class, 'binanceSuccess'])->name('bsuccess');

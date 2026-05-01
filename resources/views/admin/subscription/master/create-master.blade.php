@@ -11,39 +11,48 @@
                 <form role="form" method="post" action="{{ route('create.master') }}">
                     @csrf
                     <div class="form-row">
-                        <div class="form-group col-md-6 text-left">
-                            <label>Login*:</label>
-                            <input class="form-control" type="text" name="login" required>
-                        </div>
-                        <div class="form-group col-md-6 text-left">
-                            <label>Account Password*:</label>
-                            <input class="form-control  " type="text" name="password" required>
-                        </div>
-                        <div class="form-group col-md-6 text-left">
-                            <label>Account Name*:</label>
+                        <div class="form-group col-md-12 text-left">
+                            <label>Bot Name*:</label>
                             <input class="form-control" type="text" name="name" required>
                         </div>
                         <div class="form-group col-md-6 text-left">
-                            <label>Server*:</label>
-                            <input class="form-control " Placeholder="E.g. HantecGlobal-live" type="text"
-                                name="serverName" required>
+                            <label>Bot Type*:</label>
+                            <select class="form-control" name="bot_type" required>
+                                <option value="winning">Winning</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="losing">Losing</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6 text-left">
+                            <label>Risk Level*:</label>
+                            <select class="form-control" name="risk_level" required>
+                                <option value="Low">Low</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6 text-left">
+                            <label>Target ROI (%)*:</label>
+                            <input class="form-control" type="number" step="0.01" name="roi" required>
+                        </div>
+                        <div class="form-group col-md-6 text-left">
+                            <label>Max Drawdown (%)*:</label>
+                            <input class="form-control" type="number" step="0.01" name="drawdown" required>
                         </div>
                         <div class="form-group col-md-6 text-left">
                             <label>Account Type:</label>
-                            <input class="form-control  " Placeholder="E.g. Standard" type="text" name="acntype"
-                                required>
+                            <input class="form-control" Placeholder="E.g. Standard" type="text" name="acntype" required>
                         </div>
                         <div class="form-group col-md-6 text-left">
                             <label>Leverage:</label>
-                            <input class="form-control  " Placeholder="E.g. 1:500" type="text" name="leverage"
-                                required>
+                            <input class="form-control" Placeholder="E.g. 1:500" type="text" name="leverage" required>
                         </div>
                         <div class="form-group col-md-6 text-left">
                             <label>Currency:</label>
                             <input class="form-control" Placeholder="E.g. USD" type="text" name="currency" required>
                         </div>
                         <div class="form-group col-md-12 text-left">
-                            <input type="submit" class="btn btn-primary" value="Add Account">
+                            <input type="submit" class="btn btn-primary" value="Create Bot">
                         </div>
                     </div>
                 </form>

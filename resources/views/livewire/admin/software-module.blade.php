@@ -116,6 +116,82 @@
                                 functionalities about signal providing on user dashboard.</small>
                         </div>
                     </div>
+
+                    <div class="mt-4 col-md-6">
+                        <h5 class="">Spot Trading:</h5>
+                        <div class="selectgroup">
+                            <label class="selectgroup-item">
+                                <input type="radio" class="selectgroup-input" name="spot"
+                                    wire:click="updateModule('spot','true')" {{ isset($mod['spot']) && $mod['spot'] ? 'checked' : '' }}>
+                                <span class="selectgroup-button">Enabled</span>
+                            </label>
+                            <label class="selectgroup-item">
+                                <input type="radio" class="selectgroup-input" name="spot"
+                                    wire:click="updateModule('spot','false')" {{ isset($mod['spot']) && $mod['spot'] ? '' : 'checked' }}>
+                                <span class="selectgroup-button">Disabled</span>
+                            </label>
+                        </div>
+                        <div class="mt-2">
+                            <small class="">Enable/Disable Spot Trading terminal for users.</small>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 col-md-6">
+                        <h5 class="">Future Trading:</h5>
+                        <div class="selectgroup">
+                            <label class="selectgroup-item">
+                                <input type="radio" class="selectgroup-input" name="future"
+                                    wire:click="updateModule('future','true')" {{ isset($mod['future']) && $mod['future'] ? 'checked' : '' }}>
+                                <span class="selectgroup-button">Enabled</span>
+                            </label>
+                            <label class="selectgroup-item">
+                                <input type="radio" class="selectgroup-input" name="future"
+                                    wire:click="updateModule('future','false')" {{ isset($mod['future']) && $mod['future'] ? '' : 'checked' }}>
+                                <span class="selectgroup-button">Disabled</span>
+                            </label>
+                        </div>
+                        <div class="mt-2">
+                            <small class="">Enable/Disable Future Trading terminal for users.</small>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 col-md-6">
+                        <h5 class="">Binary Trading:</h5>
+                        <div class="selectgroup">
+                            <label class="selectgroup-item">
+                                <input type="radio" class="selectgroup-input" name="binary"
+                                    wire:click="updateModule('binary','true')" {{ isset($mod['binary']) && $mod['binary'] ? 'checked' : '' }}>
+                                <span class="selectgroup-button">Enabled</span>
+                            </label>
+                            <label class="selectgroup-item">
+                                <input type="radio" class="selectgroup-input" name="binary"
+                                    wire:click="updateModule('binary','false')" {{ isset($mod['binary']) && $mod['binary'] ? '' : 'checked' }}>
+                                <span class="selectgroup-button">Disabled</span>
+                            </label>
+                        </div>
+                        <div class="mt-2">
+                            <small class="">Enable/Disable Binary Trading terminal for users.</small>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 col-md-6">
+                        <h5 class="">Options Trading:</h5>
+                        <div class="selectgroup">
+                            <label class="selectgroup-item">
+                                <input type="radio" class="selectgroup-input" name="options"
+                                    wire:click="updateModule('options','true')" {{ isset($mod['options']) && $mod['options'] ? 'checked' : '' }}>
+                                <span class="selectgroup-button">Enabled</span>
+                            </label>
+                            <label class="selectgroup-item">
+                                <input type="radio" class="selectgroup-input" name="options"
+                                    wire:click="updateModule('options','false')" {{ isset($mod['options']) && $mod['options'] ? '' : 'checked' }}>
+                                <span class="selectgroup-button">Disabled</span>
+                            </label>
+                        </div>
+                        <div class="mt-2">
+                            <small class="">Enable/Disable Options Trading terminal for users.</small>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>

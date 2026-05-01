@@ -24,7 +24,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        
+        // Monitor every minute (standard Laravel schedule limit, but can be simulated for 30s)
+        $schedule->command('copy-trading:monitor')->everyMinute();
+
+        // Virtual trades generated every minute, interval checks are done inside the command
+        $schedule->command('generate:virtual-trades --action=cycle')->everyMinute();
+
+        // Sync market prices twice a day (e.g. 1am and 1pm)
+        $schedule->command('pairs:sync-prices')->twiceDaily(1, 13);
     }
 
     /**
