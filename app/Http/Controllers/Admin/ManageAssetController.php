@@ -8,10 +8,13 @@ use App\Models\SettingsCont;
 
 class ManageAssetController extends Controller
 {
+    protected array $assetTypes = ['Fiat', 'Crypto', 'Equity', 'Index', 'Commodity', 'Rate', 'Volatility'];
+
     public function index()
     {
         $assets = \App\Models\Asset::orderBy('name')->get();
-        return view('admin.assets.index', compact('assets'));
+        $assetTypes = $this->assetTypes;
+        return view('admin.assets.index', compact('assets', 'assetTypes'));
     }
 
     public function store(Request $request)
@@ -19,10 +22,12 @@ class ManageAssetController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'symbol' => 'required|string|max:10|unique:assets',
-            'type' => 'required|in:Fiat,Crypto',
+            'type' => 'required|in:' . implode(',', $this->assetTypes),
             'category' => 'nullable|string',
             'base_rate' => 'required|numeric|min:0',
             'logo' => 'nullable|string',
+            'price_source' => 'nullable|string|in:binance,yahoo',
+            'market_symbol' => 'nullable|string|max:50',
         ]);
 
         \App\Models\Asset::create($request->all());
@@ -36,11 +41,13 @@ class ManageAssetController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'symbol' => 'required|string|max:10|unique:assets,symbol,'.$id,
-            'type' => 'required|in:Fiat,Crypto',
+            'type' => 'required|in:' . implode(',', $this->assetTypes),
             'category' => 'nullable|string',
             'base_rate' => 'required|numeric|min:0',
             'logo' => 'nullable|string',
             'status' => 'required|boolean',
+            'price_source' => 'nullable|string|in:binance,yahoo',
+            'market_symbol' => 'nullable|string|max:50',
         ]);
 
         $asset->update($request->all());

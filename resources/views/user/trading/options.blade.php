@@ -50,7 +50,7 @@
                         <script type="text/javascript">
                         new TradingView.widget({
                             "autosize": true,
-                            "symbol": "BINANCE:{{ str_replace('/', '', $currentPair->name) }}",
+                            "symbol": "{{ $currentPair->resolveChartSymbol() }}",
                             "interval": "15",
                             "timezone": "Etc/UTC",
                             "theme": "dark",
@@ -75,7 +75,7 @@
                         @csrf
                         <input type="hidden" name="pair" value="{{ $currentPair->name }}">
                         <input type="hidden" name="type" id="option_type" value="Call">
-                        <input type="hidden" name="price" value="64231.50">
+                        <input type="hidden" name="price" value="{{ $currentPair->last_price }}">
 
                         <div class="trading-modes mb-4">
                             <ul class="nav nav-pills nav-fill bg-dark-input p-1 rounded">

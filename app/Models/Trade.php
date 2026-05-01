@@ -11,9 +11,13 @@ class Trade extends Model
 
     protected $fillable = [
         'user_id',
+        'trading_pair_id',
         'pair',
+        'asset_symbol',
+        'quote_asset_symbol',
         'type',
         'market_type',
+        'instrument_category',
         'amount',
         'price',
         'leverage',
@@ -24,5 +28,10 @@ class Trade extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function tradingPair()
+    {
+        return $this->belongsTo(TradingPair::class);
     }
 }

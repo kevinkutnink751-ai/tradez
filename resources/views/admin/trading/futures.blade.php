@@ -45,7 +45,7 @@
                                                     {{ $trade->user->name }}
                                                 </a>
                                             </td>
-                                            <td>{{ $trade->pair }} <span class="badge badge-info">{{ $trade->leverage }}x</span></td>
+                                            <td>{{ $trade->pair }} <span class="badge badge-info">{{ $trade->leverage }}x</span><br><small class="text-muted">{{ $trade->instrument_category }}</small></td>
                                             <td>
                                                 <span class="badge badge-{{ $trade->type == 'Buy' ? 'success' : 'danger' }}">
                                                     {{ $trade->type == 'Buy' ? 'LONG' : 'SHORT' }}
@@ -99,7 +99,7 @@
                                                         <div class="modal-body">
                                                             <p class="text-primary">Closing position for <strong>{{ $trade->user->name }}</strong> on {{ $trade->pair }}</p>
                                                             <div class="form-group">
-                                                                <label class="text-primary">Final PNL (USDT)</label>
+                                                                <label class="text-primary">Final PNL ({{ $trade->quote_asset_symbol ?: 'USD' }})</label>
                                                                 <input type="number" step="any" name="pnl" class="form-control bg-{{$bg}} text-primary" value="{{ $trade->pnl }}" required>
                                                                 <small class="text-muted">Enter positive for profit, negative for loss.</small>
                                                             </div>

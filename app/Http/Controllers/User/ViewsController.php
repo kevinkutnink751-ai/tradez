@@ -399,8 +399,9 @@ class ViewsController extends Controller
         if (isset($mod['spot']) && !$mod['spot']) {
             abort(404);
         }
-        $pairs = TradingPair::where('type', 'Spot')->where('status', true)->get();
-        $currentPair = TradingPair::where('name', $request->query('pair', 'BTC/USDT'))->where('type', 'Spot')->first() ?? $pairs->first();
+        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('type', 'Spot')->where('status', true)->get();
+        $selectedPair = $request->query('pair');
+        $currentPair = $pairs->firstWhere('name', $selectedPair) ?? $pairs->first();
         
         return view('user.trading.spot', [
             'title' => 'Spot Trading',
@@ -415,8 +416,9 @@ class ViewsController extends Controller
         if (isset($mod['binary']) && !$mod['binary']) {
             abort(404);
         }
-        $pairs = TradingPair::where('type', 'Binary')->where('status', true)->get();
-        $currentPair = TradingPair::where('name', $request->query('pair', 'BTC/USDT'))->where('type', 'Binary')->first() ?? $pairs->first();
+        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('type', 'Binary')->where('status', true)->get();
+        $selectedPair = $request->query('pair');
+        $currentPair = $pairs->firstWhere('name', $selectedPair) ?? $pairs->first();
 
         return view('user.trading.binary', [
             'title' => 'Binary Trading',
@@ -444,9 +446,15 @@ class ViewsController extends Controller
         if (isset($mod['future']) && !$mod['future']) {
             abort(404);
         }
-        $pairs = TradingPair::where('type', 'Future')->where('status', true)->get();
-        $currentPair = TradingPair::where('name', $request->query('pair', 'BTC/USDT'))->where('type', 'Future')->first() ?? $pairs->first();
-        $openPositions = Trade::where('user_id', Auth::id())->where('market_type', 'Future')->where('status', 'Open')->orderByDesc('id')->get();
+        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('type', 'Future')->where('status', true)->get();
+        $selectedPair = $request->query('pair');
+        $currentPair = $pairs->firstWhere('name', $selectedPair) ?? $pairs->first();
+        $openPositions = Trade::with('tradingPair')
+            ->where('user_id', Auth::id())
+            ->where('market_type', 'Future')
+            ->where('status', 'Open')
+            ->orderByDesc('id')
+            ->get();
 
         return view('user.trading.future', [
             'title' => 'Future Trading',
@@ -479,8 +487,9 @@ class ViewsController extends Controller
         if (isset($mod['options']) && !$mod['options']) {
             abort(404);
         }
-        $pairs = TradingPair::where('type', 'Option')->where('status', true)->get();
-        $currentPair = TradingPair::where('name', $request->query('pair', 'BTC/USDT'))->where('type', 'Option')->first() ?? $pairs->first();
+        $pairs = TradingPair::with(['asset', 'quoteAssetModel'])->where('type', 'Option')->where('status', true)->get();
+        $selectedPair = $request->query('pair');
+        $currentPair = $pairs->firstWhere('name', $selectedPair) ?? $pairs->first();
 
         return view('user.trading.options', [
             'title' => 'Options Trading',

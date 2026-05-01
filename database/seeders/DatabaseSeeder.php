@@ -13,6 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+         $this->call([
+             MarketAssetsSeeder::class,
+             TradingPairsSeeder::class,
+         ]);
+
          \App\Models\Adverts::factory(7)->create();
     }
 }

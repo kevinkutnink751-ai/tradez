@@ -18,6 +18,8 @@ class Deposit extends Model
         'status',
         'proof',
         'wallet',
+        'asset_id',
+        'balance_type',
     ];
 
     public function duser(){
@@ -26,5 +28,10 @@ class Deposit extends Model
 
     public function dplan(){
     	return $this->belongsTo('App\Models\Plans', 'plan');
+    }
+
+    public function asset()
+    {
+        return $this->belongsTo(\App\Models\Asset::class);
     }
 }

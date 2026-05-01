@@ -13,32 +13,33 @@ class TradingPairsSeeder extends Seeder
     public function run(): void
     {
         $pairs = [
-            // Crypto Pairs - Spot
-            ['name' => 'BTC/USDT', 'symbol' => 'BTC', 'base_asset' => 'USDT', 'type' => 'Spot', 'leverage' => 1],
-            ['name' => 'ETH/USDT', 'symbol' => 'ETH', 'base_asset' => 'USDT', 'type' => 'Spot', 'leverage' => 1],
-            ['name' => 'SOL/USDT', 'symbol' => 'SOL', 'base_asset' => 'USDT', 'type' => 'Spot', 'leverage' => 1],
-            ['name' => 'BNB/USDT', 'symbol' => 'BNB', 'base_asset' => 'USDT', 'type' => 'Spot', 'leverage' => 1],
+            ['name' => 'BTC/USD', 'symbol' => 'BTC', 'quote_asset' => 'USD', 'type' => 'Spot', 'instrument_category' => 'Cryptocurrency', 'leverage' => 1, 'chart_symbol' => 'BINANCE:BTCUSDT'],
+            ['name' => 'ETH/USD', 'symbol' => 'ETH', 'quote_asset' => 'USD', 'type' => 'Spot', 'instrument_category' => 'Cryptocurrency', 'leverage' => 1, 'chart_symbol' => 'BINANCE:ETHUSDT'],
+            ['name' => 'SOL/USD', 'symbol' => 'SOL', 'quote_asset' => 'USD', 'type' => 'Spot', 'instrument_category' => 'Cryptocurrency', 'leverage' => 1, 'chart_symbol' => 'BINANCE:SOLUSDT'],
+            ['name' => 'AAPL/USD', 'symbol' => 'AAPL', 'quote_asset' => 'USD', 'type' => 'Spot', 'instrument_category' => 'Equities', 'leverage' => 1, 'chart_symbol' => 'NASDAQ:AAPL'],
+            ['name' => 'EUR/USD', 'symbol' => 'EUR', 'quote_asset' => 'USD', 'type' => 'Spot', 'instrument_category' => 'Forex', 'leverage' => 1, 'chart_symbol' => 'FX:EURUSD'],
 
-            // Crypto Pairs - Future
-            ['name' => 'BTC/USDT', 'symbol' => 'BTC', 'base_asset' => 'USDT', 'type' => 'Future', 'leverage' => 125],
-            ['name' => 'ETH/USDT', 'symbol' => 'ETH', 'base_asset' => 'USDT', 'type' => 'Future', 'leverage' => 100],
-            ['name' => 'SOL/USDT', 'symbol' => 'SOL', 'base_asset' => 'USDT', 'type' => 'Future', 'leverage' => 50],
-            ['name' => 'XRP/USDT', 'symbol' => 'XRP', 'base_asset' => 'USDT', 'type' => 'Future', 'leverage' => 50],
+            ['name' => 'ES/USD', 'symbol' => 'ES', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Equity Index Futures', 'leverage' => 100, 'chart_symbol' => 'CME_MINI:ES1!'],
+            ['name' => 'NQ/USD', 'symbol' => 'NQ', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Equity Index Futures', 'leverage' => 100, 'chart_symbol' => 'CME_MINI:NQ1!'],
+            ['name' => 'YM/USD', 'symbol' => 'YM', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Equity Index Futures', 'leverage' => 100, 'chart_symbol' => 'CBOT_MINI:YM1!'],
+            ['name' => 'GC/USD', 'symbol' => 'GC', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Commodity Futures', 'leverage' => 75, 'chart_symbol' => 'COMEX:GC1!'],
+            ['name' => 'CL/USD', 'symbol' => 'CL', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Commodity Futures', 'leverage' => 75, 'chart_symbol' => 'NYMEX:CL1!'],
+            ['name' => 'EUR/USD', 'symbol' => 'EUR', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Currency Futures', 'leverage' => 200, 'chart_symbol' => 'FX:EURUSD'],
+            ['name' => 'GBP/USD', 'symbol' => 'GBP', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Currency Futures', 'leverage' => 200, 'chart_symbol' => 'FX:GBPUSD'],
+            ['name' => 'USD/JPY', 'symbol' => 'USD', 'quote_asset' => 'JPY', 'type' => 'Future', 'instrument_category' => 'Currency Futures', 'leverage' => 200, 'chart_symbol' => 'FX:USDJPY'],
+            ['name' => 'ZN/USD', 'symbol' => 'ZN', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Interest Rate & Bond Futures', 'leverage' => 50, 'chart_symbol' => 'CBOT:ZN1!'],
+            ['name' => 'ZB/USD', 'symbol' => 'ZB', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Interest Rate & Bond Futures', 'leverage' => 50, 'chart_symbol' => 'CBOT:ZB1!'],
+            ['name' => 'BTC/USD', 'symbol' => 'BTC', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Cryptocurrency Futures', 'leverage' => 125, 'chart_symbol' => 'BINANCE:BTCUSDT.P'],
+            ['name' => 'ETH/USD', 'symbol' => 'ETH', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Cryptocurrency Futures', 'leverage' => 100, 'chart_symbol' => 'BINANCE:ETHUSDT.P'],
+            ['name' => 'VX/USD', 'symbol' => 'VX', 'quote_asset' => 'USD', 'type' => 'Future', 'instrument_category' => 'Volatility Futures', 'leverage' => 20, 'chart_symbol' => 'CBOE:VIX'],
 
-            // Forex Pairs - Future
-            ['name' => 'EUR/USD', 'symbol' => 'EUR', 'base_asset' => 'USD', 'type' => 'Future', 'leverage' => 500],
-            ['name' => 'GBP/USD', 'symbol' => 'GBP', 'base_asset' => 'USD', 'type' => 'Future', 'leverage' => 500],
-            ['name' => 'USD/JPY', 'symbol' => 'JPY', 'base_asset' => 'USD', 'type' => 'Future', 'leverage' => 500],
-            ['name' => 'AUD/USD', 'symbol' => 'AUD', 'base_asset' => 'USD', 'type' => 'Future', 'leverage' => 500],
+            ['name' => 'BTC/USD', 'symbol' => 'BTC', 'quote_asset' => 'USD', 'type' => 'Binary', 'instrument_category' => 'Cryptocurrency', 'leverage' => 1, 'chart_symbol' => 'BINANCE:BTCUSDT'],
+            ['name' => 'EUR/USD', 'symbol' => 'EUR', 'quote_asset' => 'USD', 'type' => 'Binary', 'instrument_category' => 'Forex', 'leverage' => 1, 'chart_symbol' => 'FX:EURUSD'],
+            ['name' => 'AAPL/USD', 'symbol' => 'AAPL', 'quote_asset' => 'USD', 'type' => 'Binary', 'instrument_category' => 'Equities', 'leverage' => 1, 'chart_symbol' => 'NASDAQ:AAPL'],
 
-            // Binary Pairs
-            ['name' => 'BTC/USDT', 'symbol' => 'BTC', 'base_asset' => 'USDT', 'type' => 'Binary', 'leverage' => 1],
-            ['name' => 'ETH/USDT', 'symbol' => 'ETH', 'base_asset' => 'USDT', 'type' => 'Binary', 'leverage' => 1],
-            ['name' => 'EUR/USD', 'symbol' => 'EUR', 'base_asset' => 'USD', 'type' => 'Binary', 'leverage' => 1],
-
-            // Option Pairs
-            ['name' => 'BTC/USDT', 'symbol' => 'BTC', 'base_asset' => 'USDT', 'type' => 'Option', 'leverage' => 1],
-            ['name' => 'ETH/USDT', 'symbol' => 'ETH', 'base_asset' => 'USDT', 'type' => 'Option', 'leverage' => 1],
+            ['name' => 'BTC/USD', 'symbol' => 'BTC', 'quote_asset' => 'USD', 'type' => 'Option', 'instrument_category' => 'Cryptocurrency', 'leverage' => 1, 'chart_symbol' => 'BINANCE:BTCUSDT'],
+            ['name' => 'ETH/USD', 'symbol' => 'ETH', 'quote_asset' => 'USD', 'type' => 'Option', 'instrument_category' => 'Cryptocurrency', 'leverage' => 1, 'chart_symbol' => 'BINANCE:ETHUSDT'],
+            ['name' => 'AAPL/USD', 'symbol' => 'AAPL', 'quote_asset' => 'USD', 'type' => 'Option', 'instrument_category' => 'Equities', 'leverage' => 1, 'chart_symbol' => 'NASDAQ:AAPL'],
         ];
 
         foreach ($pairs as $pair) {
@@ -46,7 +47,10 @@ class TradingPairsSeeder extends Seeder
                 ['name' => $pair['name'], 'type' => $pair['type']],
                 [
                     'symbol' => $pair['symbol'],
-                    'base_asset' => $pair['base_asset'],
+                    'base_asset' => $pair['quote_asset'],
+                    'quote_asset' => $pair['quote_asset'],
+                    'instrument_category' => $pair['instrument_category'],
+                    'chart_symbol' => $pair['chart_symbol'],
                     'min_amount' => 10,
                     'max_amount' => 1000000,
                     'leverage' => $pair['leverage'],

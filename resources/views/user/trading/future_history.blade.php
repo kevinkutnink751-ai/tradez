@@ -52,7 +52,7 @@
                                                 <td>2.45%</td>
                                                 <td>
                                                     <div class="text-{{ $trade->pnl >= 0 ? 'success' : 'danger' }} font-weight-bold">
-                                                        {{ $trade->pnl >= 0 ? '+' : '' }}{{ number_format($trade->pnl, 2) }} USDT
+                                                        {{ $trade->pnl >= 0 ? '+' : '' }}{{ number_format($trade->pnl, 2) }} {{ $trade->quote_asset_symbol ?: 'USD' }}
                                                     </div>
                                                     <small class="text-muted">(+12.4%)</small>
                                                 </td>

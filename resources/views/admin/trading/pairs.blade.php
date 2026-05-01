@@ -36,6 +36,7 @@
                                             <th>Name</th>
                                             <th>Symbol</th>
                                             <th>Type</th>
+                                            <th>Category</th>
                                             <th>Min/Max</th>
                                             <th>Leverage</th>
                                             <th>Status</th>
@@ -47,8 +48,9 @@
                                         <tr>
                                             <td>{{ $pair->id }}</td>
                                             <td>{{ $pair->name }}</td>
-                                            <td>{{ $pair->symbol }}/{{ $pair->base_asset }}</td>
+                                            <td>{{ $pair->symbol }}/{{ $pair->quote_asset }}</td>
                                             <td><span class="badge badge-info">{{ $pair->type }}</span></td>
+                                            <td>{{ $pair->instrument_category }}</td>
                                             <td>{{ $pair->min_amount }} / {{ $pair->max_amount }}</td>
                                             <td>{{ $pair->leverage }}x</td>
                                             <td>
@@ -83,7 +85,7 @@
                                                         @csrf
                                                         <div class="modal-body">
                                                             <div class="form-group">
-                                                                <label class="text-primary">Pair Name (e.g. BTC/USDT)</label>
+                                                                <label class="text-primary">Pair Name (e.g. BTC/USD)</label>
                                                                 <input type="text" name="name" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->name }}" required>
                                                             </div>
                                                             <div class="form-group">
@@ -91,8 +93,8 @@
                                                                 <input type="text" name="symbol" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->symbol }}" required>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label class="text-primary">Base Asset (e.g. USDT)</label>
-                                                                <input type="text" name="base_asset" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->base_asset }}" required>
+                                                                <label class="text-primary">Quote Asset (e.g. USD)</label>
+                                                                <input type="text" name="quote_asset" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->quote_asset }}" required>
                                                             </div>
                                                             <div class="form-group">
                                                                 <label class="text-primary">Type</label>
@@ -102,6 +104,14 @@
                                                                     <option value="Binary" {{ $pair->type == 'Binary' ? 'selected' : '' }}>Binary</option>
                                                                     <option value="Option" {{ $pair->type == 'Option' ? 'selected' : '' }}>Option</option>
                                                                 </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="text-primary">Instrument Category</label>
+                                                                <input type="text" name="instrument_category" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->instrument_category }}" placeholder="Equity Index Futures">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="text-primary">Chart Symbol</label>
+                                                                <input type="text" name="chart_symbol" class="form-control bg-{{$bg}} text-primary" value="{{ $pair->chart_symbol }}" placeholder="CME_MINI:ES1!">
                                                             </div>
                                                             <div class="form-group">
                                                                 <label class="text-primary">Min Trade Amount</label>
@@ -146,16 +156,16 @@
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <label class="text-primary">Pair Name (e.g. BTC/USDT)</label>
-                            <input type="text" name="name" class="form-control bg-{{$bg}} text-primary" placeholder="BTC/USDT" required>
+                            <label class="text-primary">Pair Name (e.g. BTC/USD)</label>
+                            <input type="text" name="name" class="form-control bg-{{$bg}} text-primary" placeholder="BTC/USD" required>
                         </div>
                         <div class="form-group">
                             <label class="text-primary">Asset Symbol (e.g. BTC)</label>
                             <input type="text" name="symbol" class="form-control bg-{{$bg}} text-primary" placeholder="BTC" required>
                         </div>
                         <div class="form-group">
-                            <label class="text-primary">Base Asset (e.g. USDT)</label>
-                            <input type="text" name="base_asset" class="form-control bg-{{$bg}} text-primary" placeholder="USDT" required>
+                            <label class="text-primary">Quote Asset (e.g. USD)</label>
+                            <input type="text" name="quote_asset" class="form-control bg-{{$bg}} text-primary" placeholder="USD" required>
                         </div>
                         <div class="form-group">
                             <label class="text-primary">Type</label>
@@ -165,6 +175,14 @@
                                 <option value="Binary">Binary</option>
                                 <option value="Option">Option</option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-primary">Instrument Category</label>
+                            <input type="text" name="instrument_category" class="form-control bg-{{$bg}} text-primary" placeholder="Commodity Futures">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-primary">Chart Symbol</label>
+                            <input type="text" name="chart_symbol" class="form-control bg-{{$bg}} text-primary" placeholder="COMEX:GC1!">
                         </div>
                         <div class="form-group">
                             <label class="text-primary">Min Trade Amount</label>

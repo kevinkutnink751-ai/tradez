@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('generate:virtual-trades --action=cycle')->everyMinute();
 
         // Sync market prices twice a day (e.g. 1am and 1pm)
-        $schedule->command('pairs:sync-prices')->twiceDaily(1, 13);
+        $schedule->command('assets:sync-prices')->twiceDaily(1, 13);
     }
 
     /**

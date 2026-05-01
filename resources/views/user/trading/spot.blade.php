@@ -3,12 +3,21 @@
 @section('content')
 
     <div class="spot-trading-container">
+        @php
+            $quoteSymbol = $currentPair->quote_asset ?? 'USD';
+            $quoteWallet = Auth::user()->wallets()->whereHas('asset', function($q) use ($quoteSymbol) {
+                $q->where('symbol', $quoteSymbol);
+            })->first();
+            $baseWallet = Auth::user()->wallets()->whereHas('asset', function($q) use ($currentPair) {
+                $q->where('symbol', $currentPair->symbol);
+            })->first();
+        @endphp
         {{-- Trading Header --}}
         <div class="trading-header px-3 py-2 border-bottom d-flex align-items-center justify-content-between" style="background: #11151d;">
             <div class="d-flex align-items-center">
                 <div class="dropdown mr-4">
                     <button class="btn btn-dark-input dropdown-toggle font-weight-bold text-white px-3" type="button" data-toggle="dropdown">
-                        <i class="fas fa-coins mr-2 text-warning"></i> {{ $currentPair->name }}
+                        <i class="fas fa-coins mr-2 text-warning"></i> {{ $currentPair->display_name }}
                     </button>
                     <div class="dropdown-menu dropdown-menu-dark shadow-lg">
                         <div class="px-3 py-2 border-bottom border-white-10">
@@ -16,7 +25,7 @@
                         </div>
                         @foreach($pairs as $pair)
                         <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('spot.trade', ['pair' => $pair->name]) }}">
-                            <span>{{ $pair->name }}</span>
+                            <span>{{ $pair->display_name }}</span>
                             <small class="{{ $pair->change_24h >= 0 ? 'text-success' : 'text-danger' }}">
                                 {{ $pair->change_24h >= 0 ? '+' : '' }}{{ number_format($pair->change_24h, 2) }}%
                             </small>
@@ -41,7 +50,7 @@
             <div class="d-flex align-items-center">
                 <div class="text-right mr-3">
                     <small class="text-muted d-block small-label">Spot Balance</small>
-                    <span class="text-white font-weight-bold">{{ number_format(Auth::user()->spot_bal, 2) }} USDT</span>
+                    <span class="text-white font-weight-bold">{{ number_format($quoteWallet->spot_bal ?? 0, 2) }} {{ $quoteSymbol }}</span>
                 </div>
                 <div class="d-flex align-items-center">
                     <button class="btn btn-sm btn-dark-input rounded-pill px-3 mr-2" data-toggle="modal" data-target="#transferModal"><i class="fas fa-sync-alt mr-1"></i> Transfer</button>
@@ -61,7 +70,7 @@
                         <table class="table table-sm table-borderless trading-table">
                             <thead>
                                 <tr class="text-muted small text-uppercase">
-                                    <th>Price(USDT)</th>
+                                    <th>Price({{ $quoteSymbol }})</th>
                                     <th class="text-right">Amount({{ $currentPair->symbol }})</th>
                                     <th class="text-right">Total</th>
                                 </tr>
@@ -78,7 +87,7 @@
                         </table>
                     </div>
                     <div class="spread-line my-2 text-center bg-dark-input rounded py-1">
-                        <h5 class="text-success mb-0 font-weight-bold">64,231.50 <i class="fas fa-arrow-up small"></i></h5>
+                        <h5 class="text-success mb-0 font-weight-bold">{{ number_format($currentPair->last_price, 5) }} <i class="fas fa-arrow-up small"></i></h5>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-sm table-borderless trading-table">
@@ -104,7 +113,7 @@
                     <script type="text/javascript">
                     new TradingView.widget({
                         "autosize": true,
-                        "symbol": "BINANCE:{{ str_replace('/', '', $currentPair->name) }}",
+                        "symbol": "{{ $currentPair->resolveChartSymbol() }}",
                         "interval": "H",
                         "timezone": "Etc/UTC",
                         "theme": "dark",
@@ -130,11 +139,11 @@
                                 @csrf
                                 <input type="hidden" name="pair" value="{{ $currentPair->name }}">
                                 <input type="hidden" name="type" value="Buy">
-                                <input type="hidden" name="price" value="64231.50">
+                                <input type="hidden" name="price" value="{{ $currentPair->last_price }}">
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <small class="text-muted">Available</small>
-                                    <small class="text-white font-weight-bold">{{ number_format(Auth::user()->spot_bal, 2) }} USDT</small>
+                                    <small class="text-white font-weight-bold">{{ number_format($quoteWallet->spot_bal ?? 0, 2) }} {{ $quoteSymbol }}</small>
                                 </div>
                                 <div class="input-group input-group-sm mb-3">
                                     <div class="input-group-prepend"><span class="input-group-text bg-dark border-secondary text-muted">Amount</span></div>
@@ -149,11 +158,11 @@
                                 @csrf
                                 <input type="hidden" name="pair" value="{{ $currentPair->name }}">
                                 <input type="hidden" name="type" value="Sell">
-                                <input type="hidden" name="price" value="64231.50">
+                                <input type="hidden" name="price" value="{{ $currentPair->last_price }}">
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <small class="text-muted">Available</small>
-                                    <small class="text-white font-weight-bold">0.00 {{ $currentPair->symbol }}</small>
+                                    <small class="text-white font-weight-bold">{{ number_format($baseWallet->spot_bal ?? 0, 4) }} {{ $currentPair->symbol }}</small>
                                 </div>
                                 <div class="input-group input-group-sm mb-3">
                                     <div class="input-group-prepend"><span class="input-group-text bg-dark border-secondary text-muted">Amount</span></div>
@@ -177,8 +186,8 @@
                         </div>
                         <ul class="nav nav-pills nav-pills-xs mb-2">
                             <li class="nav-item"><a class="nav-link active" href="#">Favorites</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">USDT</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">BTC</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">{{ $quoteSymbol }}</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Cross-Asset</a></li>
                         </ul>
                         <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
                             <table class="table table-sm table-borderless trading-table">
@@ -186,10 +195,15 @@
                                     <tr><th>Pair</th><th>Price</th><th class="text-right">Change</th></tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td><i class="far fa-star mr-1"></i>BTC/USDT</td><td class="text-white">65,241.5</td><td class="text-success text-right">+2.4%</td></tr>
-                                    <tr><td><i class="far fa-star mr-1 text-warning"></i>ETH/USDT</td><td class="text-white">3,451.2</td><td class="text-danger text-right">-1.2%</td></tr>
-                                    <tr><td><i class="far fa-star mr-1"></i>BNB/USDT</td><td class="text-white">582.4</td><td class="text-success text-right">+0.8%</td></tr>
-                                    <tr><td><i class="far fa-star mr-1"></i>SOL/USDT</td><td class="text-white">142.7</td><td class="text-success text-right">+5.1%</td></tr>
+                                    @foreach($pairs->take(6) as $pair)
+                                    <tr>
+                                        <td><i class="far fa-star mr-1"></i>{{ $pair->display_name }}</td>
+                                        <td class="text-white">{{ number_format($pair->last_price, 4) }}</td>
+                                        <td class="text-{{ $pair->change_24h >= 0 ? 'success' : 'danger' }} text-right">
+                                            {{ $pair->change_24h >= 0 ? '+' : '' }}{{ number_format($pair->change_24h, 2) }}%
+                                        </td>
+                                    </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -202,7 +216,7 @@
                     <div class="px-3 py-2">
                         <table class="table table-sm table-borderless trading-table">
                             <thead class="text-muted small">
-                                <tr><th>Price(USDT)</th><th class="text-right">Amount</th><th class="text-right">Time</th></tr>
+                                <tr><th>Price({{ $quoteSymbol }})</th><th class="text-right">Amount</th><th class="text-right">Time</th></tr>
                             </thead>
                             <tbody>
                                 @for($i=0; $i<15; $i++)

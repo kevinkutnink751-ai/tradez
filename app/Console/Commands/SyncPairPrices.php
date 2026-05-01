@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\TradingPair;
+use App\Models\Asset;
 use Illuminate\Support\Facades\Http;
 
 class SyncPairPrices extends Command
@@ -13,30 +13,29 @@ class SyncPairPrices extends Command
      *
      * @var string
      */
-    protected $signature = 'pairs:sync-prices';
+    protected $signature = 'assets:sync-prices';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sync real-time asset prices for trading pairs from public APIs (Binance for Crypto, Yahoo for Forex).';
+    protected $description = 'Sync real-time asset prices from public APIs so trading pairs can derive their prices from underlying assets.';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->info('Starting Real-Time Price Sync...');
+        $this->info('Starting asset price sync...');
 
-        $pairs = TradingPair::where('status', true)->get();
-        if ($pairs->isEmpty()) {
-            $this->info('No active trading pairs found.');
+        $assets = Asset::where('status', true)->get();
+        if ($assets->isEmpty()) {
+            $this->info('No active assets found.');
             return;
         }
 
-        // Fetch Binance Data (Bulk for all crypto pairs)
-        $this->info('Fetching Binance 24h Ticker data...');
+        $this->info('Fetching Binance 24h ticker data...');
         $binanceData = [];
         try {
             $response = Http::timeout(15)->get('https://api.binance.com/api/v3/ticker/24hr');
@@ -47,77 +46,90 @@ class SyncPairPrices extends Command
             $this->error('Failed to fetch Binance data: ' . $e->getMessage());
         }
 
-        foreach ($pairs as $pair) {
-            $symbolStr = str_replace('/', '', $pair->name); // e.g., BTC/USDT -> BTCUSDT
-            
-            // Check if it's likely a Crypto pair (base ends with USDT, BTC, ETH, BUSD)
-            $isCrypto = str_ends_with($symbolStr, 'USDT') || str_ends_with($symbolStr, 'BTC') || str_ends_with($symbolStr, 'ETH');
-            if ($isCrypto && isset($binanceData[$symbolStr])) {
-                $data = $binanceData[$symbolStr];
-               
-                $pair->update([
-                    'last_price' => $data['lastPrice'],
-                    'change_24h' => $data['priceChangePercent'],
-                    'high_24h' => $data['highPrice'],
-                    'low_24h' => $data['lowPrice'],
-                    'volume_24h' => $data['volume'],
+        foreach ($assets as $asset) {
+            if (!$asset->market_symbol || !$asset->price_source) {
+                if ($asset->symbol === 'USD') {
+                    $asset->update([
+                        'base_rate' => 1,
+                        'previous_close' => 1,
+                        'high_24h' => 1,
+                        'low_24h' => 1,
+                        'change_24h' => 0,
+                        'volume_24h' => 0,
+                    ]);
+                }
+                continue;
+            }
+
+            if ($asset->price_source === 'binance' && isset($binanceData[$asset->market_symbol])) {
+                $data = $binanceData[$asset->market_symbol];
+                $lastPrice = (float) ($data['lastPrice'] ?? 0);
+                $change = (float) ($data['priceChangePercent'] ?? 0);
+                $previousClose = $lastPrice / (1 + ($change / 100));
+
+                $asset->update([
+                    'base_rate' => $lastPrice,
+                    'previous_close' => $previousClose,
+                    'change_24h' => $change,
+                    'high_24h' => $data['highPrice'] ?? $lastPrice,
+                    'low_24h' => $data['lowPrice'] ?? $lastPrice,
+                    'volume_24h' => $data['volume'] ?? 0,
                 ]);
-                $this->info("Updated {$pair->name} from Binance.");
-            } else {
-                // Fallback to Yahoo Finance for Forex / Stocks / Metals (e.g. EURUSD=X, GC=F)
-                $yahooSymbol = $symbolStr;
-                if (!str_contains($symbolStr, '=')) {
-                    // Typical forex pairs like EURUSD -> EURUSD=X
-                    $yahooSymbol = $symbolStr . '=X';
+                $this->info("Updated {$asset->symbol} from Binance.");
+                continue;
+            }
+
+            if ($asset->price_source !== 'yahoo') {
+                continue;
+            }
+
+            try {
+                $response = Http::timeout(10)->get("https://query1.finance.yahoo.com/v8/finance/chart/{$asset->market_symbol}?range=1d&interval=1d");
+                if (!$response->successful()) {
+                    $this->warn("Yahoo request failed for {$asset->symbol}.");
+                    continue;
                 }
-                
-                try {
-                    $yResponse = Http::timeout(10)->get("https://query1.finance.yahoo.com/v8/finance/chart/{$yahooSymbol}?range=1d&interval=1d");
-                    if ($yResponse->successful()) {
-                        $json = $yResponse->json();
-                        $result = $json['chart']['result'][0] ?? null;
-                        
-                        if ($result) {
-                            $meta = $result['meta'];
-                            $indicators = $result['indicators']['quote'][0] ?? null;
-                            
-                            if ($indicators) {
-                                $lastPrice = $meta['regularMarketPrice'] ?? 0;
-                                $prevClose = $meta['chartPreviousClose'] ?? $lastPrice;
-                                
-                                $change = 0;
-                                if ($prevClose > 0) {
-                                    $change = (($lastPrice - $prevClose) / $prevClose) * 100;
-                                }
-                                
-                                // high and low arrays might be empty or null
-                                $highArr = $indicators['high'] ?? [];
-                                $lowArr = $indicators['low'] ?? [];
-                                $volArr = $indicators['volume'] ?? [];
-                                
-                                $high = !empty($highArr) ? max(array_filter($highArr)) : $lastPrice;
-                                $low = !empty($lowArr) ? min(array_filter($lowArr)) : $lastPrice;
-                                $volume = !empty($volArr) ? end($volArr) : 0;
-                                
-                                $pair->update([
-                                    'last_price' => $lastPrice,
-                                    'change_24h' => round($change, 2),
-                                    'high_24h' => $high,
-                                    'low_24h' => $low,
-                                    'volume_24h' => $volume,
-                                ]);
-                                $this->info("Updated {$pair->name} from Yahoo Finance.");
-                            }
-                        } else {
-                            $this->warn("No data found on Yahoo Finance for {$pair->name} ({$yahooSymbol})");
-                        }
-                    }
-                } catch (\Exception $e) {
-                    $this->error("Failed to fetch Yahoo data for {$pair->name}: " . $e->getMessage());
+
+                $json = $response->json();
+                $result = $json['chart']['result'][0] ?? null;
+
+                if (!$result) {
+                    $this->warn("No Yahoo data found for {$asset->symbol} ({$asset->market_symbol})");
+                    continue;
                 }
+
+                $meta = $result['meta'] ?? [];
+                $indicators = $result['indicators']['quote'][0] ?? [];
+                $lastPrice = (float) ($meta['regularMarketPrice'] ?? 0);
+                $previousClose = (float) ($meta['chartPreviousClose'] ?? $lastPrice);
+
+                if ($lastPrice <= 0) {
+                    $this->warn("Invalid Yahoo price returned for {$asset->symbol}.");
+                    continue;
+                }
+
+                $change = $previousClose > 0
+                    ? (($lastPrice - $previousClose) / $previousClose) * 100
+                    : 0;
+
+                $highValues = array_filter($indicators['high'] ?? [], fn ($value) => $value !== null);
+                $lowValues = array_filter($indicators['low'] ?? [], fn ($value) => $value !== null);
+                $volumeValues = array_filter($indicators['volume'] ?? [], fn ($value) => $value !== null);
+
+                $asset->update([
+                    'base_rate' => $lastPrice,
+                    'previous_close' => $previousClose,
+                    'change_24h' => round($change, 2),
+                    'high_24h' => !empty($highValues) ? max($highValues) : $lastPrice,
+                    'low_24h' => !empty($lowValues) ? min($lowValues) : $lastPrice,
+                    'volume_24h' => !empty($volumeValues) ? end($volumeValues) : 0,
+                ]);
+                $this->info("Updated {$asset->symbol} from Yahoo Finance.");
+            } catch (\Exception $e) {
+                $this->error("Failed to fetch Yahoo data for {$asset->symbol}: " . $e->getMessage());
             }
         }
 
-        $this->info('Real-Time Price Sync Complete.');
+        $this->info('Asset price sync complete.');
     }
 }

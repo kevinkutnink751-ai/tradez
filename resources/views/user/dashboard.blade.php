@@ -93,14 +93,14 @@
                                             <div class="asset-icon-sm bg-warning mr-3">B</div>
                                             <div>
                                                 <h6 class="text-white mb-0 font-weight-bold">Bitcoin</h6>
-                                                <small class="text-muted">BTC/USDT</small>
+                                                <small class="text-muted">BTC/USD</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td><span class="text-white font-weight-bold">$64,231.50</span></td>
                                     <td><span class="text-success font-weight-bold">+2.45%</span></td>
                                     <td class="text-right pr-4">
-                                        <a href="{{ route('spot.trade', ['pair' => 'BTC/USDT']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
+                                        <a href="{{ route('spot.trade', ['pair' => 'BTC/USD']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -109,14 +109,14 @@
                                             <div class="asset-icon-sm bg-primary mr-3">E</div>
                                             <div>
                                                 <h6 class="text-white mb-0 font-weight-bold">Ethereum</h6>
-                                                <small class="text-muted">ETH/USDT</small>
+                                                <small class="text-muted">ETH/USD</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td><span class="text-white font-weight-bold">$3,450.20</span></td>
                                     <td><span class="text-danger font-weight-bold">-1.12%</span></td>
                                     <td class="text-right pr-4">
-                                        <a href="{{ route('spot.trade', ['pair' => 'ETH/USDT']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
+                                        <a href="{{ route('spot.trade', ['pair' => 'ETH/USD']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -125,14 +125,14 @@
                                             <div class="asset-icon-sm bg-info mr-3">S</div>
                                             <div>
                                                 <h6 class="text-white mb-0 font-weight-bold">Solana</h6>
-                                                <small class="text-muted">SOL/USDT</small>
+                                                <small class="text-muted">SOL/USD</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td><span class="text-white font-weight-bold">$145.75</span></td>
                                     <td><span class="text-success font-weight-bold">+5.60%</span></td>
                                     <td class="text-right pr-4">
-                                        <a href="{{ route('spot.trade', ['pair' => 'SOL/USDT']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
+                                        <a href="{{ route('spot.trade', ['pair' => 'SOL/USD']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -187,7 +187,7 @@
                                     </div>
                                     <h6 class="text-white font-weight-bold mb-0">Futures Trading</h6>
                                 </div>
-                                <p class="text-muted small mb-0">Trade with up to 125x leverage on major crypto and forex pairs.</p>
+                                <p class="text-muted small mb-0">Trade multi-asset futures across indices, commodities, currencies, rates, crypto, and volatility markets.</p>
                             </div>
                             <div class="product-card-bg">
                                 <i class="fas fa-bolt"></i>

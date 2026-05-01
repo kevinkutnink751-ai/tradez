@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Trade;
 use App\Models\User;
+use App\Models\UserWallet;
 use Illuminate\Http\Request;
 
 class ManageFutureController extends Controller
 {
     public function index()
     {
-        $trades = Trade::where('market_type', 'Future')->with('user')->orderByDesc('id')->paginate(20);
+        $trades = Trade::where('market_type', 'Future')->with(['user', 'tradingPair'])->orderByDesc('id')->paginate(20);
         return view('admin.trading.futures', [
             'title' => 'Manage Future Trades',
             'trades' => $trades,
@@ -26,14 +27,25 @@ class ManageFutureController extends Controller
         $pnl = $request->pnl ?? 0;
         
         $margin = $trade->amount / $trade->leverage;
-        $user->future_bal += ($margin + $pnl);
+        $settlementSymbol = $trade->quote_asset_symbol ?: 'USD';
+        $settlementWallet = UserWallet::where('user_id', $user->id)
+            ->whereHas('asset', function ($query) use ($settlementSymbol) {
+                $query->where('symbol', $settlementSymbol);
+            })
+            ->first();
+
+        if ($settlementWallet) {
+            $settlementWallet->future_bal += ($margin + $pnl);
+            $settlementWallet->save();
+        } else {
+            $user->future_bal += ($margin + $pnl);
+            $user->save();
+        }
         
         $trade->update([
             'status' => 'Completed',
             'pnl' => $pnl,
         ]);
-
-        $user->save();
 
         return redirect()->back()->with('success', 'Trade closed successfully for user ' . $user->name);
     }

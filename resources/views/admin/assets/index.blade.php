@@ -10,7 +10,7 @@
     <div class="col-md-12">
         <div class="card p-3 shadow-lg bg-{{ Auth('admin')->User()->dashboard_style }}">
             <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
-                <h4 class="mb-0 text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }}">Fiat and Crypto Assets</h4>
+                <h4 class="mb-0 text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }}">Market Assets</h4>
                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addAssetModal">
                     <i class="fas fa-plus"></i> Add Asset
                 </button>
@@ -23,7 +23,8 @@
                                 <th>Name</th>
                                 <th>Symbol</th>
                                 <th>Type</th>
-                                <th>Base Rate (USD)</th>
+                                <th>USD Price</th>
+                                <th>Source</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -37,6 +38,7 @@
                                     <span class="badge badge-{{ $asset->type == 'Crypto' ? 'info' : 'primary' }}">{{ $asset->type }}</span>
                                 </td>
                                 <td>{{ number_format($asset->base_rate, 4) }}</td>
+                                <td>{{ strtoupper($asset->price_source ?? 'manual') }}</td>
                                 <td>
                                     @if($asset->status)
                                         <span class="badge badge-success">Active</span>
@@ -77,13 +79,30 @@
                                                 <div class="form-group">
                                                     <label>Type</label>
                                                     <select name="type" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" required>
-                                                        <option value="Crypto" {{ $asset->type == 'Crypto' ? 'selected' : '' }}>Crypto Currency</option>
-                                                        <option value="Fiat" {{ $asset->type == 'Fiat' ? 'selected' : '' }}>Fiat Currency</option>
+                                                        @foreach($assetTypes as $assetType)
+                                                        <option value="{{ $assetType }}" {{ $asset->type == $assetType ? 'selected' : '' }}>{{ $assetType }}</option>
+                                                        @endforeach
                                                     </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Category</label>
+                                                    <input type="text" name="category" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" value="{{ $asset->category }}">
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Base Rate (to USD)</label>
                                                     <input type="number" step="0.00000001" name="base_rate" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" value="{{ $asset->base_rate }}" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Price Source</label>
+                                                    <select name="price_source" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}">
+                                                        <option value="">Manual</option>
+                                                        <option value="binance" {{ $asset->price_source == 'binance' ? 'selected' : '' }}>Binance</option>
+                                                        <option value="yahoo" {{ $asset->price_source == 'yahoo' ? 'selected' : '' }}>Yahoo Finance</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Market Symbol</label>
+                                                    <input type="text" name="market_symbol" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" value="{{ $asset->market_symbol }}">
                                                 </div>
                                                 <div class="form-group">
                                                     <label>Status</label>
@@ -132,13 +151,30 @@
                     <div class="form-group">
                         <label>Type</label>
                         <select name="type" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" required>
-                            <option value="Crypto">Crypto Currency</option>
-                            <option value="Fiat">Fiat Currency</option>
+                            @foreach($assetTypes as $assetType)
+                            <option value="{{ $assetType }}">{{ $assetType }}</option>
+                            @endforeach
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" name="category" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" placeholder="e.g. Equity Index Futures">
                     </div>
                     <div class="form-group">
                         <label>Base Rate (to USD)</label>
                         <input type="number" step="0.00000001" name="base_rate" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price Source</label>
+                        <select name="price_source" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}">
+                            <option value="">Manual</option>
+                            <option value="binance">Binance</option>
+                            <option value="yahoo">Yahoo Finance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Market Symbol</label>
+                        <input type="text" name="market_symbol" class="form-control text-{{ Auth('admin')->User()->dashboard_style == 'light' ? 'dark' : 'light' }} bg-{{ Auth('admin')->User()->dashboard_style }}" placeholder="e.g. BTCUSDT or ES=F">
                     </div>
                 </div>
                 <div class="modal-footer">

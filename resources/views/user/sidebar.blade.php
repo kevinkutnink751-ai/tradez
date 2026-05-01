@@ -58,7 +58,7 @@
                             @if(isset($mod['future']) && $mod['future'])
                             <li class="nav-item">
                                 <a class="nav-link py-2 {{ request()->routeIs('future.trade') ? 'active' : '' }}" href="{{ route('future.trade') }}">
-                                    <span>Futures (125x)</span>
+                                    <span>Futures Terminal</span>
                                 </a>
                             </li>
                             @endif

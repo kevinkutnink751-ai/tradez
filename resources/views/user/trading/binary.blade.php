@@ -50,7 +50,7 @@
                         <script type="text/javascript">
                         new TradingView.widget({
                             "autosize": true,
-                            "symbol": "BINANCE:{{ str_replace('/', '', $currentPair->name) }}",
+                            "symbol": "{{ $currentPair->resolveChartSymbol() }}",
                             "interval": "1",
                             "timezone": "Etc/UTC",
                             "theme": "dark",
@@ -77,7 +77,7 @@
                         @csrf
                         <input type="hidden" name="pair" value="{{ $currentPair->name }}">
                         <input type="hidden" name="type" id="binary_type" value="Call">
-                        <input type="hidden" name="price" value="64231.50">
+                        <input type="hidden" name="price" value="{{ $currentPair->last_price }}">
 
                         <div class="form-group mb-4">
                             <label class="text-muted small-label">Amount</label>
@@ -109,7 +109,7 @@
 
                         <div class="strike-price-box p-3 rounded mb-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
                             <small class="text-muted d-block small-label">Strike Price</small>
-                            <h5 class="text-white mb-0 font-weight-bold">64,231.50</h5>
+                            <h5 class="text-white mb-0 font-weight-bold">{{ number_format($currentPair->last_price, 5) }}</h5>
                         </div>
 
                         <div class="trade-buttons">
