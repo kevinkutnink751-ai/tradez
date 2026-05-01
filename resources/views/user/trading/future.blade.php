@@ -325,8 +325,8 @@
                         </div>
 
                         <div class="d-flex gap-.5 mb-4">
-                            <button type="submit" onclick="document.getElementById('futureTradeType').value='Buy'" class="btn btn-success flex-grow-1 py-2 font-weight-bold">BUY/LONG</button>
-                            <button type="submit" onclick="document.getElementById('futureTradeType').value='Sell'" class="btn btn-danger flex-grow-1 py-2 font-weight-bold">SELL/SHORT</button>
+                            <button type="submit" onclick="document.getElementById('futureTradeType').value='Buy'" class="btn btn-success flex-grow-1 py-2 font-weight-bold mr-2">BUY/LONG</button>
+                            <button type="submit" onclick="document.getElementById('futureTradeType').value='Sell'" class="btn btn-danger flex-grow-1 py-2 font-weight-bold ml-2">SELL/SHORT</button>
                         </div>
 
                         <div class="ticket-details x-small">

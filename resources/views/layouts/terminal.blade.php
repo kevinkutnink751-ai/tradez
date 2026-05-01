@@ -44,11 +44,10 @@
                 <span class="h5 mb-0 text-white font-weight-bold" style="letter-spacing: 1px;">{{ strtoupper($settings->site_name) }}</span>
             </a>
             <nav class="d-none d-lg-flex">
-                <a href="#" class="nav-link-custom">Market</a>
-                <a href="{{ route('spot.trade') }}" class="nav-link-custom">Trade</a>
-                <a href="#" class="nav-link-custom">Crypto Currency</a>
-                <a href="#" class="nav-link-custom">About</a>
-                <a href="#" class="nav-link-custom">Contact</a>
+                <a href="{{ route('future.trade') }}" class="nav-link-custom">Futures</a>
+                <a href="{{ route('spot.trade') }}" class="nav-link-custom">Spot</a>
+                <a href="{{ route('options.trade') }}" class="nav-link-custom">Options</a>
+                <a href="{{ route('binary.trade') }}" class="nav-link-custom">Binary</a>
             </nav>
         </div>
         
