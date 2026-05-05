@@ -54,7 +54,56 @@
     <div class="terminal-grid">
         <!-- Main Left: Chart & Positions -->
         <div class="grid-main">
-            <div class="terminal-panel chart-panel mb-1">
+           
+            <div class="terminal-panel orderbook-panel mb-3">
+                <div class="panel-title py-2 px-3 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 text-white x-small font-weight-bold text-uppercase">Order Book</h6>
+                    <div class="book-controls d-flex">
+                        <i class="mdi mdi-view-list text-success mr-2"></i>
+                        <i class="mdi mdi-view-list text-danger mr-2"></i>
+                        <i class="mdi mdi-view-list text-muted"></i>
+                    </div>
+                </div>
+                <div class="orderbook-content">
+                    <div class="orderbook-header px-3 py-1 d-flex justify-content-between x-small text-muted">
+                        <span>Price({{ $quoteSymbol }})</span>
+                        <span>Amount({{ $baseSymbol }})</span>
+                        <span>Total</span>
+                    </div>
+                    <div class="book-asks px-3" id="bookAsks">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="book-spread py-2 px-3 border-top border-bottom border-secondary text-center">
+                        <span class="h6 mb-0 text-danger font-weight-bold" id="lastPriceBook">{{ number_format($currentPair->last_price, 4) }}</span>
+                        <i class="mdi mdi-arrow-down text-danger ml-1"></i>
+                    </div>
+                    <div class="book-bids px-3" id="bookBids">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="terminal-panel trades-panel">
+                <div class="panel-title py-2 px-3 border-bottom border-secondary">
+                    <h6 class="mb-0 text-white x-small font-weight-bold text-uppercase">Recent Trade</h6>
+                </div>
+                <div class="trades-content">
+                    <div class="trades-header px-3 py-1 d-flex justify-content-between x-small text-muted">
+                        <span>Price({{ $quoteSymbol }})</span>
+                        <span>Amount({{ $baseSymbol }})</span>
+                        <span>Date</span>
+                    </div>
+                    <div class="trades-list px-3" id="recentTradesList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle: Order Book & Recent Trades -->
+        <div class="grid-middle">
+
+             <div class="terminal-panel chart-panel mb-1">
                 <div id="tradingview_futures_widget" style="height: 500px;"></div>
             </div>
 
@@ -198,53 +247,6 @@
             </div>
         </div>
 
-        <!-- Middle: Order Book & Recent Trades -->
-        <div class="grid-middle">
-            <div class="terminal-panel orderbook-panel mb-3">
-                <div class="panel-title py-2 px-3 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 text-white x-small font-weight-bold text-uppercase">Order Book</h6>
-                    <div class="book-controls d-flex">
-                        <i class="mdi mdi-view-list text-success mr-2"></i>
-                        <i class="mdi mdi-view-list text-danger mr-2"></i>
-                        <i class="mdi mdi-view-list text-muted"></i>
-                    </div>
-                </div>
-                <div class="orderbook-content">
-                    <div class="orderbook-header px-3 py-1 d-flex justify-content-between x-small text-muted">
-                        <span>Price({{ $quoteSymbol }})</span>
-                        <span>Amount({{ $baseSymbol }})</span>
-                        <span>Total</span>
-                    </div>
-                    <div class="book-asks px-3" id="bookAsks">
-                        <!-- Populated by JS -->
-                    </div>
-                    <div class="book-spread py-2 px-3 border-top border-bottom border-secondary text-center">
-                        <span class="h6 mb-0 text-danger font-weight-bold" id="lastPriceBook">{{ number_format($currentPair->last_price, 4) }}</span>
-                        <i class="mdi mdi-arrow-down text-danger ml-1"></i>
-                    </div>
-                    <div class="book-bids px-3" id="bookBids">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="terminal-panel trades-panel">
-                <div class="panel-title py-2 px-3 border-bottom border-secondary">
-                    <h6 class="mb-0 text-white x-small font-weight-bold text-uppercase">Recent Trade</h6>
-                </div>
-                <div class="trades-content">
-                    <div class="trades-header px-3 py-1 d-flex justify-content-between x-small text-muted">
-                        <span>Price({{ $quoteSymbol }})</span>
-                        <span>Amount({{ $baseSymbol }})</span>
-                        <span>Date</span>
-                    </div>
-                    <div class="trades-list px-3" id="recentTradesList">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Right: Trade Ticket -->
         <div class="grid-right">
             <div class="terminal-panel trade-ticket">
@@ -367,7 +369,7 @@
     .cursor-pointer { cursor: pointer; }
 
     /* Grid Layout */
-    .terminal-grid { display: grid; grid-template-columns: 1fr 300px 320px; gap: 4px; flex-grow: 1; padding: 4px; overflow: hidden; }
+    .terminal-grid { display: grid; grid-template-columns: 300px 1fr  320px; gap: 4px; flex-grow: 1; padding: 4px; overflow: hidden; }
     .grid-main { display: flex; flex-direction: column; min-width: 0; }
     .grid-middle { display: flex; flex-direction: column; }
     .grid-right { display: flex; flex-direction: column; }

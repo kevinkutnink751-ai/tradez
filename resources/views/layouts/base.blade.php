@@ -45,6 +45,7 @@
             --inst-bg: #0B0E11;
             --inst-bg-sec: #161A1E;
             --inst-border: #2B3139;
+            --inst-light-bg-alt: #EAECEF;
             --inst-text: #EAECEF;
             --inst-text-muted: #848E9C;
             --inst-primary: #0e4152;
