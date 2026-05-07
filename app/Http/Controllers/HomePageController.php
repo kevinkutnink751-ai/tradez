@@ -62,9 +62,9 @@ class HomePageController extends Controller
     public function privacy()
     {
         $terms = TermsPrivacy::find(1);
-        if ($terms->useterms == 'no') {
-            return redirect()->back();
-        }
+        // if ($terms->useterms == 'no') {
+        //     return redirect()->back();
+        // }
         return view('home.privacy')->with(array(
             'mplans' => Plans::where('type', 'Main')->get(),
             'title' => 'Privacy Policy',
@@ -151,9 +151,9 @@ class HomePageController extends Controller
         ]);
     }
 
-    public function spotTrading()
+    public function swingTrading()
     {
-        return view('home.products.spot')->with([
+        return view('home.products.swing')->with([
             'settings' => Settings::where('id', '=', '1')->first(),
         ]);
     }
@@ -205,6 +205,41 @@ class HomePageController extends Controller
         return view('home.master-account')->with([
             'settings' => Settings::where('id', '=', '1')->first(),
             'masters' => MasterAccount::where('is_active', true)->get(),
+        ]);
+    }
+
+    public function spotTrading()
+    {
+        return view('home.products.spot')->with([
+            'settings' => Settings::where('id', '=', '1')->first(),
+        ]);
+    }
+
+    public function nftMarketplace()
+    {
+        return view('home.products.nft')->with([
+            'settings' => Settings::where('id', '=', '1')->first(),
+        ]);
+    }
+
+    public function cryptoSpot()
+    {
+        return view('home.products.crypto-spot')->with([
+            'settings' => Settings::where('id', '=', '1')->first(),
+        ]);
+    }
+
+    public function defiStaking()
+    {
+        return view('home.products.defi')->with([
+            'settings' => Settings::where('id', '=', '1')->first(),
+        ]);
+    }
+
+    public function yieldFarming()
+    {
+        return view('home.products.yield')->with([
+            'settings' => Settings::where('id', '=', '1')->first(),
         ]);
     }
 }

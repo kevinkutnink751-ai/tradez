@@ -11,20 +11,10 @@
 @section('styles')
     @parent
     <style>
-        :root {
-            --inst-bg: #0B0E11;
-            --inst-bg-sec: #161A1E;
-            --inst-border: #2B3139;
-            --inst-text: #EAECEF;
-            --inst-text-muted: #848E9C;
-            --inst-accent: #FCD535;
-        }
+        
 
-        body { background-color: var(--inst-bg) !important; color: var(--inst-text) !important; }
-        .section { padding: 100px 0 !important; background-color: var(--inst-bg) !important; }
-        .bg-light { background-color: var(--inst-bg-sec) !important; }
-        h1, h2, h3, h4, h5, h6 { color: var(--inst-text) !important; }
-
+    
+       
         .page-header {
             padding: 120px 0 60px 0;
             background: var(--inst-bg-sec);
@@ -75,11 +65,11 @@
 
 @section('content')
     <!-- Page Header -->
-    <section class="page-header">
+    <section class="page-header bg-dark-custom">
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <h1 class="mb-3">Get in Touch</h1>
+                    <h1 class="mb-3 text-white">Get in Touch</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="p-0 m-0 bg-transparent breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Home</a></li>
@@ -92,31 +82,32 @@
     </section>
 
     <!-- Contact Info Cards -->
-    <section class="section pb-5">
+    <section class="section pb-5 bg-light-custom position-relative">
+         <div class="position-absolute dot-grid-bg" style="top:0; left:0; width:40%; height:100%; z-index:1; opacity:0.15;"></div>
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4 mb-lg-0">
-                    <div class="contact-box">
+                    <div class="contact-box bg-dark-custom rounded-md shadow-sm border">
                         <i class="mdi mdi-phone contact-icon"></i>
-                        <h5>Phone Support</h5>
+                        <h5 class="text-white">Phone Support</h5>
                         <p class="text-muted small">Available 24/7 for urgent trading inquiries.</p>
-                        <a href="tel:{{ $content->getContent('0EXbji', 'description') }}" class="text-warning font-weight-bold">{{ $content->getContent('0EXbji', 'description') }}</a>
+                        <a href="tel:{{ $content->getContent('0EXbji', 'description') }}" class="text-white font-weight-bold">{{ $content->getContent('0EXbji', 'description') }}</a>
                     </div>
                 </div>
                 <div class="col-lg-4 mb-4 mb-lg-0">
                     <div class="contact-box">
                         <i class="mdi mdi-email contact-icon"></i>
-                        <h5>Email Inquiries</h5>
+                        <h5 class="text-white">Email Inquiries</h5>
                         <p class="text-muted small">Direct access to our expert support desk.</p>
-                        <a href="mailto:{{ $content->getContent('HLgyaQ', 'description') }}" class="text-warning font-weight-bold">{{ $content->getContent('HLgyaQ', 'description') }}</a>
+                        <a href="mailto:{{ $content->getContent('HLgyaQ', 'description') }}" class="text-white font-weight-bold">{{ $content->getContent('HLgyaQ', 'description') }}</a>
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="contact-box">
                         <i class="mdi mdi-map-marker contact-icon"></i>
-                        <h5>Corporate Office</h5>
+                        <h5 class="text-white">Corporate Office</h5>
                         <p class="text-muted small">Global headquarters and regional hubs.</p>
-                        <p class="text-warning mb-0 font-weight-bold">{{ $content->getContent('52GPRA', 'description') }}</p>
+                        <p class="text-white mb-0 font-weight-bold">{{ $content->getContent('52GPRA', 'description') }}</p>
                     </div>
                 </div>
             </div>
@@ -124,12 +115,13 @@
     </section>
 
     <!-- Contact Form -->
-    <section class="section pt-0">
+    <section class="section pt-0 bg-light-custom">
+         <div class="position-absolute dot-grid-bg" style="top:0; left:0; width:40%; height:100%; z-index:1; opacity:0.15;"></div>
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-lg-10">
+                <div class="col-lg-10 rounded-lg">
                     <div class="form-card">
-                        <h3 class="mb-4">Submit a Request</h3>
+                        <h3 class="mb-4 text-white">Submit a Request</h3>
                         <p class="text-muted mb-5">Our average response time for verified accounts is under 30 seconds. Please provide as much detail as possible to help us assist you better.</p>
                         
                         <x-danger-alert />

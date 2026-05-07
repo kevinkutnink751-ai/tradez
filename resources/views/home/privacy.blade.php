@@ -11,40 +11,29 @@
 @endsection
 @inject('content', 'App\Http\Controllers\FrontController')
 @section('content')
-    <!-- Hero Start -->
-    <section class="bg-half bg-light d-table w-100">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="text-center col-lg-12">
-                    <div class="page-next-level">
-                        <h4 class="title"> Terms and Privacy Policy </h4>
-                        <div class="page-next">
-                            <nav aria-label="breadcrumb" class="d-inline-block">
-                                <ul class="mb-0 bg-white rounded shadow breadcrumb">
-                                    <li class="breadcrumb-item"><a href="/">{{ $settings->site_name }}</a></li>
-
-                                    <li class="breadcrumb-item active" aria-current="page">Privacy and policy</li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
+   
+     <!-- Hero Section -->
+    <section class="section py-5 mt-5 bg-dark-custom position-relative" style="min-height: 400px; display: flex; align-items: center; overflow: hidden;">
+        <div class="position-absolute dot-grid-bg" style="top:0; right:0; width:50%; height:100%; z-index:1; opacity:0.15;"></div>
+     
+        
+        <div class="container position-relative" style="z-index:3;">
+            <div class="row w-100">
+                <div class="col-lg-8" data-aos="fade-right">
+                    <h1 class="display-4 font-weight-bold mb-4 text-white">Privacy and Policy</h1>
+                    <p class="text-muted lead mb-5 max-width-700">{{ $settings->privacy_description }}</p>
                 </div>
-                <!--end col-->
             </div>
-            <!--end row-->
         </div>
-        <!--end container-->
     </section>
-    <!--end section-->
-    <!-- Hero End -->
 
     <!-- Start Privacy -->
-    <section class="section">
+    <section class="section bg-light-custom">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-9">
                     <div class="border-0 rounded shadow card">
-                        <div class="card-body">
+                        <div class="card-body bg-dark-custom rounded-lg text-muted">
                             {!! $terms->description !!}
                         </div>
                     </div>

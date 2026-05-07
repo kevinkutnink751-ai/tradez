@@ -1,194 +1,92 @@
 @extends('layouts.base')
-@section('title', 'Institutional Advanced Trading')
-@section('styles')
-    @parent
-    <style>
-        .product-hero { padding: 160px 0 100px 0; background: radial-gradient(circle at 80% 80%, rgba(252, 213, 53, 0.05) 0%, transparent 50%), var(--inst-bg-sec); border-bottom: 1px solid var(--inst-border); }
-        .feature-card { background: var(--inst-bg-sec); border: 1px solid var(--inst-border); padding: 40px; border-radius: 4px; height: 100%; transition: all 0.3s; }
-        .feature-card:hover { border-color: var(--inst-accent); transform: translateY(-5px); background: var(--inst-bg); }
-        .feature-icon { font-size: 32px; color: var(--inst-accent); margin-bottom: 25px; display: block; }
-    </style>
-@endsection
+@section('title', 'Advanced Trading Account - ' . $settings->site_name)
 
 @section('content')
-    <section class="product-hero">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-7">
-                    <h1 class="display-4 font-weight-bold mb-4">Advanced Trading</h1>
-                    <p class="lead text-muted mb-5">Unleash the power of mechanical trading systems. Execute high-frequency, algorithmic strategies with institutional-grade precision, zero emotional bias, and custom API access.</p>
-                    <div class="d-flex flex-wrap">
-                        <a href="{{ url('/register') }}" class="btn btn-primary btn-lg mr-3 px-5 mb-3 shadow-lg">Deploy Algorithm</a>
-                        <a href="{{ url('/about') }}" class="btn btn-outline-light btn-lg mb-3">API Documentation</a>
-                    </div>
+    <!-- Hero Section -->
+    <section class="section py-5 mt-5 bg-dark-custom position-relative" style="min-height: 400px; display: flex; align-items: center; overflow: hidden;">
+        <div class="position-absolute dot-grid-bg" style="top:0; right:0; width:50%; height:100%; z-index:1; opacity:0.15;"></div>
+        <div class="position-absolute" style="background-image: url('{{ asset('images/assets/hero-bg.png') }}'); background-position: right center; background-size: contain; background-repeat: no-repeat; bottom: 0; top: 0; right: 0; width: 50%; z-index: 2; opacity: 0.8;"></div>
+        
+        <div class="container position-relative" style="z-index:3;">
+            <div class="row w-100">
+                <div class="col-lg-8" data-aos="fade-right">
+                    <h1 class="display-4 font-weight-bold mb-4 text-white">Advanced Trading Account</h1>
+                    <p class="text-muted lead mb-5 max-width-700">{{ $settings->site_name }} has been sharing financial freedom with traders since 2014. In a continuous effort to give traders a more comfortable and safe experience, its experts have been improving the platform ensuring traders can enjoy and make use of that freedom to trade whenever and wherever they like.</p>
                 </div>
-                <div class="col-lg-5">
-                    <div class="p-4 bg-inst-dark rounded border border-secondary shadow-lg">
-                        <h6 class="text-uppercase text-muted small mb-4">Institutional Benchmark</h6>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="small text-muted">Order Execution Latency</span>
-                                <span class="text-warning small">14ms</span>
-                            </div>
-                            <div class="progress" style="height: 4px; background: #2B3139;">
-                                <div class="progress-bar bg-warning" style="width: 95%;"></div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="small text-muted">WebSocket Uptime</span>
-                                <span class="text-success small">99.99%</span>
-                            </div>
-                            <div class="progress" style="height: 4px; background: #2B3139;">
-                                <div class="progress-bar bg-success" style="width: 99%;"></div>
-                            </div>
-                        </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advanced Trading Account Section -->
+    <section class="section py-5 bg-light-custom position-relative">
+        <div class="position-absolute dot-grid-bg" style="top:0; left:0; width:40%; height:100%; z-index:1; opacity:0.15;"></div>
+        <div class="container position-relative" style="z-index:2;">
+            <h2 class="mb-5 font-weight-bold" style="font-size: 2.5rem; color:#000;" data-aos="fade-up">Advanced Trading Account</h2>
+            
+            <div class="row align-items-stretch">
+                <div class="col-lg-6 mb-5 mb-lg-0 d-flex flex-column justify-content-center" data-aos="fade-right">
+                    <h3 class="mb-4 font-weight-bold" style="color:var(--inst-primary); font-size: 1.75rem;">Advanced Trading Account / Mechanical trading systems</h3>
+                    <p class="text-muted mb-4">Advanced Trading Account also referred to as mechanical trading systems, algorithmic trading, automated trading or system trading — allow traders to establish specific rules for both trade entries and exits that, once programmed, can be automatically executed via a computer. In fact, various platforms report 70% to 80% or more of shares traded on U.S. stock exchanges come from automatic trading systems.</p>
+                    <p class="text-muted mb-4">Traders and investors can turn precise entry, exit, and money management rules into automated trading systems that allow computers to execute and monitor the trades. One of the biggest attractions of strategy automation is that it can take some of the emotion out of trading since trades are automatically placed once certain criteria are met.</p>
+                    <p class="text-muted mb-0">The trade entry and exit rules can be based on simple conditions such as a moving average crossover or they can be complicated strategies that require a comprehensive understanding of the programming language specific to the user's trading platform. They can also be based on the expertise of a qualified programmer.</p>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="h-100 rounded-lg shadow-lg w-100" style="background-image: url('https://glidelogiccopytrading.com/assets/pexels-alesia-kozik-6771900.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 400px; border-radius: 20px;">
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- The Mechanical Edge -->
-    <section class="section bg-inst-grid border-bottom border-secondary">
-        <div class="container">
-            <div class="row mb-5 align-items-center">
-                <div class="col-lg-6">
-                    <h2 class="mb-4 font-weight-bold">The Mechanical Execution Edge</h2>
-                    <p class="text-muted mb-4">In modern markets, speed and consistency are the only sustainable advantages. Our Advanced Trading suite allows you to codify your strategy and execute with cold, robotic precision.</p>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="p-3 bg-inst-secondary rounded border border-secondary shadow-sm">
-                                <h6 class="text-warning small font-weight-bold">Zero Slip Engine</h6>
-                                <p class="text-muted x-small mb-0">Direct Market Access (DMA) ensuring your algorithmic entries are filled at the best available price.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="p-3 bg-inst-secondary rounded border border-secondary shadow-sm">
-                                <h6 class="text-warning small font-weight-bold">PDT Exemption</h6>
-                                <p class="text-muted x-small mb-0">Accounts structured for unlimited day-trading cycles across US and Global markets.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="feature-card">
-                                <i class="mdi mdi-brain feature-icon"></i>
-                                <h6>Minimizing Emotion</h6>
-                                <p class="small text-muted mb-0">Automated systems ensure you stick to the plan. No hesitation or "pulling the trigger" anxiety.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="feature-card">
-                                <i class="mdi mdi-history feature-icon"></i>
-                                <h6>High-Fidelity Backtesting</h6>
-                                <p class="small text-muted mb-0">Verify your strategy against 15+ years of tick-by-tick historical data before going live.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Quantitative Toolset -->
-    <section class="section bg-inst-mesh border-bottom border-secondary">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="font-weight-bold">Quantitative Toolset</h2>
-                <p class="text-muted">Professional tools for professional developers.</p>
-            </div>
+    <!-- Advantages of Automated Systems -->
+    <section class="section py-5 bg-dark-custom position-relative">
+        <div class="position-absolute dot-grid-bg" style="top:0; right:0; width:100%; height:100%; z-index:1; opacity:0.1;"></div>
+        <div class="container position-relative" style="z-index:2;">
+            <h2 class="mb-5 font-weight-bold text-white" style="font-size: 2.5rem;" data-aos="fade-up">Advantages of Automated Systems</h2>
+            
             <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <div class="p-4 bg-inst-dark rounded border border-secondary h-100 shadow-sm">
-                        <i class="mdi mdi-api h1 text-warning mb-4 d-block"></i>
-                        <h5>REST & WebSocket APIs</h5>
-                        <p class="small text-muted">Full-featured API suite with extensive documentation in Python, Node.js, and C#. Stream live market data and manage orders programmatically.</p>
+                <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="100">
+                    <div class="p-5 rounded-lg border h-100" style="background: rgba(255,255,255,0.02); border-color: var(--inst-border) !important;">
+                        <h3 class="text-white mb-4 font-weight-bold">Minimizing Emotions</h3>
+                        <p class="text-muted mb-0">Automated trading systems minimize emotions throughout the trading process. By keeping emotions in check, traders typically have an easier time sticking to the plan. Since trade orders are executed automatically once the trade rules have been met, traders will not be able to hesitate or question the trade. In addition to helping traders who are afraid to "pull the trigger," automated trading can curb those who are apt to overtrade — buying and selling at every perceived opportunity.</p>
                     </div>
                 </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="p-4 bg-inst-dark rounded border border-secondary h-100 shadow-sm">
-                        <i class="mdi mdi-server-network h1 text-warning mb-4 d-block"></i>
-                        <h5>Co-Located Hosting</h5>
-                        <p class="small text-muted">Host your trading bots on our ultra-low latency servers located within the same data centers as major exchange matching engines (LD5/NY4).</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <div class="p-4 bg-inst-dark rounded border border-secondary h-100 shadow-sm">
-                        <i class="mdi mdi-shield-check-outline h1 text-warning mb-4 d-block"></i>
-                        <h5>Script Verification</h5>
-                        <p class="small text-muted">Submit your custom scripts for a security and performance audit by our technical team to ensure optimal execution stability.</p>
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="p-5 rounded-lg border h-100" style="background: rgba(255,255,255,0.02); border-color: var(--inst-border) !important;">
+                        <h3 class="text-white mb-4 font-weight-bold">Backtesting</h3>
+                        <p class="text-muted mb-0">Backtesting applies trading rules to historical market data to determine the viability of the idea. When designing a system for automated trading, all rules need to be absolute, with no room for interpretation. The computer cannot make guesses and it has to be told exactly what to do. Traders can take these precise sets of rules and test them on historical data before risking money in live trading. Careful backtesting allows traders to evaluate and fine-tune a trading idea, and to determine the system's expectancy – i.e., the average amount a trader can expect to win (or lose) per unit of risk.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Institutional Comparison -->
-    <section class="section bg-inst-gradient">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-5 mb-5 mb-lg-0">
-                    <h2 class="mb-4 font-weight-bold text-white">Why Upgrade to Advanced?</h2>
-                    <p class="text-muted mb-4">Standard accounts are built for retail "click" trading. Advanced accounts are built for system-level scale.</p>
-                    <ul class="list-unstyled">
-                        <li class="mb-3 small text-muted"><i class="mdi mdi-check text-warning mr-2"></i> Custom leverage up to 1:500</li>
-                        <li class="mb-3 small text-muted"><i class="mdi mdi-check text-warning mr-2"></i> Priority API rate limits</li>
-                        <li class="mb-3 small text-muted"><i class="mdi mdi-check text-warning mr-2"></i> 24/7 dedicated technical support</li>
-                        <li class="small text-muted"><i class="mdi mdi-check text-warning mr-2"></i> Volume-based commission rebates</li>
-                    </ul>
-                </div>
-                <div class="col-lg-7">
-                    <div class="p-4 bg-inst-dark rounded border border-secondary shadow-lg">
-                        <div class="table-responsive">
-                            <table class="table table-borderless text-muted mb-0">
-                                <thead>
-                                    <tr class="border-bottom border-secondary">
-                                        <th>Feature</th>
-                                        <th>Standard</th>
-                                        <th class="text-warning font-weight-bold">Advanced</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Execution</td>
-                                        <td>Standard</td>
-                                        <td class="text-white font-weight-bold">Priority Direct</td>
-                                    </tr>
-                                    <tr>
-                                        <td>API Access</td>
-                                        <td>Limited</td>
-                                        <td class="text-white font-weight-bold">Full (REST/WS)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>VPS Hosting</td>
-                                        <td>Paid Add-on</td>
-                                        <td class="text-white font-weight-bold">Included</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Support</td>
-                                        <td>Email/Chat</td>
-                                        <td class="text-white font-weight-bold">Dedicated Quant Lead</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+    <!-- Additional Considerations -->
+    <section class="section py-5 bg-light-custom position-relative">
+        <div class="position-absolute dot-grid-bg" style="top:0; right:0; width:40%; height:100%; z-index:1; opacity:0.15;"></div>
+        <div class="container position-relative" style="z-index:2;">
+            <div class="row">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <p class="text-muted mb-0">Although appealing for a variety of reasons, automated trading systems should not be considered a substitute for carefully executed trading. Technology failures can happen, and as such, these systems do require monitoring. Server-based platforms may provide a solution for traders wishing to minimize the risks of mechanical failures. Remember, you should have some trading experience and knowledge before you decide to use automated trading systems.</p>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- CTA -->
-    <section class="section bg-inst-stripe">
-        <div class="container text-center">
-            <div class="p-5 bg-inst-dark rounded border border-warning shadow-lg">
-                <h2 class="mb-4 text-warning font-weight-bold">Scale Your Edge</h2>
-                <p class="text-muted mb-5 lead">Join the 5% of traders who operate with a mechanical advantage.</p>
-                <a href="{{ url('/register') }}" class="btn btn-primary btn-lg px-5 shadow-lg">Open Advanced Account</a>
-            </div>
-        </div>
-    </section>
+@include('home.partials.trade-anywhere')
+<!-- Achievement -->
+@include('home.partials.achievement')
+<!-- CTA -->
+@include('home.partials.cta')
+    <!-- AOS Initialization -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-out-cubic',
+                once: false,
+                offset: 50
+            });
+        });
+    </script>
 @endsection

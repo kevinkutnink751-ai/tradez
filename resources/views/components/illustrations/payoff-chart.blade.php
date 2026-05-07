@@ -59,7 +59,7 @@
     <div class="chart-area">
         <div class="zero-line"></div>
         <svg class="payoff-line" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path id="payoff-path" d="M 0 80 L 50 80 L 100 20" fill="none" stroke="#FCD535" stroke-width="2" />
+            <path id="payoff-path" d="M 0 80 L 50 80 L 100 20" fill="none" stroke="#2980b9" stroke-width="2" />
             <rect id="profit-zone" x="50" y="0" width="50" height="50" fill="rgba(14, 203, 129, 0.1)" />
         </svg>
     </div>

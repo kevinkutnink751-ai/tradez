@@ -61,8 +61,11 @@ Route::get('products/futures', [HomePageController::class, 'futuresTrading'])->n
 Route::get('products/options', [HomePageController::class, 'optionsTrading'])->name('product.options');
 Route::get('products/binary', [HomePageController::class, 'binaryTrading'])->name('product.binary');
 Route::get('products/spot', [HomePageController::class, 'spotTrading'])->name('product.spot');
+Route::get('products/swing', [HomePageController::class, 'swingTrading'])->name('product.swing');
+Route::get('products/nft-marketplace', [HomePageController::class, 'nftMarketplace'])->name('product.nft');
+Route::get('products/crypto-spot', [HomePageController::class, 'cryptoSpot'])->name('product.cryptoSpot');
+Route::get('products/defi-staking', [HomePageController::class, 'defiStaking'])->name('product.defiStaking');
+Route::get('products/yield-farming', [HomePageController::class, 'yieldFarming'])->name('product.yieldFarming');
 Route::get('products/mirroring', [HomePageController::class, 'expertMirroring'])->name('product.mirroring');
 Route::get('products/strategy', [HomePageController::class, 'strategyMarketplace'])->name('product.strategy');
 Route::get('products/forex', [HomePageController::class, 'forexTrading'])->name('product.forex');
-
-

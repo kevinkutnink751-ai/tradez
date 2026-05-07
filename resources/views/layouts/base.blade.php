@@ -38,6 +38,7 @@
         <!-- Main Css -->
         <link href="{{ asset('themes/purposeTheme/temp/css/style.css') }}" rel="stylesheet" type="text/css" />
         <link href="{{ asset('themes/purposeTheme/temp/css/colors/' . $theme) }}" rel="stylesheet">
+        <link href="{{ asset('assets/css/home-modern.css') }}" rel="stylesheet" />
         
         <style>
                /* Institutional Design System Overrides */
@@ -49,7 +50,7 @@
             --inst-text: #EAECEF;
             --inst-text-muted: #848E9C;
             --inst-primary: #0e4152;
-            --inst-accent: #FCD535; /* Professional Muted Gold */
+            --inst-accent:  #2980b9; /* Professional Muted Gold */
             --inst-success: #0ECB81;
             --inst-danger: #F6465D;
             --inst-radius: 4px;
@@ -143,13 +144,9 @@
             .border-bottom, .border-secondary { border-color: var(--inst-border) !important; }
             
             /* Remove white borders/lines from common components */
-            .card, .p-4, .p-5, .bg-white { 
-                background-color: var(--inst-bg-sec) !important; 
-                border-color: var(--inst-border) !important; 
-                color: var(--inst-text) !important;
-            }
+          
             .text-muted { color: var(--inst-text-muted) !important; }
-            .display-4, .font-weight-bold, h1, h2, h3, h4, h5, h6 { color: var(--inst-text) !important; }
+           
 
             /* Institutional Footer Styling */
             .footer {
@@ -523,18 +520,19 @@
                                     <li class="megamenu-head">Trading Markets</li>
                                     <li><a href="{{ route('product.forex') }}">Forex Trading</a></li>
                                     <li><a href="{{ route('product.spot') }}">Spot Trading</a></li>
+                                    <li><a href="{{ route('product.swing') }}">Swing Trading</a></li>
                                     <li><a href="{{ route('product.futures') }}">Futures Contracts</a></li>
-                                    <li><a href="{{ route('product.options') }}">Vanilla Options</a></li>
-                                    <li><a href="{{ route('product.binary') }}">Binary Options</a></li>
+                                    <li><a href="{{ route('product.options') }}">Options Trading</a></li>
                                 </ul>
                             </li>
                             <li>
                                 <ul>
                                     <li class="megamenu-head">Digital Assets</li>
-                                    <li><a href="{{ url('/login') }}">Crypto Spot</a></li>
-                                    <li><a href="{{ url('/login') }}">NFT Marketplace</a></li>
-                                    <li><a href="{{ url('/login') }}">DeFi Staking</a></li>
-                                    <li><a href="{{ url('/login') }}">Yield Farming</a></li>
+                                    <li><a href="{{ route('product.cryptoSpot') }}">Crypto Spot</a></li>
+                                    <li><a href="{{ route('product.nft') }}">NFT Marketplace</a></li>
+                                    
+                                    <li><a href="{{ route('product.defiStaking') }}">DeFi Staking</a></li>
+                                    <li><a href="{{ route('product.yieldFarming') }}">Yield Farming</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -548,7 +546,7 @@
                                     <li class="megamenu-head">Social Mirroring</li>
                                     <li><a href="{{ route('product.optionCopy') }}">Option Copy Trading</a></li>
                                     <li><a href="{{ route('product.mirroring') }}">Expert Mirroring</a></li>
-                                    <li><a href="{{ route('masterAccount') }}">Master Directory</a></li>
+                                    <li><a href="{{ route('masterAccount') }}">Expert Accounts</a></li>
                                 </ul>
                             </li>
                             <li>
@@ -568,8 +566,8 @@
                             <li>
                                 <ul>
                                     <li class="megamenu-head">Trading Desks</li>
-                                    <li><a href="{{ route('product.liveTrading') }}">Live Terminal</a></li>
-                                    <li><a href="{{ route('product.advanceTrading') }}">Advanced Interface</a></li>
+                                    <li><a href="{{ route('product.liveTrading') }}">Live Trading</a></li>
+                                    <li><a href="{{ route('product.advanceTrading') }}">Advanced Trading</a></li>
                                 </ul>
                             </li>
                             <li>

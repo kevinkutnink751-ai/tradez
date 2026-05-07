@@ -1,91 +1,38 @@
 @extends('layouts.base')
 @section('title', 'Option Copy Trading')
-@section('styles')
-    @parent
-    <style>
-        :root {
-            --inst-bg: #0B0E11;
-            --inst-bg-sec: #161A1E;
-            --inst-border: #2B3139;
-            --inst-text: #EAECEF;
-            --inst-text-muted: #848E9C;
-            --inst-accent: #FCD535;
-        }
-        body { background-color: var(--inst-bg) !important; color: var(--inst-text) !important; }
-        .product-hero { padding: 160px 0 100px 0; background: radial-gradient(circle at 20% 30%, rgba(252, 213, 53, 0.05) 0%, transparent 50%); }
-        .section { padding: 80px 0 !important; background-color: var(--inst-bg) !important; }
-        .bg-light { background-color: var(--inst-bg-sec) !important; }
-        .feature-box { background: var(--inst-bg-sec); border: 1px solid var(--inst-border); padding: 40px; border-radius: 4px; height: 100%; transition: all 0.3s; }
-        .feature-box:hover { border-color: var(--inst-accent); }
-        .feature-icon { font-size: 32px; color: var(--inst-accent); margin-bottom: 20px; display: block; }
-        .info-card { background: var(--inst-bg-sec); border: 1px solid var(--inst-border); padding: 30px; border-radius: 4px; height: 100%; }
-        .pros-cons-card { background: var(--inst-bg-sec); border: 1px solid var(--inst-border); padding: 30px; border-radius: 4px; }
-        .risk-warning-box { background: rgba(246, 70, 93, 0.1); border-left: 4px solid #f6465d; padding: 20px; border-radius: 4px; }
-    </style>
-@endsection
 
 @section('content')
     <!-- Hero Section -->
-    <section class="product-hero border-bottom border-secondary">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-7">
-                    <h1 class="display-4 font-weight-bold mb-4">Option Copy Trading</h1>
-                    <p class="lead text-muted mb-5">Mirror the positions of seasoned veterans using advanced automated tools and real-time execution signals. Since 2014, we've pioneered the social mirroring model.</p>
-                    <div class="d-flex">
-                        <a href="{{ url('/register') }}" class="btn btn-primary btn-lg mr-3 px-5">Start Mirroring</a>
-                        <a href="{{ url('/about') }}" class="btn btn-outline-light btn-lg">View Master Directory</a>
-                    </div>
-                </div>
-                <div class="col-lg-5 d-none d-lg-block">
-                    <div class="p-4 bg-light rounded border border-secondary shadow-lg">
-                        <h6 class="text-uppercase text-muted small mb-4">Network Activity: <span class="text-success">Live</span></h6>
-                        <div class="d-flex justify-content-between mb-3 border-bottom border-secondary pb-2">
-                            <span>Signals Replicated</span>
-                            <span class="text-warning font-weight-bold">12.4M+</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-3 border-bottom border-secondary pb-2">
-                            <span>Copy Accuracy</span>
-                            <span class="text-info font-weight-bold">99.98%</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span>Latency Index</span>
-                            <span class="text-success font-weight-bold">< 0.05s</span>
-                        </div>
-                    </div>
+    <section class="section py-5 mt-5 bg-dark-custom position-relative" style="min-height: 400px; display: flex; align-items: center; overflow: hidden;">
+        <div class="position-absolute dot-grid-bg" style="top:0; right:0; width:50%; height:100%; z-index:1; opacity:0.15;"></div>
+        <div class="position-absolute" style="background-image: url('{{ asset('images/assets/hero-bg.png') }}'); background-position: right center; background-size: contain; background-repeat: no-repeat; bottom: 0; top: 0; right: 0; width: 50%; z-index: 2; opacity: 0.8;"></div>
+        
+        <div class="container position-relative" style="z-index:3;">
+            <div class="row w-100">
+                <div class="col-lg-8" data-aos="fade-right">
+                    <h1 class="display-4 font-weight-bold mb-4 text-white">Option Copy Trading</h1>
+                    <p class="text-muted lead mb-5 max-width-700">{{ $settings->site_name }} has been sharing financial freedom with traders since 2014. In a continuous effort to give traders a more comfortable and safe experience, its experts have been improving the platform ensuring traders can enjoy and make use of that freedom to trade whenever and wherever they like.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Core Definition -->
-    <section class="section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-5 mb-lg-0">
-                    <h2 class="mb-4">What is Copy Trading?</h2>
-                    <p class="text-muted mb-4">Copy trading is a type of trading where you replicate the trades performed by another, more experienced trader. It can be manual, semi-automatic, or fully automatic.</p>
-                    <p class="text-muted mb-4">Our platform allows individuals to automatically copy another trader’s positions when they are opened or closed. Experienced traders communicate their positions using signals via social networks or forums, where followers can copy the methods with a single click.</p>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <ul class="list-unstyled text-muted small">
-                                <li class="mb-2"><i class="mdi mdi-check text-success mr-2"></i> Forex Markets</li>
-                                <li class="mb-2"><i class="mdi mdi-check text-success mr-2"></i> Blue Chip Stocks</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <ul class="list-unstyled text-muted small">
-                                <li class="mb-2"><i class="mdi mdi-check text-success mr-2"></i> High-Liquidity CFDs</li>
-                                <li class="mb-2"><i class="mdi mdi-check text-success mr-2"></i> Crypto (BTC, ETH)</li>
-                            </ul>
-                        </div>
-                    </div>
+    <!-- What is Copy Trading -->
+    <section class="section py-5 bg-light-custom position-relative">
+        <div class="position-absolute dot-grid-bg" style="top:0; left:0; width:40%; height:100%; z-index:1; opacity:0.15;"></div>
+        <div class="container position-relative" style="z-index:2;">
+            <h2 class="mb-5 font-weight-bold" style="font-size: 2.5rem; color:#000;" data-aos="fade-up">Option Copy Trading</h2>
+            
+            <div class="row align-items-stretch">
+                <div class="col-lg-6 mb-5 mb-lg-0 d-flex flex-column justify-content-center" data-aos="fade-right">
+                    <h3 class="mb-4 font-weight-bold" style="color:var(--inst-primary); font-size: 1.75rem;">Copy trading is replicating another trader’s positions using social platforms, automated tools and signals</h3>
+                    <p class="text-muted mb-4">Copy trading is a type of trading where you copy the trades performed by another, more experienced trader. It can be manual, semi-automatic or fully automatic.</p>
+                    <p class="text-muted mb-4">Copy trading allows individuals to automatically copy another trader’s positions when they are opened or closed. Experienced traders communicate their positions using signals via social networks or forums, where followers can copy the methods.</p>
+                    <p class="text-muted mb-4">Traders can copy positions in many markets, including forex, stocks and CFDs. You can also copy trades on popular crypto coins, including Bitcoin (BTC) or major precious metals such as Gold or Platinum.</p>
+                    <p class="text-muted mb-0">Copy trading can be a good way to earn a profit and make you rich, but it is important to understand that you will not become rich overnight. If you try to become rich too fast, you will have to copy very high-risk trades, and you will likely end up losing your money. If you use copy trading to build wealth slowly, you will have a fair chance of becoming a millionaire in due time.</p>
                 </div>
-                <div class="col-lg-6">
-                    <div class="info-card border-warning">
-                        <h5 class="text-warning mb-3">Wealth Building Philosophy</h5>
-                        <p class="text-muted small mb-4">Copy trading can be a good way to earn a profit, but it is important to understand that you will not become rich overnight. If you use copy trading to build wealth slowly and disciplined, you will have a fair chance of reaching institutional-grade portfolio returns in due time.</p>
-                        <a href="{{ url('/register') }}" class="btn btn-warning btn-sm px-4">Open Copy Account</a>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="h-100 rounded-lg shadow-lg w-100" style="background-image: url('https://glidelogiccopytrading.com/assets/pexels-anna-nekrashevich-6801872.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 400px; border-radius: 20px;">
                     </div>
                 </div>
             </div>
@@ -93,75 +40,64 @@
     </section>
 
     <!-- Pros and Cons -->
-    <section class="section bg-light">
-        <div class="container">
+    <section class="section py-5 bg-dark-custom position-relative">
+        <div class="position-absolute dot-grid-bg" style="top:0; right:0; width:100%; height:100%; z-index:1; opacity:0.1;"></div>
+        <div class="container position-relative" style="z-index:2;">
+            <h2 class="mb-5 font-weight-bold text-white" style="font-size: 2.5rem;" data-aos="fade-up">Pros and Cons</h2>
+            
+            <div class="row ">
+                <div class="col-lg-6 mb-4 mb-lg-0 d-flex" data-aos="fade-up" data-aos-delay="100">
+                    <div class="p-5 rounded-lg border " style="background: rgba(255,255,255,0.02); border-color: var(--inst-border) !important;">
+                        <h3 class="text-white mb-4 font-weight-bold">Pros</h3>
+                        <p class="text-muted mb-4">Authorised practice – copy trading is generally recognised by key regulatory frameworks, including CySEC, ESMA, MiFID and the FCA. Choosing a licensed and reputable broker will ensure your funds are safe and not exposed to scams.</p>
+                        <p class="text-muted mb-0">Portfolio diversification – traders can gain exposure to opportunities or trends that they wouldn’t usually consider without the help of another trader’s expertise.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-flex" data-aos="fade-up" data-aos-delay="200">
+                    <div class="p-5 rounded-lg border " style="background: rgba(255,255,255,0.02); border-color: var(--inst-border) !important;">
+                        <h3 class="text-white mb-4 font-weight-bold">Cons</h3>
+                        <p class="text-muted mb-4">Risk – the risks can be high even if you choose an experienced trader to copy. If a strategy is unsuccessful, the risk will also translate onto a follower’s account and can result in a financial loss.</p>
+                        <p class="text-muted mb-0">Control – one of the main disadvantages is the lack of control a trader will have once they begin copying an account; traders are essentially entrusting their portfolio to a stranger.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Risk -->
+    <section class="section py-5 bg-light-custom position-relative">
+        <div class="position-absolute dot-grid-bg" style="top:0; right:0; width:40%; height:100%; z-index:1; opacity:0.15;"></div>
+        <div class="container position-relative" style="z-index:2;">
+            <h2 class="mb-5 font-weight-bold" style="font-size: 2.5rem; color:#000;" data-aos="fade-up">Risk</h2>
+            
             <div class="row">
-                <div class="col-lg-6 mb-4">
-                    <div class="pros-cons-card h-100">
-                        <h4 class="text-success mb-4">The Advantages</h4>
-                        <div class="mb-4">
-                            <h6 class="text-white">Authorised Practice</h6>
-                            <p class="small text-muted">Copy trading is generally recognised by key regulatory frameworks, including CySEC, ESMA, MiFID and the FCA. We ensure your funds are never exposed to unregulated scams.</p>
-                        </div>
-                        <div>
-                            <h6 class="text-white">Portfolio Diversification</h6>
-                            <p class="small text-muted">Gain exposure to opportunities or trends that you wouldn’t usually consider without the help of another trader’s specific expertise.</p>
-                        </div>
-                    </div>
+                <div class="col-lg-6" data-aos="fade-right">
+                    <p class="text-muted mb-4">All types of trading are associated with risk. You always risk losing part or all of your investment. Never invest money you can not afford to lose. The risk associated with copy trading depends on the type of asset or security you choose to copy trade. Copying the trades of a trader that trades high-risk assets such as Forex, Crypto or binary options will be high risk. Copying the trades of a trader that trades low-risk securities such as blue chip stocks will be low risk.</p>
+                    <p class="text-muted mb-4">You should follow a trader that trades using a risk profile that you feel comfortable with. Many platforms will give you a risk indicator for each trader you can choose to copy, but it is always best to manually inspect their trade history and see if you feel comfortable with their trading strategies and risk profile. When in doubt, choose a broker with a lower-risk profile. You can increase your risk exposure later on, but if you choose a high-risk strategy and lose money, it will be too late to move that money to a lower-risk option since the money is already lost.</p>
+                    <p class="text-muted mb-0">A common beginner’s mistake is only copying one trader. A profitable trading history does not guarantee future returns. All traders can produce a period of poor returns or losses. It is always best to split your money and follow more than one trader. This will give you better diversification and will allow you to earn a profit even if one trader has a bad month or year. Diversification will reduce the risk associated with all types of trading and is one of the most basic types of risk management. All beginner traders should try to diversify their investment portfolio.</p>
                 </div>
-                <div class="col-lg-6 mb-4">
-                    <div class="pros-cons-card h-100">
-                        <h4 class="text-danger mb-4">The Risks</h4>
-                        <div class="mb-4">
-                            <h6 class="text-white">Execution Risk</h6>
-                            <p class="small text-muted">Even with experienced traders, if a strategy is unsuccessful, the risk translates directly onto your account. No profit is guaranteed.</p>
-                        </div>
-                        <div>
-                            <h6 class="text-white">Lack of Control</h6>
-                            <p class="small text-muted">You are essentially entrusting your portfolio to a stranger's decision-making. We provide tools to mitigate this, but the risk remains inherent.</p>
-                        </div>
-                    </div>
+                <div class="col-lg-6">
+                    @include('components.illustrations.mirror-leaderboard')
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Risk Management -->
-    <section class="section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h2 class="mb-4">Strategic Risk Management</h2>
-                    <p class="text-muted mb-4">All types of trading are associated with risk. Never invest money you cannot afford to lose. We believe in providing you with the data needed to make informed choices.</p>
-                    <div class="mb-4">
-                        <h6 class="text-white">Audit the History</h6>
-                        <p class="small text-muted">Many platforms give you a risk indicator, but we recommend manually inspecting trade history to see if you feel comfortable with their strategies.</p>
-                    </div>
-                    <div class="mb-4">
-                        <h6 class="text-white">The Diversification Rule</h6>
-                        <p class="small text-muted">A common beginner’s mistake is only copying one trader. All traders can produce periods of poor returns. Split your money and follow more than one master trader to reduce volatility.</p>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="risk-warning-box">
-                        <h5 class="text-danger mb-3">Risk Warning</h5>
-                        <p class="small text-muted mb-0">CFDs and Options are complex instruments and come with a high risk of losing money rapidly due to leverage. You should consider copying a Master Trader who understands these risks without over-exposing your capital.</p>
-                    </div>
-                    <div class="mt-4 p-4 border border-secondary rounded">
-                        <h6 class="text-white mb-2">Transparency & Trust</h6>
-                        <p class="small text-muted mb-0">We believe in open communication. All performance, strategies, and fees are clearly disclosed so you can make informed decisions with full confidence.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Final CTA -->
-    <section class="section bg-light">
-        <div class="container text-center">
-            <h2 class="mb-4">Ready to Start Copying?</h2>
-            <p class="text-muted mb-5 max-width-700 mx-auto">Join thousands of users who have automated their wealth creation through our social mirroring technology.</p>
-            <a href="{{ url('/register') }}" class="btn btn-primary btn-lg px-5 py-3 font-weight-bold">Open Institutional Copy Account</a>
-        </div>
-    </section>
+@include('home.partials.our-values')
+@include('home.partials.trade-anywhere')
+<!-- Achievement -->
+@include('home.partials.achievement')
+<!-- CTA -->
+@include('home.partials.cta')
+    <!-- AOS Initialization -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-out-cubic',
+                once: false,
+                offset: 50
+            });
+        });
+    </script>
 @endsection

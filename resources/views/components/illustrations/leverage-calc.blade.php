@@ -32,7 +32,7 @@
         -webkit-appearance: none;
         width: 20px;
         height: 20px;
-        background: #FCD535;
+        background: #2980b9;
         border-radius: 50%;
         cursor: pointer;
     }
