@@ -18,6 +18,7 @@ class OptionTrade extends Model
         'expiration',
         'status',
         'pnl',
+        'is_demo',
     ];
 
     public function user()

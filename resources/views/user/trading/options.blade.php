@@ -19,9 +19,29 @@
         --terminal-red: #ff4549;
         --terminal-text: #f5f7fb;
         --terminal-muted: #aab3c5;
+        --options-primary: #0e4152;
+        --glass-border: rgba(124, 77, 255, 0.25);
     }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--terminal-bg) !important;
+        color: var(--terminal-text);
+    }
+
+    /* #topnav { display: none !important; } */
+
+    main {
+        height: 100vh;
+        min-height: 100vh;
+        background: var(--terminal-bg);
+        overflow: hidden;
+    }
+
     .options-shell {
-        height: calc(100vh - 60px);
+        height: 100vh;
         background: var(--terminal-bg);
         position: relative;
         overflow: hidden;
@@ -75,6 +95,45 @@
     .strike-row.active { background: rgba(124, 77, 255, 0.2); border-left: 3px solid var(--options-primary); }
 
     /* Right Panel: Order Form */
+    .order-panel {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        bottom: 20px;
+        width: 340px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    /* Mode Toggle */
+    .mode-toggle {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        height: 41px;
+        padding: 2px;
+        border: 1px solid var(--options-primary);
+        border-radius: 10px;
+        background: #030819;
+    }
+
+    .mode-toggle button {
+        border: 0;
+        border-radius: 7px;
+        background: transparent;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .mode-toggle button.active {
+        background: var(--options-primary);
+    }
+
     /* New Improved Form Elements */
     .opt-input-card {
         background: rgba(255, 255, 255, 0.04);
@@ -113,14 +172,15 @@
         width: 45px;
         height: 45px;
         border-radius: 12px;
-        background: rgba(124, 77, 255, 0.1);
+        background: #0e4152;
         border: 1px solid var(--glass-border);
-        color: var(--options-primary);
+        color: #fff;
         font-size: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
+        cursor: pointer;
     }
 
     .amount-btn:hover { background: var(--options-primary); color: #fff; }
@@ -140,6 +200,7 @@
         padding: 6px 0;
         font-weight: 700;
         transition: all 0.2s;
+        cursor: pointer;
     }
 
     .percent-shortcuts button:hover {
@@ -172,6 +233,11 @@
         right: 0;
         color: #848e9c;
         pointer-events: none;
+    }
+
+    .custom-glass-select option {
+        background: #111722;
+        color: #fff;
     }
 
     /* Greeks Bar */
@@ -216,6 +282,7 @@
         transition: all 0.2s;
         position: relative;
         overflow: hidden;
+        cursor: pointer;
     }
 
     .btn-trade:active { transform: scale(0.96); }
@@ -236,7 +303,7 @@
 
     .badge-soft-primary {
         background: rgba(124, 77, 255, 0.15);
-        color: #7c4dff;
+        color: #0e4152;
         font-weight: 800;
         padding: 4px 8px;
         border-radius: 6px;
@@ -261,11 +328,31 @@
         cursor: pointer;
     }
 
+    /* Responsive */
+    @media (max-width: 1199.98px) {
+        .left-panel { width: 240px; left: 10px; }
+        .order-panel { width: 300px; right: 10px; }
+        .chart-background { left: 260px; right: 320px; }
+        .history-overlay { left: 260px; right: 320px; }
+    }
+
+    @media (max-width: 991.98px) {
+        .options-shell { flex-direction: column; height: auto; overflow: auto; }
+        .left-panel, .order-panel, .chart-background, .history-overlay { position: static; width: 100%; }
+        .chart-background { height: 400px; }
+        .order-panel { padding: 20px; }
+    }
+
 </style>
 @endsection
 
 @section('content')
 <div class="options-shell">
+    <!-- Demo Mode Banner -->
+    <div id="demoBanner" style="display:none; position:fixed; top:8px; left:50%; transform:translateX(-50%); z-index:9999; background:rgba(255,193,7,0.15); border:1px solid #ffc107; color:#ffc107; padding:4px 16px; border-radius:20px; font-size:11px; font-weight:800; letter-spacing:1px;">
+        ⚡ DEMO MODE — Virtual Funds ($<span id="demoBannerBal">{{ number_format(Auth::user()->demo_bal ?? 10000, 2) }}</span>)
+    </div>
+
     <!-- Centered Chart -->
     <div class="chart-background">
         <div id="tradingview_options_pro" style="height: 100%;"></div>
@@ -312,8 +399,14 @@
 
     <!-- Right Panel: Order Execution & Strategy -->
     <div class="binary-terminal order-panel">
+        <!-- Live / Demo Toggle -->
+        <div class="mode-toggle">
+            <button type="button" class="active" id="liveAccBtn" onclick="toggleMode('Live')">Live</button>
+            <button type="button" id="demoAccBtn" onclick="toggleMode('Demo')">Demo</button>
+        </div>
+
         <!-- Order Header -->
-        <div class="text-center mb-2">
+        <div class="text-center mb-0">
             <h5 class="text-white font-weight-bold mb-0">EXECUTION</h5>
             <small class="text-muted text-uppercase" style="letter-spacing: 2px; font-size: 10px;">{{ $currentPair->name }} Options</small>
         </div>
@@ -334,7 +427,7 @@
         <div class="opt-input-card">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <label class="opt-label mb-0">INVESTMENT AMOUNT</label>
-                <span class="text-muted small">BAL: ${{ number_format(Auth::user()->account_bal, 2) }}</span>
+                <span class="text-muted small" id="balanceDisplay">BAL: ${{ number_format(Auth::user()->account_bal, 2) }}</span>
             </div>
             <div class="amount-entry-wrapper">
                 <button class="amount-btn" onclick="adjustAmount(-10)"><i class="mdi mdi-minus"></i></button>
@@ -432,6 +525,10 @@
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    let currentMode = localStorage.getItem('tradingMode') || 'Live';
+    const liveBal = parseFloat("{{ Auth::user()->account_bal }}");
+    const demoBal = parseFloat("{{ Auth::user()->demo_bal ?? 10000 }}");
+
     // Initialize TradingView
     new TradingView.widget({
         "autosize": true,
@@ -450,13 +547,34 @@
         "gridColor": "rgba(124, 77, 255, 0.05)",
     });
 
+    // Initialize mode on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleMode(currentMode);
+        initPayoffChart();
+        updatePayoff('Call');
+    });
+
+    function toggleMode(type) {
+        currentMode = type;
+        localStorage.setItem('tradingMode', type);
+        document.getElementById('liveAccBtn').classList.toggle('active', type === 'Live');
+        document.getElementById('demoAccBtn').classList.toggle('active', type === 'Demo');
+
+        // Update balance display
+        const bal = type === 'Demo' ? demoBal : liveBal;
+        document.getElementById('balanceDisplay').innerText = 'BAL: $' + bal.toFixed(2);
+
+        // Show/hide demo banner
+        const banner = document.getElementById('demoBanner');
+        if (banner) banner.style.display = type === 'Demo' ? 'block' : 'none';
+    }
+
     // Payoff Chart Logic
     let payoffChart;
     function setAmountPercent(percent) {
-        const balance = {{ Auth::user()->account_bal }};
+        const balance = currentMode === 'Demo' ? demoBal : liveBal;
         const amount = (balance * percent) / 100;
         document.getElementById('optAmount').value = Math.floor(amount);
-        document.getElementById('displayAmount').innerText = Math.floor(amount);
         updatePayoff();
         toastr.info(`Set amount to ${percent}% of balance`);
     }
@@ -505,6 +623,10 @@
 
     function updatePayoff(type = 'Call') {
         const amount = parseFloat(document.getElementById('optAmount').value);
+        const profit = amount * ({{ $profitPercent }} / 100);
+        document.getElementById('profitPreview').innerText = '$' + profit.toFixed(2);
+
+        if (!payoffChart) return;
         const data = type === 'Call' ? 
             [-amount, -amount, 0, amount, amount * 2] : 
             [amount * 2, amount, 0, -amount, -amount];
@@ -529,12 +651,31 @@
         const expiry = document.getElementById('optExpiry').value;
         
         toastr.info(`Submitting ${type} Order...`);
-        // AJAX logic here...
-    }
 
-    window.onload = () => {
-        initPayoffChart();
-        updatePayoff('Call');
-    };
+        fetch("{{ route('options.trade.store') }}", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: JSON.stringify({
+                pair: "{{ $currentPair->name }}",
+                type: type,
+                amount: amount,
+                expiry: expiry,
+                mode: currentMode
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 200) {
+                toastr.success(data.message);
+            } else {
+                toastr.error(data.message || 'Trade could not be placed.');
+            }
+        })
+        .catch(() => toastr.error("Server error occurred."));
+    }
 </script>
 @endsection

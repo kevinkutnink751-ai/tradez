@@ -114,18 +114,18 @@
 
                 <li class="nav-header">Reports</li>
 
-                @if(isset($mod['spot']) && $mod['spot'])
-                <li class="nav-item"><a class="nav-link {{ request()->routeIs('spot.history') ? 'active' : '' }}" href="{{ route('spot.history') }}"><i class="fas fa-list-alt"></i><span>Spot History</span></a></li>
-                @endif
-                @if(isset($mod['future']) && $mod['future'])
-                <li class="nav-item"><a class="nav-link {{ request()->routeIs('future.history') ? 'active' : '' }}" href="{{ route('future.history') }}"><i class="fas fa-clipboard-list"></i><span>Futures History</span></a></li>
-                @endif
-                @if(isset($mod['binary']) && $mod['binary'])
-                <li class="nav-item"><a class="nav-link {{ request()->routeIs('binary.history') ? 'active' : '' }}" href="{{ route('binary.history') }}"><i class="fas fa-history"></i><span>Binary History</span></a></li>
-                @endif
-                @if(isset($mod['options']) && $mod['options'])
-                <li class="nav-item"><a class="nav-link {{ request()->routeIs('options.history') ? 'active' : '' }}" href="{{ route('options.history') }}"><i class="fas fa-history"></i><span>Options History</span></a></li>
-                @endif
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('trade.history') ? 'active' : '' }}" href="{{ route('trade.history') }}">
+                        <i class="fas fa-history"></i>
+                        <span>Trading History</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('manage.order') ? 'active' : '' }}" href="{{ route('manage.order') }}">
+                        <i class="fas fa-tasks"></i>
+                        <span>Active Orders</span>
+                    </a>
+                </li>
 
                 <li class="nav-header">Account</li>
 

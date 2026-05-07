@@ -85,10 +85,21 @@ class ViewsController extends Controller
             ->take(6)
             ->values();
 
+        //sum total profits
+        $spot_profits = Trade::where('user_id', $user->id)->where('market_type', 'Spot')->sum('pnl');
+        $future_profits = Trade::where('user_id', $user->id)->where('market_type', 'Future')->sum('pnl');
+        $binary_profits = BinaryTrade::where('user_id', $user->id)->sum('win_amount');
+        $option_profits = OptionTrade::where('user_id', $user->id)->sum('pnl');
+        $total_profits = $spot_profits + $future_profits + $binary_profits + $option_profits;
+
+        $copy_expert = DB::table('mt4_details')->where('client_id', $user->id)->where('account_type', 'Copy Trading')->first();
+
         return view("user.dashboard", [
             'title' => 'Account Dashboard',
             'deposited' => $total_deposited,
             'total_withdrawal' => $total_withdrawal,
+            'total_profits' => $total_profits,
+            'copy_expert' => $copy_expert,
             'trading_accounts' => Mt4Details::where('client_id', Auth::user()->id)->count(),
             'plans' => User_plans::where('user', Auth::user()->id)->where('active', 'yes')->orderByDesc('id')->skip(0)->take(2)->get(),
             't_history' => Tp_Transaction::where('user', Auth::user()->id)
@@ -101,6 +112,7 @@ class ViewsController extends Controller
             'total_trades_count' => Trade::where('user_id', Auth::user()->id)->count(),
             'recent_orders' => Trade::where('user_id', Auth::user()->id)->orderByDesc('id')->limit(5)->get(),
             'marketPairs' => $marketPairs,
+            'settings' => $settings,
         ]);
     }
 
@@ -399,10 +411,13 @@ class ViewsController extends Controller
         if ((isset($mod['spot']) && !$mod['spot']) && (isset($mod['future']) && !$mod['future'])) {
             abort(404);
         }
-        $trades = Trade::where('user_id', Auth::user()->id)->where('status', 'Open')->orderByDesc('id')->get();
+        $mode = request('mode', 'Live');
+        $isDemo = $mode === 'Demo';
+        $trades = Trade::where('user_id', Auth::user()->id)->where('status', 'Open')->where('is_demo', $isDemo)->orderByDesc('id')->get();
         return view('user.trading.manage_orders', [
             'title' => 'Manage Orders',
             'trades' => $trades,
+            'currentMode' => $mode,
         ]);
     }
 
@@ -447,30 +462,10 @@ class ViewsController extends Controller
             abort(404);
         }
 
-        $tab = $request->query('tab', 'running');
-        $query = BinaryTrade::where('user_id', Auth::user()->id);
-
-        if ($tab === 'running') {
-            $query->where('status', 'Pending');
-        } else {
-            $query->whereIn('status', ['Won', 'Lost', 'Completed']);
-        }
-
-        $trades = $query->orderByDesc('id')->paginate(20);
-
-        if ($request->ajax()) {
-            $html = view('user.trading.partials.binary_history_table', [
-                'trades' => $trades,
-                'tab' => $tab
-            ])->render();
-            return response()->json(['html' => $html]);
-        }
-
-        return view('user.trading.binary_history', [
-            'title' => 'Binary Trade History',
-            'trades' => $trades,
-        ]);
+        $mode = request('mode', 'Live');
+        return redirect()->route('trade.history', ['type' => 'binary', 'mode' => $mode]);
     }
+    
 
 
     public function futureTrade(Request $request)
@@ -483,9 +478,12 @@ class ViewsController extends Controller
         $selectedPair = $request->query('pair');
         $currentPair = $pairs->firstWhere('name', $selectedPair) ?? $pairs->first();
         
+        $isDemo = $request->query('mode', 'Live') === 'Demo';
+
         $openPositions = Trade::with('tradingPair')
             ->where('user_id', Auth::id())
             ->where('market_type', 'Future')
+            ->where('is_demo', $isDemo)
             ->where('status', 'Open')
             ->orderByDesc('id')
             ->get();
@@ -493,6 +491,7 @@ class ViewsController extends Controller
         $pendingOrders = Trade::with('tradingPair')
             ->where('user_id', Auth::id())
             ->where('market_type', 'Future')
+            ->where('is_demo', $isDemo)
             ->where('status', 'Pending')
             ->orderByDesc('id')
             ->get();
@@ -500,6 +499,7 @@ class ViewsController extends Controller
         $tradeHistory = Trade::with('tradingPair')
             ->where('user_id', Auth::id())
             ->where('market_type', 'Future')
+            ->where('is_demo', $isDemo)
             ->whereIn('status', ['Completed', 'Canceled'])
             ->orderByDesc('id')
             ->limit(50)
@@ -521,16 +521,10 @@ class ViewsController extends Controller
         if (isset($mod['future']) && !$mod['future']) {
             abort(404);
         }
-        $trades = Trade::where('user_id', Auth::user()->id)
-            ->where('market_type', 'Future')
-            ->orderByDesc('id')
-            ->get();
-            
-        return view('user.trading.future_history', [
-            'title' => 'Future Trading History',
-            'trades' => $trades,
-        ]);
+        $mode = request('mode', 'Live');
+        return redirect()->route('trade.history', ['type' => 'futures', 'mode' => $mode]);
     }
+    
 
     public function optionsTrade(Request $request)
     {
@@ -573,30 +567,10 @@ class ViewsController extends Controller
             abort(404);
         }
 
-        $tab = $request->query('tab', 'running');
-        $query = OptionTrade::where('user_id', Auth::user()->id);
-
-        if ($tab === 'running') {
-            $query->where('status', 'Pending');
-        } else {
-            $query->whereIn('status', ['Won', 'Lost', 'Settled', 'Completed']);
-        }
-
-        $trades = $query->orderByDesc('id')->paginate(20);
-
-        if ($request->ajax()) {
-            $html = view('user.trading.partials.options_history_table', [
-                'trades' => $trades,
-                'tab' => $tab
-            ])->render();
-            return response()->json(['html' => $html]);
-        }
-
-        return view('user.trading.options_history', [
-            'title' => 'Options Trading History',
-            'trades' => $trades,
-        ]);
+        $mode = request('mode', 'Live');
+        return redirect()->route('trade.history', ['type' => 'options', 'mode' => $mode]);
     }
+    
 
 
     public function copyTrade()
@@ -656,14 +630,172 @@ class ViewsController extends Controller
     }
     public function spotHistory()
     {
-        $trades = Trade::where('user_id', Auth::user()->id)
-            ->where('market_type', 'spot')
-            ->orderByDesc('id')
-            ->get();
-            
-        return view('user.trading.spot_history', [
-            'title' => 'Spot Trading History',
-            'trades' => $trades,
+        $mode = request('mode', 'Live');
+        return redirect()->route('trade.history', ['type' => 'spot', 'mode' => $mode]);
+    }
+    
+
+    public function allTradeHistory(Request $request)
+    {
+        $mode = $request->query('mode', 'Live');
+        $isDemo = $mode === 'Demo';
+        $tradeType = $request->query('type', 'all');
+
+        $allTrades = collect();
+
+        // Binary Trades
+        if (in_array($tradeType, ['all', 'binary'])) {
+            $binaryTrades = BinaryTrade::where('user_id', Auth::id())
+                ->where('is_demo', $isDemo)
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(function ($t) {
+                    return (object) [
+                        'id' => 'BIN-' . $t->id,
+                        'raw_id' => $t->id,
+                        'trade_type' => 'Binary',
+                        'pair' => $t->coin_pair,
+                        'side' => $t->direction,
+                        'amount' => $t->amount,
+                        'price' => $t->strike_price,
+                        'pnl' => $t->win_amount ?? 0,
+                        'leverage' => null,
+                        'status' => $t->status,
+                        'result' => $t->result,
+                        'is_demo' => $t->is_demo,
+                        'duration' => $t->duration . 's',
+                        'expiration' => null,
+                        'strike_price' => $t->strike_price,
+                        'end_price' => $t->end_price,
+                        'settlement_asset' => 'USD',
+                        'order_type' => 'Market',
+                        'created_at' => $t->created_at,
+                        'updated_at' => $t->updated_at,
+                    ];
+                });
+            $allTrades = $allTrades->merge($binaryTrades);
+        }
+
+        // Options Trades
+        if (in_array($tradeType, ['all', 'options'])) {
+            $optionTrades = OptionTrade::where('user_id', Auth::id())
+                ->where('is_demo', $isDemo)
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(function ($t) {
+                    return (object) [
+                        'id' => 'OPT-' . $t->id,
+                        'raw_id' => $t->id,
+                        'trade_type' => 'Options',
+                        'pair' => $t->pair,
+                        'side' => $t->type,
+                        'amount' => $t->amount,
+                        'price' => $t->strike_price,
+                        'pnl' => $t->pnl,
+                        'leverage' => null,
+                        'status' => $t->status,
+                        'result' => $t->status,
+                        'is_demo' => $t->is_demo,
+                        'duration' => null,
+                        'expiration' => $t->expiration,
+                        'strike_price' => $t->strike_price,
+                        'end_price' => null,
+                        'settlement_asset' => 'USD',
+                        'order_type' => 'Market',
+                        'created_at' => $t->created_at,
+                        'updated_at' => $t->updated_at,
+                    ];
+                });
+            $allTrades = $allTrades->merge($optionTrades);
+        }
+
+        // Futures Trades
+        if (in_array($tradeType, ['all', 'futures'])) {
+            $futureTrades = Trade::where('user_id', Auth::id())
+                ->where('market_type', 'Future')
+                ->where('is_demo', $isDemo)
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(function ($t) {
+                    return (object) [
+                        'id' => 'FUT-' . $t->id,
+                        'raw_id' => $t->id,
+                        'trade_type' => 'Futures',
+                        'pair' => $t->pair,
+                        'side' => $t->type,
+                        'amount' => $t->amount,
+                        'price' => $t->price,
+                        'pnl' => $t->pnl,
+                        'leverage' => $t->leverage,
+                        'status' => $t->status,
+                        'result' => $t->status,
+                        'is_demo' => $t->is_demo,
+                        'duration' => null,
+                        'expiration' => null,
+                        'strike_price' => null,
+                        'end_price' => null,
+                        'settlement_asset' => $t->settlement_asset ?? 'USD',
+                        'order_type' => $t->order_type,
+                        'created_at' => $t->created_at,
+                        'updated_at' => $t->updated_at,
+                    ];
+                });
+            $allTrades = $allTrades->merge($futureTrades);
+        }
+
+        // Spot Trades
+        if (in_array($tradeType, ['all', 'spot'])) {
+            $spotTrades = Trade::where('user_id', Auth::id())
+                ->where('market_type', 'Spot')
+                ->where('is_demo', $isDemo)
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(function ($t) {
+                    return (object) [
+                        'id' => 'SPT-' . $t->id,
+                        'raw_id' => $t->id,
+                        'trade_type' => 'Spot',
+                        'pair' => $t->pair,
+                        'side' => $t->type,
+                        'amount' => $t->amount,
+                        'price' => $t->price,
+                        'pnl' => $t->pnl,
+                        'leverage' => 1,
+                        'status' => $t->status,
+                        'result' => $t->status,
+                        'is_demo' => $t->is_demo,
+                        'duration' => null,
+                        'expiration' => null,
+                        'strike_price' => null,
+                        'end_price' => null,
+                        'settlement_asset' => $t->settlement_asset ?? 'USD',
+                        'order_type' => 'Market',
+                        'created_at' => $t->created_at,
+                        'updated_at' => $t->updated_at,
+                    ];
+                });
+            $allTrades = $allTrades->merge($spotTrades);
+        }
+
+        $allTrades = $allTrades->sortByDesc('created_at')->values();
+
+        $stats = [
+            'total_trades' => $allTrades->count(),
+            'total_invested' => $allTrades->sum('amount'),
+            'total_pnl' => $allTrades->sum('pnl'),
+            'binary_count' => $allTrades->where('trade_type', 'Binary')->count(),
+            'options_count' => $allTrades->where('trade_type', 'Options')->count(),
+            'futures_count' => $allTrades->where('trade_type', 'Futures')->count(),
+            'spot_count' => $allTrades->where('trade_type', 'Spot')->count(),
+            'open_count' => $allTrades->where('status', 'Open')->count(),
+        ];
+
+        return view('user.trading.trade_history', [
+            'title' => 'Trade History',
+            'trades' => $allTrades,
+            'currentMode' => $mode,
+            'currentType' => $tradeType,
+            'stats' => $stats,
         ]);
     }
 }

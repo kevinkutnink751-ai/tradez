@@ -10,6 +10,10 @@
 @endphp
 
 <div class="terminal-shell">
+    <!-- Demo Mode Banner -->
+    <div id="demoBanner" style="display:none; position:fixed; top:8px; left:50%; transform:translateX(-50%); z-index:9999; background:rgba(255,193,7,0.15); border:1px solid #ffc107; color:#ffc107; padding:4px 16px; border-radius:20px; font-size:11px; font-weight:800; letter-spacing:1px;">
+        ⚡ DEMO MODE — Virtual Funds ($<span id="demoBannerBal">{{ number_format(Auth::user()->demo_bal ?? 10000, 2) }}</span>)
+    </div>
     <div class="terminal-grid">
         <!-- Left: Order Book -->
         <div class="terminal-panel orderbook-panel">
@@ -56,6 +60,14 @@
 
             <!-- Trade Tickets -->
             <div class="trade-tickets">
+                <!-- Mode Toggle (above tickets) -->
+                <div class="terminal-panel p-3 mb-2" style="grid-column: 1 / -1;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; height:36px; padding:2px; border:1px solid #0e4152; border-radius:8px; background:#0b1217;">
+                        <button type="button" class="active" id="liveAccBtn" onclick="toggleMode('Live')" style="border:0; border-radius:6px; background:#0e4152; color:#fff; font-size:13px; font-weight:800; cursor:pointer; transition:background 0.2s;">Live</button>
+                        <button type="button" id="demoAccBtn" onclick="toggleMode('Demo')" style="border:0; border-radius:6px; background:transparent; color:#fff; font-size:13px; font-weight:800; cursor:pointer; transition:background 0.2s;">Demo</button>
+                    </div>
+                </div>
+
                 <!-- Buy Ticket -->
                 <div class="terminal-panel p-4">
                     <div class="d-flex justify-content-between x-small mb-3">
@@ -73,6 +85,7 @@
                         @csrf
                         <input type="hidden" name="pair" value="{{ $currentPair->name }}">
                         <input type="hidden" name="type" value="Buy">
+                        <input type="hidden" name="mode" class="tradingModeInput" value="Live">
                         
                         <div class="ticket-input-group mb-3">
                             <span class="input-label">Price</span>
@@ -119,6 +132,7 @@
                         @csrf
                         <input type="hidden" name="pair" value="{{ $currentPair->name }}">
                         <input type="hidden" name="type" value="Sell">
+                        <input type="hidden" name="mode" class="tradingModeInput" value="Live">
                         
                         <div class="ticket-input-group mb-3">
                             <span class="input-label">Price</span>
@@ -210,10 +224,46 @@
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
     const currentPrice = {{ $currentPair->last_price }};
-    const buyBalance = {{ $quoteWallet->spot_bal ?? 0 }};
-    const sellBalance = {{ $baseWallet->spot_bal ?? 0 }};
+    let buyBalance = {{ $quoteWallet->spot_bal ?? 0 }};
+    let sellBalance = {{ $baseWallet->spot_bal ?? 0 }};
+    let currentMode = localStorage.getItem('tradingMode') || 'Live';
+    const spotLiveBuyBal = {{ $quoteWallet->spot_bal ?? 0 }};
+    const spotLiveSellBal = {{ $baseWallet->spot_bal ?? 0 }};
+    const spotDemoBal = parseFloat("{{ Auth::user()->demo_bal ?? 10000 }}");
 
     let activeCategory = 'All';
+
+    // Initialize mode on load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleMode(currentMode);
+    });
+
+    function toggleMode(type) {
+        currentMode = type;
+        localStorage.setItem('tradingMode', type);
+        document.getElementById('liveAccBtn').classList.toggle('active', type === 'Live');
+        document.getElementById('demoAccBtn').classList.toggle('active', type === 'Demo');
+
+        // Update active button style
+        document.getElementById('liveAccBtn').style.background = type === 'Live' ? '#0e4152' : 'transparent';
+        document.getElementById('demoAccBtn').style.background = type === 'Demo' ? '#0e4152' : 'transparent';
+
+        // Update hidden form inputs
+        document.querySelectorAll('.tradingModeInput').forEach(el => el.value = type);
+
+        // Update balance display
+        if (type === 'Demo') {
+            buyBalance = spotDemoBal;
+            sellBalance = spotDemoBal;
+        } else {
+            buyBalance = spotLiveBuyBal;
+            sellBalance = spotLiveSellBal;
+        }
+
+        // Show/hide demo banner
+        const banner = document.getElementById('demoBanner');
+        if (banner) banner.style.display = type === 'Demo' ? 'block' : 'none';
+    }
 
     function toggleMarketSearch() {
         const title = document.getElementById('marketTitleContainer');

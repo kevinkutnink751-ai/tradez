@@ -25,6 +25,7 @@ class Trade extends Model
         'leverage',
         'status',
         'pnl',
+        'is_demo',
     ];
 
     public function user()

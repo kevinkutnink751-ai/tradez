@@ -34,9 +34,9 @@
         color: var(--terminal-text);
     }
 
-    #topnav {
+    /* #topnav {
         display: none !important;
-    }
+    } */
 
     main {
         height: 100vh;
@@ -582,6 +582,10 @@
 
 @section('content')
 <div class="binary-terminal">
+    <!-- Demo Mode Banner -->
+    <div id="demoBanner" style="display:none; position:fixed; top:8px; left:50%; transform:translateX(-50%); z-index:9999; background:rgba(255,193,7,0.15); border:1px solid #ffc107; color:#ffc107; padding:4px 16px; border-radius:20px; font-size:11px; font-weight:800; letter-spacing:1px;">
+        ⚡ DEMO MODE — Virtual Funds ($<span id="demoBannerBal">{{ number_format(Auth::user()->demo_bal ?? 10000, 2) }}</span>)
+    </div>
     <header class="binary-topbar">
         <a class="binary-brand" href="{{ route('dashboard') }}">
             <img src="{{ asset('storage/app/public/' . $settings->logo) }}" alt="{{ $settings->site_name }}">
@@ -721,14 +725,31 @@
 
 @push('scripts')
 <script>
-    let currentAccount = 'Live';
+    let currentAccount = localStorage.getItem('tradingMode') || 'Live';
     const binaryIncrement = parseFloat("{{ $currentPair->binary_increment ?? 0.001 }}") || 0.001;
     const binaryProfitPercent = parseFloat("{{ $profitPercent }}") || 0;
+    const liveBal = parseFloat("{{ Auth::user()->account_bal }}");
+    const demoBal = parseFloat("{{ Auth::user()->demo_bal ?? 10000 }}");
+
+    // Initialize toggle on load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleAccount(currentAccount);
+        updateProfit();
+        switchHistoryTab('running');
+    });
 
     function toggleAccount(type) {
         currentAccount = type;
+        localStorage.setItem('tradingMode', type);
         document.getElementById('liveAccBtn').classList.toggle('active', type === 'Live');
         document.getElementById('demoAccBtn').classList.toggle('active', type === 'Demo');
+        
+        // Show/hide demo banner
+        const banner = document.getElementById('demoBanner');
+        if (banner) banner.style.display = type === 'Demo' ? 'block' : 'none';
+
+        // Reload history for current mode
+        switchHistoryTab('running');
     }
 
     function adjustAmount(direction) {
@@ -753,7 +774,7 @@
         const content = document.getElementById('historyContent');
         content.innerHTML = '<div class="empty-state">Loading history...</div>';
 
-        fetch(`{{ route('binary.history') }}?tab=${tab}`, {
+        fetch(`{{ route('binary.history') }}?tab=${tab}&mode=${currentAccount}`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(res => res.json())
@@ -780,7 +801,8 @@
                 pair: "{{ $currentPair->name }}",
                 type: direction,
                 amount: amount,
-                duration: duration
+                duration: duration,
+                mode: currentAccount
             })
         })
         .then(res => res.json())
@@ -794,10 +816,5 @@
         })
         .catch(() => toastr.error("Server error occurred."));
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        updateProfit();
-        switchHistoryTab('running');
-    });
 </script>
 @endpush

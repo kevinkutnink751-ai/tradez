@@ -24,9 +24,11 @@ class TradeController extends Controller
             'amount' => 'required|numeric|min:0.0001',
             'leverage' => 'required|numeric|min:1',
             'price' => 'nullable|numeric',
-            'settlement_asset' => 'nullable|string'
+            'settlement_asset' => 'nullable|string',
+            'mode' => 'nullable|in:Live,Demo',
         ]);
 
+        $isDemo = ($request->mode === 'Demo');
         $user = User::find(Auth::id());
         $pair = $this->resolvePair($request->pair, 'Future');
 
@@ -66,12 +68,24 @@ class TradeController extends Controller
             return response()->json(['status' => 400, 'message' => 'Trade size is outside the allowed range.']);
         }
 
-        $marginRequired = $marginRequiredUsd / ($settlementAsset->base_rate ?: 1);
+        if ($isDemo) {
+            // Demo mode: deduct from user's demo_bal
+            if ($user->demo_bal < $marginRequiredUsd) {
+                return response()->json(['status' => 400, 'message' => 'Insufficient demo balance.']);
+            }
+            $user->demo_bal -= $marginRequiredUsd;
+            $user->save();
+        } else {
+            // Live mode: deduct from wallet
+            $marginRequired = $marginRequiredUsd / ($settlementAsset->base_rate ?: 1);
+            $settlementWallet = $this->getOrCreateWalletForSymbol($user->id, $settlementSymbol);
 
-        $settlementWallet = $this->getOrCreateWalletForSymbol($user->id, $settlementSymbol);
+            if (!$settlementWallet || $settlementWallet->future_bal < $marginRequired) {
+                return response()->json(['status' => 400, 'message' => "Insufficient {$settlementSymbol} futures balance."]);
+            }
 
-        if (!$settlementWallet || $settlementWallet->future_bal < $marginRequired) {
-            return response()->json(['status' => 400, 'message' => "Insufficient {$settlementSymbol} futures balance."]);
+            $settlementWallet->future_bal -= $marginRequired;
+            $settlementWallet->save();
         }
 
         Trade::create([
@@ -90,12 +104,10 @@ class TradeController extends Controller
             'leverage' => $request->leverage,
             'status' => ($orderType === 'Market') ? 'Open' : 'Pending',
             'pnl' => 0,
+            'is_demo' => $isDemo,
         ]);
 
-        $settlementWallet->future_bal -= $marginRequired;
-        $settlementWallet->save();
-
-        return response()->json(['status' => 200, 'message' => 'Position opened successfully.']);
+        return response()->json(['status' => 200, 'message' => ($isDemo ? '[DEMO] ' : '') . 'Position opened successfully.']);
     }
 
     public function storeSpotTrade(Request $request)
@@ -105,9 +117,11 @@ class TradeController extends Controller
             'type' => 'required|in:Buy,Sell',
             'amount' => 'required|numeric|min:0.000001',
             'price' => 'nullable|numeric',
-            'settlement_asset' => 'nullable|string'
+            'settlement_asset' => 'nullable|string',
+            'mode' => 'nullable|in:Live,Demo',
         ]);
 
+        $isDemo = ($request->mode === 'Demo');
         $user = User::find(Auth::id());
         $pair = $this->resolvePair($request->pair, 'Spot');
 
@@ -135,30 +149,41 @@ class TradeController extends Controller
             $quoteAmount = $usdValue;
         }
 
-        $settlementWallet = $this->getOrCreateWalletForSymbol($user->id, $settlementSymbol);
-        $cost = $request->amount; // The actual amount of settlement asset spent
-
-        if ($request->type === 'Buy') {
-            if ($settlementWallet->spot_bal < $cost) {
-                return response()->json(['status' => 400, 'message' => "Insufficient {$settlementSymbol} balance."]);
+        if ($isDemo) {
+            // Demo mode: deduct/credit from user's demo_bal
+            $cost = $request->amount * ($settlementAsset->base_rate ?: 1);
+            if ($user->demo_bal < $cost) {
+                return response()->json(['status' => 400, 'message' => 'Insufficient demo balance.']);
             }
-            $settlementWallet->spot_bal -= $cost;
-            $baseWallet = $this->getOrCreateWalletForSymbol($user->id, $pair->symbol);
-            $baseWallet->spot_bal += $baseAmount;
-            
-            $settlementWallet->save();
-            $baseWallet->save();
+            $user->demo_bal -= $cost;
+            $user->save();
         } else {
-            // Selling: user must have enough base asset
-            $baseWallet = $this->getOrCreateWalletForSymbol($user->id, $pair->symbol);
-            if ($baseWallet->spot_bal < $baseAmount) {
-                return response()->json(['status' => 400, 'message' => "Insufficient {$pair->symbol} balance."]);
+            // Live mode: real wallet operations
+            $settlementWallet = $this->getOrCreateWalletForSymbol($user->id, $settlementSymbol);
+            $cost = $request->amount; // The actual amount of settlement asset spent
+
+            if ($request->type === 'Buy') {
+                if ($settlementWallet->spot_bal < $cost) {
+                    return response()->json(['status' => 400, 'message' => "Insufficient {$settlementSymbol} balance."]);
+                }
+                $settlementWallet->spot_bal -= $cost;
+                $baseWallet = $this->getOrCreateWalletForSymbol($user->id, $pair->symbol);
+                $baseWallet->spot_bal += $baseAmount;
+                
+                $settlementWallet->save();
+                $baseWallet->save();
+            } else {
+                // Selling: user must have enough base asset
+                $baseWallet = $this->getOrCreateWalletForSymbol($user->id, $pair->symbol);
+                if ($baseWallet->spot_bal < $baseAmount) {
+                    return response()->json(['status' => 400, 'message' => "Insufficient {$pair->symbol} balance."]);
+                }
+                $baseWallet->spot_bal -= $baseAmount;
+                $settlementWallet->spot_bal += $cost;
+                
+                $baseWallet->save();
+                $settlementWallet->save();
             }
-            $baseWallet->spot_bal -= $baseAmount;
-            $settlementWallet->spot_bal += $cost;
-            
-            $baseWallet->save();
-            $settlementWallet->save();
         }
 
         Trade::create([
@@ -176,9 +201,10 @@ class TradeController extends Controller
             'leverage' => 1,
             'status' => 'Completed',
             'pnl' => 0,
+            'is_demo' => $isDemo,
         ]);
 
-        return response()->json(['status' => 200, 'message' => 'Spot trade executed successfully.']);
+        return response()->json(['status' => 200, 'message' => ($isDemo ? '[DEMO] ' : '') . 'Spot trade executed successfully.']);
     }
 
     public function closeTrade($id)
@@ -192,15 +218,21 @@ class TradeController extends Controller
         $pnl = ($trade->amount * $trade->price) * $mockPnlPercent;
         
         $settlementSymbol = $trade->settlement_asset ?: 'USD';
-        $settlementWallet = $this->getWalletForSymbol($user->id, $settlementSymbol);
-        
         $margin = ($trade->amount * $trade->price) / $trade->leverage;
         $pnlInSettlement = $pnl / ($trade->price ?: 1); // rough conversion if settlement is base
 
-        if ($trade->market_type == 'Future') {
-            if ($settlementWallet) {
-                $settlementWallet->future_bal += ($margin + $pnlInSettlement);
-                $settlementWallet->save();
+        if ($trade->is_demo) {
+            // Demo mode: credit back to demo_bal
+            $user->demo_bal += ($margin + $pnlInSettlement);
+            $user->save();
+        } else {
+            // Live mode: credit back to wallet
+            $settlementWallet = $this->getWalletForSymbol($user->id, $settlementSymbol);
+            if ($trade->market_type == 'Future') {
+                if ($settlementWallet) {
+                    $settlementWallet->future_bal += ($margin + $pnlInSettlement);
+                    $settlementWallet->save();
+                }
             }
         }
 
@@ -211,12 +243,14 @@ class TradeController extends Controller
 
         return response()->json([
             'status' => 200, 
-            'message' => 'Position closed successfully.',
+            'message' => ($trade->is_demo ? '[DEMO] ' : '') . 'Position closed successfully.',
             'data' => [
                 'pnl' => number_format($pnlInSettlement, 4),
                 'symbol' => $settlementSymbol,
                 'completion_type' => 'Auto-Settled',
-                'new_balance' => number_format($settlementWallet->future_bal ?? 0, 4)
+                'new_balance' => $trade->is_demo 
+                    ? number_format($user->demo_bal, 4)
+                    : number_format($this->getWalletForSymbol($user->id, $settlementSymbol)->future_bal ?? 0, 4),
             ]
         ]);
     }
@@ -227,14 +261,20 @@ class TradeController extends Controller
         $user = User::find(Auth::id());
 
         $settlementSymbol = $trade->settlement_asset ?: 'USD';
-        $settlementWallet = $this->getWalletForSymbol($user->id, $settlementSymbol);
-
         $margin = ($trade->amount * $trade->price) / $trade->leverage;
 
-        if ($trade->market_type == 'Future') {
-            if ($settlementWallet) {
-                $settlementWallet->future_bal += $margin;
-                $settlementWallet->save();
+        if ($trade->is_demo) {
+            // Demo mode: credit back to demo_bal
+            $user->demo_bal += $margin;
+            $user->save();
+        } else {
+            // Live mode: credit back to wallet
+            $settlementWallet = $this->getWalletForSymbol($user->id, $settlementSymbol);
+            if ($trade->market_type == 'Future') {
+                if ($settlementWallet) {
+                    $settlementWallet->future_bal += $margin;
+                    $settlementWallet->save();
+                }
             }
         }
 
@@ -242,10 +282,12 @@ class TradeController extends Controller
 
         return response()->json([
             'status' => 200, 
-            'message' => 'Order canceled and margin released.',
+            'message' => ($trade->is_demo ? '[DEMO] ' : '') . 'Order canceled and margin released.',
             'data' => [
                 'completion_type' => 'Auto',
-                'new_balance' => number_format($settlementWallet->future_bal ?? 0, 4)
+                'new_balance' => $trade->is_demo
+                    ? number_format($user->demo_bal, 4)
+                    : number_format($this->getWalletForSymbol($user->id, $settlementSymbol)->future_bal ?? 0, 4),
             ]
         ]);
     }
@@ -257,8 +299,10 @@ class TradeController extends Controller
             'type' => 'required|in:Rise,Fall,Call,Put',
             'amount' => 'required|numeric|min:1',
             'duration' => 'required|numeric',
+            'mode' => 'nullable|in:Live,Demo',
         ]);
 
+        $isDemo = ($request->mode === 'Demo');
         $user = User::find(Auth::id());
         $pair = $this->resolvePair($request->pair, 'Binary');
 
@@ -266,11 +310,13 @@ class TradeController extends Controller
             return response()->json(['status' => 400, 'message' => 'Invalid trading pair.']);
         }
 
-        if ($user->account_bal < $request->amount) {
-            return response()->json(['status' => 400, 'message' => 'Insufficient account balance.']);
+        $balanceField = $isDemo ? 'demo_bal' : 'account_bal';
+
+        if ($user->{$balanceField} < $request->amount) {
+            return response()->json(['status' => 400, 'message' => 'Insufficient ' . ($isDemo ? 'demo' : 'account') . ' balance.']);
         }
 
-        $user->account_bal -= $request->amount;
+        $user->{$balanceField} -= $request->amount;
         $user->save();
 
         BinaryTrade::create([
@@ -281,9 +327,10 @@ class TradeController extends Controller
             'duration' => $request->duration,
             'status' => 'Pending',
             'strike_price' => $pair->last_price,
+            'is_demo' => $isDemo,
         ]);
 
-        return response()->json(['status' => 200, 'message' => 'Binary trade placed successfully.']);
+        return response()->json(['status' => 200, 'message' => ($isDemo ? '[DEMO] ' : '') . 'Binary trade placed successfully.']);
     }
 
     public function storeOptionsTrade(Request $request)
@@ -293,8 +340,10 @@ class TradeController extends Controller
             'type' => 'required|in:Call,Put',
             'amount' => 'required|numeric|min:1',
             'expiry' => 'required|numeric',
+            'mode' => 'nullable|in:Live,Demo',
         ]);
 
+        $isDemo = ($request->mode === 'Demo');
         $user = User::find(Auth::id());
         $pair = $this->resolvePair($request->pair, 'Option');
 
@@ -302,11 +351,13 @@ class TradeController extends Controller
             return response()->json(['status' => 400, 'message' => 'Invalid trading pair.']);
         }
 
-        if ($user->account_bal < $request->amount) {
-            return response()->json(['status' => 400, 'message' => 'Insufficient account balance.']);
+        $balanceField = $isDemo ? 'demo_bal' : 'account_bal';
+
+        if ($user->{$balanceField} < $request->amount) {
+            return response()->json(['status' => 400, 'message' => 'Insufficient ' . ($isDemo ? 'demo' : 'account') . ' balance.']);
         }
 
-        $user->account_bal -= $request->amount;
+        $user->{$balanceField} -= $request->amount;
         $user->save();
 
         OptionTrade::create([
@@ -318,9 +369,10 @@ class TradeController extends Controller
             'expiration' => now()->addSeconds((int)$request->expiry),
             'status' => 'Pending',
             'pnl' => 0,
+            'is_demo' => $isDemo,
         ]);
 
-        return response()->json(['status' => 200, 'message' => 'Options trade placed successfully.']);
+        return response()->json(['status' => 200, 'message' => ($isDemo ? '[DEMO] ' : '') . 'Options trade placed successfully.']);
     }
 
 

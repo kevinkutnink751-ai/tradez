@@ -144,8 +144,9 @@
 
             {{-- Recent Activity --}}
             <div class="card bg-dark-card border-0 dashboard-panel">
-                <div class="card-header bg-transparent border-white-10 py-3 px-4">
+                <div class="card-header bg-transparent border-white-10 py-3 px-4 d-flex justify-content-between align-items-center">
                     <h5 class="text-white font-weight-bold mb-0">Recent Activity</h5>
+                    <a href="{{ route('trade.history') }}" class="text-primary small">See All</a>
                 </div>
                 <div class="card-body p-4">
                     <div class="activity-timeline">

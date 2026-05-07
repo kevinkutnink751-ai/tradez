@@ -20,6 +20,7 @@ class BinaryTrade extends Model
         'result',
         'strike_price',
         'end_price',
+        'is_demo',
     ];
 
     public function user()
