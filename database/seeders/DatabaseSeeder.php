@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
          $this->call([
              MarketAssetsSeeder::class,
              TradingPairsSeeder::class,
+             MasterAccountSeeder::class,
          ]);
 
          \App\Models\Adverts::factory(7)->create();

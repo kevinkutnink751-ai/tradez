@@ -15,7 +15,7 @@
                         <p class="text-white-50 mb-0">Capital: ${{ number_format($deposited, 2) }}</p>
                     </div>
                     <div class="header-actions d-none d-sm-flex">
-                        <button class="icon-btn mr-2"><i class="fas fa-wallet"></i></button>
+                        <a href="{{ route('manage.wallet') }}" class="icon-btn mr-2 d-flex align-items-center justify-content-center text-decoration-none"><i class="fas fa-wallet"></i></a>
                         <button class="icon-btn"><i class="fas fa-file-alt"></i></button>
                     </div>
                 </div>
@@ -48,6 +48,15 @@
                         <span class="text-white font-weight-bold text-truncate">Total profits</span>
                     </div>
                     <span class="text-success font-weight-bold flex-shrink-0">+${{ number_format($total_profits, 2) }}</span>
+                </div>
+                <div class="summary-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center overflow-hidden">
+                        <div class="item-icon mr-2 mr-md-3"><i class="fas fa-wallet"></i></div>
+                        <span class="text-white font-weight-bold text-truncate">Wallets Hub</span>
+                    </div>
+                    <div class="d-flex align-items-center flex-shrink-0">
+                        <a href="{{ route('manage.wallet') }}" class="btn btn-xs btn-summary-action">Manage Hub</a>
+                    </div>
                 </div>
                 <div class="summary-item d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center overflow-hidden">
