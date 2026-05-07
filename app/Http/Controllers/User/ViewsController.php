@@ -21,6 +21,7 @@ use App\Models\Asset;
 use App\Models\MasterAccount;
 use App\Models\OptionTrade;
 use App\Models\TradingPair;
+use App\Models\UserWallet;
 use App\Traits\PingServer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -94,12 +95,26 @@ class ViewsController extends Controller
 
         $copy_expert = DB::table('mt4_details')->where('client_id', $user->id)->where('account_type', 'Copy Trading')->first();
 
+        // Calculate daily P&L for calendar
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        
+        $dailyPnl = DB::table('trades')
+            ->where('user_id', $user->id)
+            ->whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(pnl) as total_pnl'))
+            ->groupBy('date')
+            ->get()
+            ->pluck('total_pnl', 'date');
+
         return view("user.dashboard", [
             'title' => 'Account Dashboard',
             'deposited' => $total_deposited,
             'total_withdrawal' => $total_withdrawal,
             'total_profits' => $total_profits,
             'copy_expert' => $copy_expert,
+            'dailyPnl' => $dailyPnl,
             'trading_accounts' => Mt4Details::where('client_id', Auth::user()->id)->count(),
             'plans' => User_plans::where('user', Auth::user()->id)->where('active', 'yes')->orderByDesc('id')->skip(0)->take(2)->get(),
             't_history' => Tp_Transaction::where('user', Auth::user()->id)
@@ -117,6 +132,42 @@ class ViewsController extends Controller
     }
 
     //Profile route
+    public function assets()
+    {
+        $user = Auth::user();
+        $assets = Asset::where('status', true)->get()->map(function ($asset) use ($user) {
+            $wallet = UserWallet::where('user_id', $user->id)->where('asset_id', $asset->id)->first();
+            $balance = $wallet ? ($wallet->spot_bal + $wallet->funding_bal + $wallet->future_bal + $wallet->copy_trade_bal) : 0;
+            $estimated_usd = $balance * ($asset->base_rate ?: 1);
+            
+            return (object) [
+                'id' => $asset->id,
+                'name' => $asset->name,
+                'symbol' => $asset->symbol,
+                'category' => $asset->category,
+                'type' => $asset->type,
+                'logo' => $asset->logo,
+                'balance' => $balance,
+                'estimated_usd' => $estimated_usd,
+                'rate' => $asset->base_rate,
+            ];
+        });
+
+        $categories = [
+            'Fiat' => $assets->where('type', 'Fiat'),
+            'Crypto' => $assets->where('type', 'Crypto'),
+            'Stocks' => $assets->filter(fn($a) => in_array($a->type, ['Equity', 'Index'])),
+            'Commodities' => $assets->where('type', 'Commodity'),
+            'Others' => $assets->filter(fn($a) => in_array($a->type, ['Rate', 'Volatility'])),
+        ];
+
+        return view('user.wallet.assets', [
+            'title' => 'My Assets',
+            'categories' => $categories,
+            'all_assets' => $assets,
+        ]);
+    }
+
     public function profile()
     {
         $userinfo = User::where('id', Auth::user()->id)->first();

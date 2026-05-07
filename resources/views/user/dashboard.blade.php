@@ -2,265 +2,259 @@
 @section('title', $title)
 @section('content')
 
-<div class="dashboard-wrapper container-fluid px-0">
-    {{-- Header Section --}}
-    <div class="dashboard-hero d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <div class="dashboard-kicker">Trading Desk</div>
-            <h4 class="text-white font-weight-bold mb-1">Welcome back, {{ Auth::user()->name }}!</h4>
-            <p class="text-muted small mb-0">A full account snapshot across funding, spot, futures, and activity.</p>
-        </div>
-        <div class="d-flex align-items-center dashboard-actions">
-            <div class="btn-group mr-3">
-                <button class="btn btn-dark-input btn-sm px-3 border-white-10" onclick="copyRef()">
-                    <i class="fas fa-link mr-2 text-primary"></i> Referral Link
-                </button>
+<div class="dashboard-wrapper container-fluid">
+    <!-- Top Section: Account Summary & Rank -->
+    <div class="row mb-4 shadow-lg rounded-xl overflow-hidden premium-header-row">
+        <!-- Account Summary -->
+        <div class="col-lg-6 summary-column p-4 p-md-5">
+            <div class="top-balance-header mb-4">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-white-50 small font-weight-bold text-uppercase" style="letter-spacing: 1px;">Total Portfolio Balance</span>
+                        <h1 class="text-white balance-text font-weight-bold mb-1">${{ number_format(Auth::user()->account_bal + Auth::user()->spot_bal + Auth::user()->future_bal, 2) }}</h1>
+                        <p class="text-white-50 mb-0">Capital: ${{ number_format($deposited, 2) }}</p>
+                    </div>
+                    <div class="header-actions d-none d-sm-flex">
+                        <button class="icon-btn mr-2"><i class="fas fa-wallet"></i></button>
+                        <button class="icon-btn"><i class="fas fa-file-alt"></i></button>
+                    </div>
+                </div>
             </div>
-            <div class="dropdown">
-                <button class="btn btn-primary btn-sm px-4" data-toggle="dropdown">
-                    <i class="fas fa-plus mr-2"></i> Quick Actions
-                </button>
-                <div class="dropdown-menu dropdown-menu-right dropdown-menu-dark">
-                    <a class="dropdown-item" href="{{ route('newdeposit') }}"><i class="fas fa-wallet mr-2"></i> Deposit</a>
-                    <a class="dropdown-item" href="{{ route('withdrawamount') }}"><i class="fas fa-arrow-up mr-2"></i> Withdraw</a>
-                    {{-- <a class="dropdown-item" href="{{ route('transfer') }}"><i class="fas fa-exchange-alt mr-2"></i> Transfer</a> --}}
+
+            <div class="summary-list small">
+                <div class="summary-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center overflow-hidden">
+                        <div class="item-icon mr-2 mr-md-3"><i class="fas fa-arrow-down"></i></div>
+                        <span class="text-white font-weight-bold text-truncate">Total deposits</span>
+                    </div>
+                    <div class="d-flex align-items-center flex-shrink-0">
+                        <span class="text-white mr-2 mr-md-3">${{ number_format($deposited, 2) }}</span>
+                        <a href="{{ route('deposits') }}" class="btn btn-xs btn-summary-action">Deposit</a>
+                    </div>
+                </div>
+                <div class="summary-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center overflow-hidden">
+                        <div class="item-icon mr-2 mr-md-3"><i class="fas fa-arrow-up"></i></div>
+                        <span class="text-white font-weight-bold text-truncate">Total withdrawals</span>
+                    </div>
+                    <div class="d-flex align-items-center flex-shrink-0">
+                        <span class="text-white mr-2 mr-md-3">${{ number_format($total_withdrawal, 2) }}</span>
+                        <a href="{{ route('withdrawalsdeposits') }}" class="btn btn-xs btn-summary-action">Withdraw</a>
+                    </div>
+                </div>
+                <div class="summary-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center overflow-hidden">
+                        <div class="item-icon mr-2 mr-md-3"><i class="fas fa-chart-line"></i></div>
+                        <span class="text-white font-weight-bold text-truncate">Total profits</span>
+                    </div>
+                    <span class="text-success font-weight-bold flex-shrink-0">+${{ number_format($total_profits, 2) }}</span>
+                </div>
+                <div class="summary-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center overflow-hidden">
+                        <div class="item-icon mr-2 mr-md-3"><i class="fas fa-user-check"></i></div>
+                        <span class="text-white font-weight-bold text-truncate">Verification</span>
+                    </div>
+                    <span class="{{ Auth::user()->account_verify == 'Verified' ? 'text-primary' : 'text-warning' }} font-weight-bold flex-shrink-0">{{ Auth::user()->account_verify == 'Verified' ? 'Verified' : 'Pending' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rank Column -->
+        <div class="col-lg-6 rank-column p-4 p-md-5 text-center">
+            <div class="rank-header text-left mb-4 d-flex justify-content-between align-items-center">
+                <h5 class="text-white font-weight-bold mb-0">Trader Level</h5>
+                <span class="badge badge-soft-primary px-3">SILVER</span>
+            </div>
+            
+            <div class="rank-badge-display mb-4">
+                <img src="{{ asset('assets/images/silver_rank_badge.png') }}" alt="Silver Rank" class="img-fluid floating-badge" style="max-height: 140px;">
+            </div>
+
+            <div class="rank-progress-container px-md-4">
+                <div class="d-flex justify-content-between small text-white-50 mb-2 font-weight-bold">
+                    <span class="text-truncate mr-2">Unlock Gold Rank</span>
+                    <span class="flex-shrink-0">${{ number_format($deposited, 0) }} / $5k</span>
+                </div>
+                <div class="progress progress-dark" style="height: 6px; border-radius: 3px;">
+                    @php $progress = min(100, ($deposited / 5000) * 100); @endphp
+                    <div class="progress-bar bg-primary shadow-glow" role="progressbar" style="width: {{ $progress }}%" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row dashboard-grid">
-        {{-- Main Content --}}
-        <div class="col-lg-8">
-            {{-- Portfolio Overview --}}
-            <div class="card bg-premium-gradient border-0 mb-4 overflow-hidden dashboard-balance-card">
-                <div class="card-body p-4 position-relative">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <h6 class="text-white-50 text-uppercase small font-weight-bold mb-2" style="letter-spacing: 1px;">Total Portfolio Balance</h6>
-                            <h2 class="text-white font-weight-bold mb-2">${{ number_format(Auth::user()->getTotalBalanceAttribute(), 2) }}</h2>
-                            <div class="d-flex align-items-center">
-                                <span class="text-success mr-2 font-weight-bold"><i class="fas fa-caret-up mr-1"></i> 2.45%</span>
-                                <span class="text-white-50 small">+$1,240.50 (24h)</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6 text-right d-none d-md-block">
-                            <div class="mini-chart-container" style="height: 100px;">
-                                {{-- Placeholder for sparkline --}}
-                                <canvas id="portfolioChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer bg-white-5 border-0 py-3">
-                    <div class="row text-center">
-                        <div class="col-4 border-right border-white-10">
-                            <small class="text-white-50 d-block">Spot</small>
-                            <span class="text-white font-weight-bold">${{ number_format(Auth::user()->spot_bal, 2) }}</span>
-                        </div>
-                        <div class="col-4 border-right border-white-10">
-                            <small class="text-white-50 d-block">Futures</small>
-                            <span class="text-white font-weight-bold">${{ number_format(Auth::user()->future_bal, 2) }}</span>
-                        </div>
-                        <div class="col-4">
-                            <small class="text-white-50 d-block">Funding</small>
-                            <span class="text-white font-weight-bold">${{ number_format(Auth::user()->account_bal, 2) }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Market Overview --}}
-            <div class="card bg-dark-card border-0 mb-4 dashboard-panel">
+    <!-- Middle Section: Chart & P&L Calendar -->
+    <div class="row mb-4">
+        <!-- Live Market Chart -->
+        <div class="col-xl-7 col-lg-6 mb-4 mb-lg-0">
+            <div class="card bg-dark-card border-0 h-100 overflow-hidden shadow-lg">
                 <div class="card-header bg-transparent border-white-10 py-3 px-4 d-flex justify-content-between align-items-center">
-                    <h5 class="text-white font-weight-bold mb-0">Market Overview</h5>
-                    <a href="#" class="text-primary small">View All Markets</a>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-dark-custom mb-0">
-                            <thead>
-                                <tr class="text-muted text-uppercase small">
-                                    <th class="pl-4">Asset</th>
-                                    <th>Price</th>
-                                    <th>Change (24h)</th>
-                                    <th class="text-right pr-4">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="pl-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="asset-icon-sm bg-warning mr-3">B</div>
-                                            <div>
-                                                <h6 class="text-white mb-0 font-weight-bold">Bitcoin</h6>
-                                                <small class="text-muted">BTC/USDT</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="text-white font-weight-bold">$64,231.50</span></td>
-                                    <td><span class="text-success font-weight-bold">+2.45%</span></td>
-                                    <td class="text-right pr-4">
-                                        <a href="{{ route('spot.trade', ['pair' => 'BTC/USDT']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="pl-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="asset-icon-sm bg-primary mr-3">E</div>
-                                            <div>
-                                                <h6 class="text-white mb-0 font-weight-bold">Ethereum</h6>
-                                                <small class="text-muted">ETH/USDT</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="text-white font-weight-bold">$3,450.20</span></td>
-                                    <td><span class="text-danger font-weight-bold">-1.12%</span></td>
-                                    <td class="text-right pr-4">
-                                        <a href="{{ route('spot.trade', ['pair' => 'ETH/USDT']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="pl-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="asset-icon-sm bg-info mr-3">S</div>
-                                            <div>
-                                                <h6 class="text-white mb-0 font-weight-bold">Solana</h6>
-                                                <small class="text-muted">SOL/USDT</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="text-white font-weight-bold">$145.75</span></td>
-                                    <td><span class="text-success font-weight-bold">+5.60%</span></td>
-                                    <td class="text-right pr-4">
-                                        <a href="{{ route('spot.trade', ['pair' => 'SOL/USDT']) }}" class="btn btn-xs btn-outline-primary px-3">Trade</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="d-flex align-items-center overflow-hidden">
+                        <i class="fas fa-chart-area text-primary mr-3 flex-shrink-0"></i>
+                        <h6 class="text-white font-weight-bold mb-0 text-truncate">BTC/USDT Real-time</h6>
                     </div>
+                    <span class="badge badge-soft-success d-none d-sm-inline-block">Live Market</span>
                 </div>
-            </div>
-
-            {{-- Recent Activity --}}
-            <div class="card bg-dark-card border-0 dashboard-panel">
-                <div class="card-header bg-transparent border-white-10 py-3 px-4 d-flex justify-content-between align-items-center">
-                    <h5 class="text-white font-weight-bold mb-0">Recent Activity</h5>
-                    <a href="{{ route('trade.history') }}" class="text-primary small">See All</a>
-                </div>
-                <div class="card-body p-4">
-                    <div class="activity-timeline">
-                        @forelse ($recent_orders->take(5) as $order)
-                        <div class="activity-item d-flex mb-4">
-                            <div class="activity-icon bg-{{ $order->type == 'Buy' ? 'success' : 'danger' }}-transparent text-{{ $order->type == 'Buy' ? 'success' : 'danger' }} mr-3">
-                                <i class="fas fa-{{ $order->type == 'Buy' ? 'arrow-down' : 'arrow-up' }}"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="text-white mb-1 font-weight-bold">{{ $order->type }} {{ $order->pair }}</h6>
-                                    <small class="text-muted">{{ $order->created_at->diffForHumans() }}</small>
-                                </div>
-                                <p class="text-muted small mb-0">Order #{{ $order->id }} completed for {{ $order->amount }} {{ $order->coin }} at market price.</p>
-                            </div>
-                        </div>
-                        @empty
-                        <div class="text-center py-4">
-                            <i class="fas fa-history text-muted fa-3x mb-3"></i>
-                            <p class="text-muted">No recent activity to show.</p>
-                        </div>
-                        @endforelse
+                <div class="card-body p-0" style="min-height: 400px; height: 450px;">
+                    <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                        <div id="tradingview_chart" style="height: 100%; width: 100%;"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                        <script type="text/javascript">
+                        new TradingView.widget({
+                            "autosize": true,
+                            "symbol": "BINANCE:BTCUSDT",
+                            "interval": "D",
+                            "timezone": "Etc/UTC",
+                            "theme": "dark",
+                            "style": "1",
+                            "locale": "en",
+                            "toolbar_bg": "#f1f3f6",
+                            "enable_publishing": false,
+                            "hide_side_toolbar": false,
+                            "allow_symbol_change": true,
+                            "container_id": "tradingview_chart"
+                        });
+                        </script>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- Sidebar Content --}}
-        <div class="col-lg-4">
-            {{-- Product Shortcuts --}}
-            <div class="row">
-                @if(isset($mod['future']) && $mod['future'])
-                <div class="col-12 mb-4">
-                    <a href="{{ route('future.trade') }}" class="card-link">
-                        <div class="card bg-dark-card border-0 product-card h-100 overflow-hidden dashboard-panel">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="product-icon bg-primary text-white mr-3">
-                                        <i class="fas fa-bolt"></i>
-                                    </div>
-                                    <h6 class="text-white font-weight-bold mb-0">Futures Trading</h6>
-                                </div>
-                                <p class="text-muted small mb-0">Trade with up to 125x leverage on major crypto and forex pairs.</p>
-                            </div>
-                            <div class="product-card-bg">
-                                <i class="fas fa-bolt"></i>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                @endif
-
-                @if(isset($mod['copy']) || isset($mod['subscription']))
-                <div class="col-12 mb-4">
-                    <a href="{{ route('copy.trade') }}" class="card-link">
-                        <div class="card bg-dark-card border-0 product-card h-100 overflow-hidden dashboard-panel">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="product-icon bg-info text-white mr-3">
-                                        <i class="fas fa-copy"></i>
-                                    </div>
-                                    <h6 class="text-white font-weight-bold mb-0">Copy Trading</h6>
-                                </div>
-                                <p class="text-muted small mb-0">Follow elite traders and mirror their winning strategies automatically.</p>
-                            </div>
-                            <div class="product-card-bg">
-                                <i class="fas fa-copy"></i>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                @endif
-            </div>
-
-            {{-- Recent Transactions --}}
-            <div class="card bg-dark-card border-0 mb-4 dashboard-panel">
+        <!-- P&L Calendar -->
+        <div class="col-xl-5 col-lg-6">
+            <div class="card bg-dark-card border-0 h-100 shadow-lg overflow-hidden">
                 <div class="card-header bg-transparent border-white-10 py-3 px-4 d-flex justify-content-between align-items-center">
-                    <h6 class="text-white font-weight-bold mb-0">Transactions</h6>
-                    <a href="{{ route('accounthistory') }}" class="text-primary small">See All</a>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-calendar-alt text-primary mr-3"></i>
+                        <h6 class="text-white font-weight-bold mb-0">P&L Calendar</h6>
+                    </div>
+                    <div class="calendar-toggles d-none d-sm-block">
+                        <button class="btn btn-xs btn-outline-primary active mr-1">Summary 🔥</button>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        @forelse ($t_history->take(4) as $item)
-                        <div class="list-group-item bg-transparent border-white-10 py-3 px-4">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <div class="tx-icon rounded-circle mr-3 {{ $item->amount > 0 ? 'bg-success-transparent text-success' : 'bg-danger-transparent text-danger' }}">
-                                        <i class="fas fa-{{ $item->amount > 0 ? 'plus' : 'minus' }}"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="text-white small font-weight-bold mb-0">{{ $item->plan }}</h6>
-                                        <small class="text-muted">{{ $item->created_at->format('M d, Y') }}</small>
-                                    </div>
+                <div class="card-body p-3 p-md-4">
+                    <div class="calendar-header d-flex justify-content-between align-items-center mb-3">
+                        <i class="fas fa-chevron-left text-muted cursor-pointer"></i>
+                        <h6 class="text-white mb-0">{{ now()->format('F Y') }}</h6>
+                        <i class="fas fa-chevron-right text-muted cursor-pointer"></i>
+                    </div>
+                    
+                    <div class="pnl-calendar-container">
+                        <div class="pnl-calendar-grid">
+                            <div class="pnl-day-header">Mon</div>
+                            <div class="pnl-day-header">Tue</div>
+                            <div class="pnl-day-header">Wed</div>
+                            <div class="pnl-day-header">Thu</div>
+                            <div class="pnl-day-header">Fri</div>
+                            <div class="pnl-day-header text-danger">Sat</div>
+                            <div class="pnl-day-header text-danger">Sun</div>
+                            
+                            @php
+                                $startOfMonth = now()->startOfMonth();
+                                $daysInMonth = now()->daysInMonth;
+                                $dayOfWeek = $startOfMonth->dayOfWeek == 0 ? 7 : $startOfMonth->dayOfWeek;
+                                $today = now()->day;
+                            @endphp
+
+                            @for($i = 1; $i < $dayOfWeek; $i++)
+                                <div class="pnl-day empty"></div>
+                            @endfor
+
+                            @for($day = 1; $day <= $daysInMonth; $day++)
+                                @php 
+                                    $dateStr = now()->year . '-' . str_pad(now()->month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                                    $pnl = $dailyPnl[$dateStr] ?? null;
+                                @endphp
+                                <div class="pnl-day {{ $day == $today ? 'today' : '' }}">
+                                    <span class="day-num">{{ $day }}</span>
+                                    @if($pnl !== null)
+                                        <span class="day-pnl text-{{ $pnl >= 0 ? 'success' : 'danger' }}">{{ $pnl >= 0 ? '+' : '' }}{{ number_format($pnl, 0) }}</span>
+                                    @endif
                                 </div>
-                                <h6 class="text-white small font-weight-bold mb-0">{{ $item->amount > 0 ? '+' : '' }}{{ number_format($item->amount, 2) }} {{ $item->coin ?? 'USD' }}</h6>
-                            </div>
+                            @endfor
                         </div>
-                        @empty
-                        <div class="text-center py-4 text-muted small">No transactions.</div>
-                        @endforelse
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            {{-- Referral Card --}}
-            <div class="card border-0 bg-primary-transparent overflow-hidden dashboard-panel">
-                <div class="card-body p-4 position-relative z-index-1">
-                    <h6 class="text-primary font-weight-bold text-uppercase mb-2" style="letter-spacing: 1px; font-size: 0.65rem;">Affiliation</h6>
-                    <h5 class="text-white font-weight-bold mb-2">Invite Friends, Earn Crypto</h5>
-                    <p class="text-muted small mb-4">Get up to 20% commission on every trade your friends make on our platform.</p>
-                    <button class="btn btn-primary btn-sm btn-block rounded-xs" onclick="copyRef()">Copy Invite Link</button>
+    <!-- Bottom Section: Recent Activity & Market Table -->
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card bg-dark-card border-0 shadow-lg overflow-hidden">
+                <div class="card-header bg-transparent border-white-10 py-3 px-4 d-flex justify-content-between align-items-center">
+                    <h6 class="text-white font-weight-bold mb-0">Recent Activity</h6>
+                    <a href="{{ route('trade.history') }}" class="text-primary small font-weight-bold">See All History</a>
                 </div>
-                <div class="referral-decor">
-                    <i class="fas fa-users"></i>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="px-4">Trade</th>
+                                    <th class="d-none d-md-table-cell">Market</th>
+                                    <th>Side</th>
+                                    <th class="d-none d-sm-table-cell">Amount</th>
+                                    <th>P&L</th>
+                                    <th class="px-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($recent_orders->take(6) as $order)
+                                <tr>
+                                    <td class="px-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="asset-circle mr-3 bg-{{ $order->type == 'Buy' ? 'success' : 'danger' }}-transparent d-none d-sm-flex">
+                                                <i class="fas fa-{{ $order->type == 'Buy' ? 'long-arrow-alt-down' : 'long-arrow-alt-up' }}"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="text-white small font-weight-bold mb-0">{{ $order->pair }}</h6>
+                                                <small class="text-muted d-block">{{ $order->created_at->format('M d, H:i') }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="d-none d-md-table-cell"><span class="badge badge-soft-dark small">{{ $order->market_type }}</span></td>
+                                    <td><span class="text-{{ $order->type == 'Buy' ? 'success' : 'danger' }} small font-weight-bold">{{ $order->type }}</span></td>
+                                    <td class="text-white small font-weight-bold d-none d-sm-table-cell">${{ number_format($order->amount, 2) }}</td>
+                                    <td class="text-{{ $order->pnl >= 0 ? 'success' : 'danger' }} small font-weight-bold">{{ $order->pnl >= 0 ? '+' : '' }}${{ number_format($order->pnl, 2) }}</td>
+                                    <td class="px-4"><span class="badge badge-soft-{{ $order->status == 'Completed' ? 'success' : 'warning' }} small px-2 px-md-3">{{ $order->status }}</span></td>
+                                </tr>
+                                @empty
+                                <tr><td colspan="6" class="text-center py-4 text-muted">No recent activity.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card bg-dark-card border-0 h-100 shadow-lg overflow-hidden">
+                <div class="card-header bg-transparent border-white-10 py-3 px-4">
+                    <h6 class="text-white font-weight-bold mb-0">Quick Assets</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @foreach($marketPairs->take(5) as $pair)
+                        <a href="{{ route('spot.trade', ['pair' => $pair->name]) }}" class="list-group-item bg-transparent border-white-10 py-3 px-4 asset-item">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center overflow-hidden">
+                                    <div class="asset-logo mr-3 bg-primary-transparent text-primary flex-shrink-0">{{ substr($pair->name, 0, 1) }}</div>
+                                    <div class="text-truncate">
+                                        <h6 class="text-white small font-weight-bold mb-0 text-truncate">{{ $pair->name }}</h6>
+                                        <small class="text-muted text-truncate d-block">Vol: {{ number_format($pair->volume_24h / 1000000, 1) }}M</small>
+                                    </div>
+                                </div>
+                                <div class="text-right flex-shrink-0">
+                                    <h6 class="text-white small font-weight-bold mb-0">${{ number_format($pair->last_price, 2) }}</h6>
+                                    <small class="text-{{ $pair->change_24h >= 0 ? 'success' : 'danger' }}">{{ $pair->change_24h >= 0 ? '+' : '' }}{{ number_format($pair->change_24h, 2) }}%</small>
+                                </div>
+                            </div>
+                        </a>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
@@ -268,234 +262,55 @@
 </div>
 
 <style>
-    .dashboard-wrapper {
-        padding: 0;
+    .dashboard-wrapper { background: #080b12; min-height: 100vh; padding: 15px; overflow-x: hidden; }
+    
+    /* Top Row Layout */
+    .premium-header-row { border: 1px solid rgba(255,255,255,0.05); }
+    .summary-column { 
+        background: linear-gradient(135deg, #0d1526 0%, #080b12 100%);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .dashboard-hero {
-        padding: 0.25rem 0 0.4rem;
-    }
-    .dashboard-kicker {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.35rem 0.75rem;
-        margin-bottom: 0.9rem;
-        border: 1px solid rgba(255,255,255,0.07);
-        border-radius: 6px;
-        background: rgba(255,255,255,0.02);
-        color: #7d8ca5;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-    }
-    .dashboard-grid {
-        margin-left: -0.75rem;
-        margin-right: -0.75rem;
-    }
-    .dashboard-grid > [class*="col-"] {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-    }
-    .dashboard-actions {
-        gap: 0.75rem;
-    }
-    .dashboard-actions .btn-group {
-        margin-right: 0 !important;
-    }
-    .dashboard-wrapper .card-header,
-    .dashboard-wrapper .card-body,
-    .dashboard-wrapper .card-footer {
-        border-color: rgba(255,255,255,0.06) !important;
-    }
-    .dashboard-wrapper .table th,
-    .dashboard-wrapper .table td {
-        vertical-align: middle;
-    }
-    .dashboard-panel,
-    .dashboard-balance-card {
-        border-radius: 10px;
-        box-shadow: none;
-    }
+    .rank-column { background: #080b12; }
+    
     @media (max-width: 991.98px) {
-        .dashboard-hero {
-            padding: 0.3rem 0 0.2rem;
-            flex-direction: column;
-            align-items: flex-start !important;
-            gap: 1rem;
-        }
-        .dashboard-actions {
-            width: 100%;
-            flex-direction: column;
-            align-items: stretch !important;
-        }
-        .dashboard-actions .btn,
-        .dashboard-actions .dropdown,
-        .dashboard-actions .btn-group {
-            width: 100%;
-        }
-        .dashboard-wrapper .col-lg-8,
-        .dashboard-wrapper .col-lg-4 {
-            margin-bottom: 1rem;
-        }
+        .summary-column { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .dashboard-wrapper { padding: 10px; }
+        .balance-text { font-size: 2rem !important; }
     }
-    @media (max-width: 767.98px) {
-        .dashboard-wrapper {
-            padding: 0;
-        }
-        .dashboard-wrapper .card {
-            border-radius: 10px;
-        }
-    }
-</style>
 
-<style>
-    .bg-dark-card {
-        background:
-            linear-gradient(180deg, rgba(255,255,255,0.02), transparent 32%),
-            #11151d;
-        border-radius: 10px;
-    }
-    .bg-white-5 { background: rgba(255,255,255,0.03); }
+    /* UI Elements */
+    .bg-dark-card { background: #11151d; border-radius: 12px; }
     .border-white-10 { border-color: rgba(255,255,255,0.05) !important; }
+    .icon-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #8898aa; width: 32px; height: 32px; border-radius: 8px; }
+    .item-icon { width: 20px; color: #1572e8; flex-shrink: 0; }
+    .btn-summary-action { background: rgba(21, 114, 232, 0.1); color: #1572e8; border: 1px solid rgba(21, 114, 232, 0.2); border-radius: 6px; padding: 4px 10px; }
     
-    /* Premium Gradient Card */
-    .bg-premium-gradient {
-        background: linear-gradient(135deg, #1572e8 0%, #0c4a9a 100%);
-        box-shadow: 0 10px 30px rgba(21, 114, 232, 0.2);
-    }
-    
-    /* Stats & Icons */
-    .asset-icon-sm {
-        width: 32px;
-        height: 32px;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: #fff;
-        font-size: 0.8rem;
-    }
-    .product-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-    }
-    .tx-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.7rem;
-    }
-    .activity-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-    }
-    
-    /* Transparent BG utilities */
-    .bg-primary-transparent { background: rgba(21, 114, 232, 0.05); }
-    .bg-success-transparent { background: rgba(0, 200, 83, 0.1); }
-    .bg-danger-transparent { background: rgba(255, 61, 0, 0.1); }
-    
-    /* Product Cards */
-    .product-card {
-        transition: all 0.3s;
-        position: relative;
-    }
-    .product-card:hover {
-        transform: translateY(-5px);
-        background: #1a1f2c;
-    }
-    .product-card-bg {
-        position: absolute;
-        right: -20px;
-        bottom: -20px;
-        font-size: 5rem;
-        opacity: 0.02;
-        color: #fff;
-        transform: rotate(-15deg);
-    }
-    .card-link:hover { text-decoration: none; }
-    
-    /* Table Styling */
-    .table-dark-custom th { border-top: 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .table-dark-custom td { border-top: 1px solid rgba(255,255,255,0.03); vertical-align: middle; padding: 1.25rem 0.75rem; }
-    
-    /* Referral Decor */
-    .referral-decor {
-        position: absolute;
-        right: -10px;
-        top: -10px;
-        font-size: 4rem;
-        opacity: 0.05;
-        color: #1572e8;
-        transform: rotate(15deg);
-    }
-    
-    /* Button Tweaks */
-    .btn-xs { padding: 0.25rem 0.75rem; font-size: 0.7rem; border-radius: 2px; }
-    .btn-outline-primary { border-color: rgba(21, 114, 232, 0.3); color: #1572e8; }
-    .btn-outline-primary:hover { background: rgba(21, 114, 232, 0.1); border-color: #1572e8; }
+    /* Rank Effects */
+    .floating-badge { filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); animation: float 5s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .progress-dark { background: rgba(255,255,255,0.05); }
+    .shadow-glow { box-shadow: 0 0 10px rgba(21, 114, 232, 0.3); }
+
+    /* Calendar Grid - Mobile Optimized */
+    .pnl-calendar-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .pnl-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(35px, 1fr)); gap: 6px; min-width: 280px; }
+    .pnl-day-header { text-align: center; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: rgba(255,255,255,0.3); padding-bottom: 5px; }
+    .pnl-day { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; position: relative; }
+    .pnl-day.today { border-color: #1572e8; background: rgba(21, 114, 232, 0.05); }
+    .day-num { font-size: 0.7rem; font-weight: 700; color: #fff; }
+    .day-pnl { font-size: 0.5rem; font-weight: 800; margin-top: 1px; line-height: 1; }
+
+    /* Tables & Lists */
+    .table-dark-custom thead th { background: #090c10; border: 0; color: rgba(255,255,255,0.3); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .table-dark-custom tbody td { border-top: 1px solid rgba(255,255,255,0.04); vertical-align: middle; padding: 0.75rem 0.5rem; }
+    .asset-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+    .asset-logo { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.7rem; }
+    .asset-item { transition: all 0.2s; cursor: pointer; }
+    .asset-item:hover { background: rgba(255,255,255,0.02) !important; }
+
+    .badge-soft-primary { background: rgba(21, 114, 232, 0.1); color: #1572e8; }
+    .badge-soft-success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+    .badge-soft-dark { background: rgba(255,255,255,0.05); color: #fff; }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('portfolioChart');
-        if (ctx) {
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        data: [65, 59, 80, 81, 56, 95],
-                        borderColor: 'rgba(255, 255, 255, 0.3)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false }
-                    }
-                }
-            });
-        }
-    });
-
-    function copyRef() {
-        var dummy = document.createElement("input");
-        document.body.appendChild(dummy);
-        dummy.value = "{{ Auth::user()->ref_link }}";
-        dummy.select();
-        document.execCommand("copy");
-        document.body.removeChild(dummy);
-        
-        $.notify({
-            icon: 'fas fa-check-circle',
-            message: "Referral link copied!"
-        }, {
-            type: 'success',
-            placement: { from: "top", align: "right" },
-            time: 1000,
-        });
-    }
-</script>
 @endsection

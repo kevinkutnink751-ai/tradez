@@ -145,6 +145,7 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('dashboard')->group(func
         Route::post('options-trade', [TradeController::class, 'storeOptionsTrade'])->name('options.trade.store');
         Route::get('options-trade-history', [ViewsController::class, 'optionsHistory'])->name('options.history');
         Route::get('trade-history', [ViewsController::class, 'allTradeHistory'])->name('trade.history');
+        Route::get('assets', [ViewsController::class, 'assets'])->name('assets.index');
         Route::get('copy-trade', [ViewsController::class, 'copyTrade'])->name('copy.trade');
         Route::post('copy-trade/subscribe', [UserSubscriptionController::class, 'subscribeToMaster'])->name('user.copy.subscribe');
         Route::get('my-subscriptions', [ViewsController::class, 'mySubscriptions'])->name('user.my.subscriptions');

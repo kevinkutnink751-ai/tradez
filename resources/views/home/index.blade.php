@@ -55,8 +55,8 @@
                 <h2 class="section-title">About Us</h2>
             </div>
         </div>
-        <div class="row align-items-center bg-dark-custom rounded-lg px-3 py-5">
-            <div class="col-lg-7" data-aos="fade-right">
+        <div class="row align-items-center px-2">
+            <div class="col-lg-7 bg-dark-custom rounded-lg px-3 py-5" data-aos="fade-right">
                 <h2 class="mb-4 text-white">Time to take action with the international {{ $settings->site_name }} broker</h2>
                 <p class="text-muted mb-4">Trading will bring you profit with proper support, constant education, and a reasonable approach. {{ $settings->site_name }} is a broker platform that has created all the conditions to help you improve your trading life in every possible way.</p>
                 <p class="text-muted">From educational broker’s tools, demo accounts, and 24/7 support to your financial success, {{ $settings->site_name }} works tirelessly to remain at the forefront in trading online. Join now! Take full advantage of this online trading leader and make your way into the world of professional trading.</p>

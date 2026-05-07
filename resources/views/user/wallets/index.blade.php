@@ -14,7 +14,7 @@
 <div class="wallet-hub">
     <div class="wallet-topbar">
         <div>
-            <p class="eyebrow">Asset Hub</p>
+            <p class="eyebrow">Wallet Hub</p>
             <h2>Wallet orchestration</h2>
             <span>Move capital across fiat and crypto wallets with simple asset-first controls.</span>
         </div>
@@ -236,7 +236,7 @@
     .wallet-tile__body strong { color: #fff; display: block; margin-top: .25rem; font-size: .95rem; }
     .wallet-tile__actions { display: flex; gap: .65rem; flex-wrap: wrap; }
     .hub-btn { border: 0; border-radius: 12px; padding: .72rem 1rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
-    .hub-btn--primary { background: linear-gradient(135deg, #13c9bf, #0a7d8f); color: #041319; }
+    .hub-btn--primary { background: linear-gradient(135deg, #13c9bf, #0e4152); color: #041319; }
     .hub-btn--ghost { background: rgba(255,255,255,.04); color: #cfe0ee; border: 1px solid rgba(123,154,181,.14); }
     .hub-btn--thin { padding: .55rem .85rem; font-size: .85rem; }
     .wallet-modal { background: #111a22; color: #d9e5ef; }

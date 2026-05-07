@@ -38,25 +38,38 @@
                     </a>
                 </li>
                 
-                <li class="nav-header">Trade</li>
+                 <li>
+      <a href="#ecommerceSubmenu" data-bs-toggle="collapse" class="nav-link d-flex align-items-center justify-content-between">
+        <span><i class="fas fa-shopping-cart me-2"></i> Markets</span>
+        <i class="fas fa-chevron-down small"></i>
+      </a>
+      <div class="collapse" id="ecommerceSubmenu">
+        <ul class="nav flex-column ps-4 small">
+               @if(isset($mod['spot']) && $mod['spot'])
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="{{ route('spot.trade') }}"><i class="fas fa-chart-line me-2"></i> Spot Trading</a>
+          </li>
+          @endif
+           @if(isset($mod['future']) && $mod['future'])
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="{{ route('future.trade') }}"><i class="fas fa-bolt me-2"></i> Futures</a>
+          </li>
+          @endif
+           @if(isset($mod['binary']) && $mod['binary'])
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="{{ route('binary.trade') }}"><i class="fas fa-sliders-h me-2"></i> Binary Options</a>
+          </li>
+          @endif
+            @if(isset($mod['options']) && $mod['options'])
+          <li class="nav-item">
+            <a class="nav-link text-white-50" href="{{ route('options.trade') }}"><i class="fas fa-layer-group me-2"></i> Options</a>
+          </li>
+          @endif
+        </ul>
+      </div>
+    </li>
+                
 
-                @if(isset($mod['spot']) && $mod['spot'])
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('spot.trade') ? 'active' : '' }}" href="{{ route('spot.trade') }}">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Spot Trading</span>
-                    </a>
-                </li>
-                @endif
-
-                @if(isset($mod['future']) && $mod['future'])
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('future.trade') ? 'active' : '' }}" href="{{ route('future.trade') }}">
-                        <i class="fas fa-bolt"></i>
-                        <span>Futures</span>
-                    </a>
-                </li>
-                @endif
 
                 @if(isset($mod['subscription']) && $mod['subscription'])
                 <li class="nav-item">
@@ -67,30 +80,10 @@
                 </li>
                 @endif
 
-                @if(isset($mod['binary']) && $mod['binary'])
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('binary.trade') ? 'active' : '' }}" href="{{ route('binary.trade') }}">
-                        <i class="fas fa-sliders-h"></i>
-                        <span>Binary Options</span>
-                    </a>
-                </li>
-                @endif
-
-                @if(isset($mod['options']) && $mod['options'])
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('options.trade') ? 'active' : '' }}" href="{{ route('options.trade') }}">
-                        <i class="fas fa-layer-group"></i>
-                        <span>Vanilla Options</span>
-                    </a>
-                </li>
-                @endif
-
-                <li class="nav-header">Funds</li>
-
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('manage.wallet') ? 'active' : '' }}" href="{{ route('manage.wallet') }}">
+                    <a class="nav-link {{ request()->routeIs('assets.index') ? 'active' : '' }}" href="{{ route('assets.index') }}">
                         <i class="fas fa-wallet"></i>
-                        <span>Wallets</span>
+                        <span>Assets</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -112,8 +105,6 @@
                     </a>
                 </li>
 
-                <li class="nav-header">Reports</li>
-
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('trade.history') ? 'active' : '' }}" href="{{ route('trade.history') }}">
                         <i class="fas fa-history"></i>
@@ -126,8 +117,6 @@
                         <span>Active Orders</span>
                     </a>
                 </li>
-
-                <li class="nav-header">Account</li>
 
                 @if ($settings->enable_kyc == 'yes' && Auth::user()->account_verify != 'Verified')
                 <li class="nav-item">
